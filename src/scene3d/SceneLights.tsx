@@ -16,14 +16,16 @@ import { useModel } from '../model/store';
 import { interiorLightsOn, moonAt, skyFor, sunAt, sunVisible, timeOf } from './lighting';
 import { QUALITY, type Quality } from './quality';
 import { useExportFlags } from '../export/flags';
+import { useSceneProject } from './sceneProject';
 import { useSceneStore } from './sceneStore';
 
 /** Sun (or moon), soft sky light, local environment reflections and the sky dome. */
 export function SceneLights({ quality }: { quality: Quality }) {
   const q = QUALITY[quality];
   const lighting = useSceneStore((s) => s.lighting);
-  const compass = useModel((s) => s.project.settings.compass);
-  const footprint = useModel((s) => s.project.shell.footprint);
+  const sceneProject = useSceneProject();
+  const compass = sceneProject.settings.compass;
+  const footprint = sceneProject.shell.footprint;
   const get = useThree((s) => s.get);
   const transparent = useExportFlags((s) => s.transparent);
 
@@ -142,7 +144,7 @@ export function InteriorLights({ quality }: { quality: Quality }) {
   const q = QUALITY[quality];
   const lighting = useSceneStore((s) => s.lighting);
   const levelFilter = useSceneStore((s) => s.levelFilter);
-  const project = useModel((s) => s.project);
+  const project = useSceneProject();
   const activeLevelId = useModel((s) => s.activeLevelId);
   const on = interiorLightsOn(lighting);
 

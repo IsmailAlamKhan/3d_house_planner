@@ -6,6 +6,7 @@ import {
   Pipette,
   Ruler,
   Square,
+  StickyNote,
   Trash2,
   MoveHorizontal,
 } from 'lucide-react';
@@ -50,6 +51,7 @@ const TOOLS: { id: Tool; label: TranslationKey; icon: ReactNode }[] = [
   { id: 'room', label: 'tool.room', icon: <Square size={18} /> },
   { id: 'measure', label: 'tool.measure', icon: <Ruler size={18} /> },
   { id: 'eyedropper', label: 'tool.eyedropper', icon: <Pipette size={18} /> },
+  { id: 'note', label: 'tool.note', icon: <StickyNote size={18} /> },
 ];
 
 export function PlanToolbar() {
@@ -62,8 +64,9 @@ export function PlanToolbar() {
     <div className="pointer-events-none absolute left-2 top-2 flex flex-col gap-1">
       <div
         role="toolbar"
-        aria-label="Plan tools"
-        className="pointer-events-auto flex items-center gap-0.5 rounded-lg border border-slate-200 bg-white/95 p-1 shadow-sm"
+        aria-label={t('tool.group')}
+        data-tour="plan-tools"
+        className="pointer-events-auto flex max-w-[calc(100vw-1rem)] flex-wrap items-center gap-0.5 rounded-lg border border-slate-200 bg-white/95 p-1 shadow-sm"
       >
         {TOOLS.map((x) => (
           <Btn key={x.id} active={tool === x.id} label={t(x.label)} onClick={() => setTool(x.id)}>

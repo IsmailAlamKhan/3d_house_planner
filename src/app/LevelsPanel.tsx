@@ -4,7 +4,8 @@ import { useT } from '../i18n';
 import { useModel } from '../model/store';
 import { addLevel, copyWallsFromBelow, updateLevel } from '../model/ops';
 import { toast } from '../catalog/actions';
-import { tf } from '../i18n';
+import { OptionsPanel } from '../options/OptionsPanel';
+import { fmtNum, tf } from '../i18n';
 
 export function LevelsPanel() {
   const t = useT();
@@ -64,7 +65,9 @@ export function LevelsPanel() {
                 className="min-w-0 flex-1 truncate text-left text-sm"
               >
                 {l.name}
-                <span className="ml-1 text-xs text-slate-400">{l.elevation.toFixed(2)} m</span>
+                <span className="ml-1 text-xs text-slate-500">
+                  {fmtNum(l.elevation, 2)} {t('unit.m')}
+                </span>
               </button>
             )}
           </li>
@@ -98,6 +101,7 @@ export function LevelsPanel() {
       >
         <Plus size={16} /> {t('levels.add')}
       </button>
+      <OptionsPanel />
     </div>
   );
 }

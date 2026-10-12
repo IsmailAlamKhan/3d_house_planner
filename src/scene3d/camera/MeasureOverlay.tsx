@@ -37,7 +37,7 @@ export function MeasureOverlay() {
           >
             <div
               data-testid="measure-label"
-              className="whitespace-nowrap rounded bg-orange-500 px-1.5 py-0.5 text-xs font-medium text-white shadow"
+              className="whitespace-nowrap rounded bg-orange-700 px-1.5 py-0.5 text-xs font-medium text-white shadow"
             >
               {measurementLabel(m, units)}
             </div>

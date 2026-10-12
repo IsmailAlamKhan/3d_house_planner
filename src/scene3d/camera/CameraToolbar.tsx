@@ -11,7 +11,7 @@ import {
   View,
 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
-import { useT } from '../../i18n';
+import { fmtNum, useT } from '../../i18n';
 import { useModel } from '../../model/store';
 import { type CameraMode, useCamera } from './cameraStore';
 import { PRESETS, type Preset, modelBox, presetPose } from './views';
@@ -71,11 +71,14 @@ function Slider({
   step?: number;
   onChange: (v: number) => void;
 }) {
+  const t = useT();
   return (
     <label className="block text-xs text-slate-600">
       <span className="flex justify-between">
         {label}
-        <span>{value.toFixed(2)} m</span>
+        <span>
+          {fmtNum(value, 2)} {t('unit.m')}
+        </span>
       </span>
       <input
         type="range"
@@ -297,7 +300,12 @@ export function CameraToolbar({ readOnly = false }: { readOnly?: boolean }) {
       aria-label={t('cam.mode')}
       className="pointer-events-auto flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-white/95 p-1 shadow-sm"
     >
-      <div role="group" aria-label={t('cam.mode')} className="flex rounded-md bg-slate-100 p-0.5">
+      <div
+        role="group"
+        aria-label={t('cam.mode')}
+        data-tour="camera-modes"
+        className="flex rounded-md bg-slate-100 p-0.5"
+      >
         {modes.map((m) => (
           <button
             key={m.id}

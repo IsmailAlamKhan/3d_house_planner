@@ -16,6 +16,10 @@ export type Roof = z.infer<typeof S.RoofSchema>;
 export type MaterialOverride = z.infer<typeof S.MaterialOverrideSchema>;
 export type Settings = z.infer<typeof S.SettingsSchema>;
 export type SavedView = z.infer<typeof S.SavedViewSchema>;
+export type Design = z.infer<typeof S.DesignSchema>;
+export type OptionMeta = z.infer<typeof S.OptionMetaSchema>;
+export type DesignOption = z.infer<typeof S.DesignOptionSchema>;
+export type Note = z.infer<typeof S.NoteSchema>;
 export type Costs = z.infer<typeof S.CostsSchema>;
 export type Project = z.infer<typeof S.ProjectSchema>;
 
@@ -34,4 +38,4 @@ export interface Selection {
 }
 
 export type Tool =
-  'select' | 'wall' | 'room' | 'opening' | 'item' | 'stair' | 'measure' | 'eyedropper';
+  'select' | 'wall' | 'room' | 'opening' | 'item' | 'stair' | 'measure' | 'eyedropper' | 'note';

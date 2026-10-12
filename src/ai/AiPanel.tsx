@@ -107,7 +107,7 @@ function CandidateCard({ c, index }: { c: Candidate; index: number }) {
       <div className="flex gap-1">
         <button
           onClick={() => apply(c.id)}
-          className="flex-1 rounded bg-sky-600 px-2 py-1 text-sm font-medium text-white hover:bg-sky-700"
+          className="flex-1 rounded bg-sky-700 px-2 py-1 text-sm font-medium text-white hover:bg-sky-800"
         >
           {t('ai.apply')}
         </button>
@@ -137,7 +137,7 @@ export function AiPanel() {
     settings.status === 'ok'
       ? 'bg-green-500'
       : settings.status === 'unreachable' || settings.status === 'no-model'
-        ? 'bg-red-500'
+        ? 'bg-red-700'
         : 'bg-slate-300';
 
   return (
@@ -239,7 +239,7 @@ export function AiPanel() {
         <div className="flex flex-col gap-1">
           <button
             onClick={() => void ai.generate(1)}
-            className="flex items-center justify-center gap-1 rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white hover:bg-sky-700"
+            className="flex items-center justify-center gap-1 rounded-md bg-sky-700 px-3 py-1.5 font-medium text-white hover:bg-sky-800"
           >
             <Wand2 size={14} /> {t('ai.generate')}
           </button>
@@ -254,7 +254,7 @@ export function AiPanel() {
         <button
           onClick={() => void ai.runEdit()}
           disabled={!ai.input.trim()}
-          className="w-full rounded-md bg-sky-600 px-3 py-1.5 font-medium text-white hover:bg-sky-700 disabled:opacity-50"
+          className="w-full rounded-md bg-sky-700 px-3 py-1.5 font-medium text-white hover:bg-sky-800 disabled:opacity-50"
         >
           {t('ai.preview')}
         </button>
@@ -312,7 +312,7 @@ export function AiPanel() {
             {!ai.preview.error && (
               <button
                 onClick={ai.applyEdit}
-                className="flex-1 rounded bg-sky-600 px-2 py-1 text-sm font-medium text-white hover:bg-sky-700"
+                className="flex-1 rounded bg-sky-700 px-2 py-1 text-sm font-medium text-white hover:bg-sky-800"
               >
                 {t('ai.apply')}
               </button>

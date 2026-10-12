@@ -1,3 +1,4 @@
+@import './theme.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,7 +11,17 @@ body,
 }
 body {
   @apply bg-slate-100 text-slate-800 antialiased;
+  /* Bengali letters in an English interface (e.g. the language names) fall back to the bundled Noto Sans Bengali. */
   font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    'Noto Sans Bengali',
+    sans-serif;
+}
+html[lang='bn'] body {
+  font-family:
+    'Noto Sans Bengali',
     system-ui,
     -apple-system,
     'Segoe UI',
@@ -31,4 +42,102 @@ body {
 }
 .plan-flash {
   animation: plan-flash 0.8s ease-in-out 3;
+}
+
+/* The drawing area stays on light "paper" in both themes so plan colours and labels keep their meaning. */
+.plan-paper {
+  background: #f1f5f9;
+}
+
+/* Keyboard focus is always visible (the ring uses sky-600, which has 3:1 contrast on light and dark surfaces). */
+:focus-visible {
+  outline: 2px solid rgb(var(--sky-600));
+  outline-offset: 2px;
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline-offset: 0;
+}
+
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+/* Reduced motion: follows the operating system unless the user chose otherwise in Settings. */
+:root[data-motion='reduce'] *,
+:root[data-motion='reduce'] *::before,
+:root[data-motion='reduce'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Smooth panel transitions (skipped when motion is reduced, see above). */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+.anim-panel {
+  animation: panel-in 0.18s ease-out;
+}
+.anim-sheet {
+  animation: sheet-in 0.22s ease-out;
+}
+.anim-left {
+  animation: slide-in-left 0.2s ease-out;
+}
+.anim-right {
+  animation: slide-in-right 0.2s ease-out;
+}
+
+/* Touch screens: bigger targets in the toolbars, tabs and top bar. */
+@media (pointer: coarse) {
+  header button,
+  [role='toolbar'] button,
+  [role='tab'],
+  [role='menu'] button,
+  [role='group'] > button {
+    min-height: 40px;
+    min-width: 40px;
+  }
+  select,
+  input:not([type='checkbox']):not([type='radio']):not([type='range']) {
+    min-height: 40px;
+  }
 }

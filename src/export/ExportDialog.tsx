@@ -1,9 +1,11 @@
 import { Download, X } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
+import { toast } from '../catalog/actions';
 import { useT } from '../i18n';
 import { exportProjectJson } from '../model/io';
 import { setCurrency, setUnitCost } from '../model/ops';
 import { useModel } from '../model/store';
+import { Modal } from '../ui/Modal';
 import { useUiStore } from '../ui/uiStore';
 import { BOM_CATEGORIES, CURRENCIES, bomCsv, priceBom } from './bom';
 import { type CaptureOptions, captureScene } from './bridge';
@@ -33,16 +35,18 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 
 /** Runs an export with a busy flag and a readable error. */
 function useTask() {
+  const t = useT();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
-  const run = async (name: string, fn: () => Promise<string | void>) => {
+  const run = async (name: string, label: string, fn: () => Promise<string | void>) => {
     setBusy(name);
     setError(null);
     setDone(null);
     try {
       const msg = await fn();
       if (msg) setDone(msg);
+      toast(t('toast.exported').replace('{what}', label), 3000);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -88,7 +92,7 @@ export function ExportDialog() {
   const chosenPdfLevels = pdfLevels ?? levels.map((l) => l.id);
 
   const image = () =>
-    task.run('image', async () => {
+    task.run('image', imgFormat === 'png' ? 'PNG' : 'JPEG', async () => {
       const opts: CaptureOptions = {
         scale: imgScale,
         format: imgFormat,
@@ -101,7 +105,7 @@ export function ExportDialog() {
     });
 
   const pdf = () =>
-    task.run('pdf', async () => {
+    task.run('pdf', 'PDF', async () => {
       const hero = cover ? await captureHero(project).catch(() => undefined) : undefined;
       const r = await buildPdf(project, {
         scale: pdfScale,
@@ -115,13 +119,13 @@ export function ExportDialog() {
     });
 
   const glb = () =>
-    task.run('glb', async () => {
+    task.run('glb', 'GLB', async () => {
       const data = await exportGlb(project, { levelId: levelId === 'all' ? undefined : levelId });
       downloadBlob(new Blob([data], { type: 'model/gltf-binary' }), `${base}.glb`);
     });
 
   const obj = () =>
-    task.run('obj', async () => {
+    task.run('obj', 'OBJ + MTL', async () => {
       const r = exportObj(project, { levelId: levelId === 'all' ? undefined : levelId });
       downloadBlob(new Blob([r.obj], { type: 'text/plain' }), `${base}.obj`);
       downloadBlob(new Blob([r.mtl], { type: 'text/plain' }), r.mtlName);
@@ -130,7 +134,7 @@ export function ExportDialog() {
 
   const level = levels.find((l) => l.id === planLevelId);
   const svg = () =>
-    task.run('svg', async () => {
+    task.run('svg', 'SVG', async () => {
       const p = planSvg(project, planLevelId, { scale: svgScale });
       downloadBlob(
         new Blob([p.svg], { type: 'image/svg+xml' }),
@@ -138,7 +142,7 @@ export function ExportDialog() {
       );
     });
   const dxf = () =>
-    task.run('dxf', async () => {
+    task.run('dxf', 'DXF', async () => {
       downloadBlob(
         new Blob([planDxf(project, planLevelId)], { type: 'application/dxf' }),
         `${base}-${safeFileName(level?.name ?? 'plan')}.dxf`,
@@ -149,7 +153,7 @@ export function ExportDialog() {
     downloadBlob(new Blob([bomCsv(project)], { type: 'text/csv' }), `${base}-costs.csv`);
 
   const snapshot = () =>
-    task.run('snapshot', async () => {
+    task.run('snapshot', 'HTML', async () => {
       const html = buildSnapshotHtml(project, await fetchViewerBundle());
       downloadBlob(new Blob([html], { type: 'text/html' }), `${base}-snapshot.html`);
       return `${(html.length / 1048576).toFixed(1)} MB`;
@@ -171,13 +175,14 @@ export function ExportDialog() {
   );
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-label={t('export.title')}
+    <Modal
+      open
+      onClose={() => setOpen(false)}
+      label={t('export.title')}
+      className="max-w-2xl"
+      placement="sheet"
     >
-      <div className="absolute inset-0 bg-slate-900/40" onClick={() => setOpen(false)} />
-      <div className="relative flex max-h-full w-full max-w-2xl flex-col rounded-lg bg-white shadow-xl">
+      <>
         <div className="flex items-center border-b border-slate-200 px-4 py-3">
           <h2 className="flex-1 font-semibold">{t('export.title')}</h2>
           <button
@@ -423,8 +428,8 @@ export function ExportDialog() {
         <p className="border-t border-slate-200 px-4 py-2 text-xs italic text-slate-500">
           {t('export.disclaimer')}
         </p>
-      </div>
-    </div>
+      </>
+    </Modal>
   );
 }
 

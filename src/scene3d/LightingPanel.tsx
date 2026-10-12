@@ -107,7 +107,7 @@ export function LightingPanel() {
                 key={p.id}
                 aria-pressed={lighting.mode === p.id}
                 onClick={() => setPref('lighting', { mode: p.id, time: PRESET_TIME[p.id] })}
-                className={`rounded px-1 py-1 text-xs ${lighting.mode === p.id ? 'bg-sky-600 font-semibold text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                className={`rounded px-1 py-1 text-xs ${lighting.mode === p.id ? 'bg-sky-700 font-semibold text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
               >
                 {t(p.label)}
               </button>

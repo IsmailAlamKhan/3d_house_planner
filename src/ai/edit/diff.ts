@@ -1,4 +1,4 @@
-import { type TranslationKey, t } from '../../i18n';
+import { type TranslationKey, fmtNum, t } from '../../i18n';
 import { polygonArea } from '../../geometry/polygon';
 import { getEntry } from '../../catalog';
 import { materialName } from '../../materials/eyedropper';
@@ -83,7 +83,7 @@ export function describeChanges(before: Project, after: Project): string[] {
       moved.push(
         t('ai.diff.movedWall')
           .replace('{wall}', wallLabel(after, w))
-          .replace('{d}', `${shift.toFixed(1)} m`),
+          .replace('{d}', `${fmtNum(shift, 1)} ${t('unit.m')}`),
       );
     if (old.materialInside !== w.materialInside || old.materialOutside !== w.materialOutside)
       paintedFaces++;

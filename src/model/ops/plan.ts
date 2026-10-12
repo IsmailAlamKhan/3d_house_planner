@@ -166,7 +166,7 @@ export function deleteRoomWithWalls(p: Project, roomId: string): void {
 export function copyWallsFromBelow(p: Project, levelId: string): number {
   const level = getLevel(p, levelId);
   const below = p.levels.find((l) => l.index === level.index - 1);
-  if (!below) throw new ModelError('There is no level below to copy from.');
+  if (!below) throw new ModelError('There is no level below to copy from.', 'err.noLevelBelow');
   const same = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y) < 1e-3;
   let added = 0;
   for (const w of p.walls.filter((x) => x.levelId === below.id)) {

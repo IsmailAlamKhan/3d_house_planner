@@ -10,7 +10,7 @@ const badPolygon = (poly: { x: number; y: number }[]) =>
 export function addRoom(p: Project, input: NewRoom): string {
   getLevel(p, input.levelId);
   if (badPolygon(input.polygon))
-    throw new ModelError('A room needs at least 3 corners and some area');
+    throw new ModelError('A room needs at least 3 corners and some area', 'err.roomCorners');
   const id = newId();
   p.rooms.push({
     id,
@@ -33,7 +33,7 @@ export function updateRoom(
 ): void {
   const room = getRoom(p, id);
   if (patch.polygon && badPolygon(patch.polygon)) {
-    throw new ModelError('A room needs at least 3 corners and some area');
+    throw new ModelError('A room needs at least 3 corners and some area', 'err.roomCorners');
   }
   Object.assign(room, patch);
 }
@@ -45,7 +45,7 @@ export function addStair(p: Project, input: NewStair): string {
   getLevel(p, input.fromLevelId);
   getLevel(p, input.toLevelId);
   if (input.fromLevelId === input.toLevelId) {
-    throw new ModelError('A stair must connect two different levels');
+    throw new ModelError('A stair must connect two different levels', 'err.stairLevels');
   }
   const id = newId();
   p.stairs.push({

@@ -17,13 +17,14 @@ import { surfaceFromPart } from './eyedropper3d';
 import { DEFAULT_CUT_HEIGHT, type LevelScene, SceneBuilder } from './sceneModel';
 import { useSceneStore } from './sceneStore';
 import { useCamera } from './camera/cameraStore';
+import { useSceneProject, useSceneReadOnly } from './sceneProject';
 import { useExportFlags } from '../export/flags';
 import { roomFocus } from './camera/isolation';
 import { interiorLightsOn } from './lighting';
 
 /** Builds (and memoizes) the renderable model for the current project and view options. */
 export function useSceneModel(): LevelScene[] {
-  const project = useModel((s) => s.project);
+  const project = useSceneProject();
   const wallModePref = useSceneStore((s) => s.wallMode);
   const walking = useCamera((s) => s.mode === 'walk');
   const wallMode = walking ? 'up' : wallModePref;
@@ -80,7 +81,9 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
   );
   useEffect(() => () => edges?.dispose(), [edges]);
   const translucent = part.materials.includes('glass');
+  const readOnly = useSceneReadOnly();
   const onClick = (e: ThreeEvent<MouseEvent>) => {
+    if (readOnly) return;
     if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
     if (measureClick(e)) return;
     if (!part.entity) return;
@@ -89,7 +92,7 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
       return paintFrom3d(part, e.face?.materialIndex, e.nativeEvent.altKey);
     selectFrom3d(part.entity, e.nativeEvent.shiftKey);
   };
-  const onDoubleClick = part.entity ? focusOnDoubleClick(part.entity) : undefined;
+  const onDoubleClick = part.entity && !readOnly ? focusOnDoubleClick(part.entity) : undefined;
   return (
     <>
       <mesh
@@ -135,6 +138,7 @@ function ObjectView({
   lit: boolean;
 }) {
   const mode = useSceneStore((s) => s.gizmoMode);
+  const readOnly = useSceneReadOnly();
   // Bumped after a handle drag so the object snaps back to whatever the model says.
   const [nonce, setNonce] = useState(0);
   const object = useMemo(() => {
@@ -161,8 +165,9 @@ function ObjectView({
   return (
     <group
       userData={{ entity: part.entity }}
-      onDoubleClick={part.entity ? focusOnDoubleClick(part.entity) : undefined}
+      onDoubleClick={part.entity && !readOnly ? focusOnDoubleClick(part.entity) : undefined}
       onClick={(e: ThreeEvent<MouseEvent>) => {
+        if (readOnly) return;
         if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
         if (measureClick(e)) return;
         e.stopPropagation();
@@ -191,8 +196,8 @@ function ObjectView({
 /** All levels of the apartment, stacked at their elevations. */
 export function ModelScene() {
   const levels = useSceneModel();
-  const overrides = useModel((s) => s.project.materials);
-  const project = useModel((s) => s.project);
+  const project = useSceneProject();
+  const overrides = project.materials;
   const activeLevelId = useModel((s) => s.activeLevelId);
   const selection = useModel((s) => s.selection);
   const { levelFilter, dollhouse: dollhousePref, wallMode, lighting } = useSceneStore();

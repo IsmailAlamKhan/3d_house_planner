@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
+import { bn } from './bn';
 import { en, type TranslationKey, type Translations } from './en';
 
-/** Register additional languages here (prompt 11 adds one). */
-const dictionaries: Record<string, Translations> = { en };
+/** The languages the app speaks. */
+const dictionaries: Record<string, Translations> = { en, bn };
 
 let current = 'en';
 const listeners = new Set<() => void>();
@@ -43,3 +44,23 @@ export function useT(): typeof t {
 }
 
 export type { TranslationKey, Translations };
+
+const LOCALES: Record<string, string> = { en: 'en-US', bn: 'bn-BD' };
+const formatters = new Map<string, Intl.NumberFormat>();
+
+/** BCP-47 tag of the current language (Bengali numerals come from `bn-BD`). */
+export const localeTag = (): string => LOCALES[current] ?? 'en-US';
+
+/** A number in the current language: "12.5" or "১২.৫", with a fixed number of decimals. */
+export function fmtNum(value: number, digits = 1): string {
+  const key = `${localeTag()}:${digits}`;
+  let f = formatters.get(key);
+  if (!f) {
+    f = new Intl.NumberFormat(localeTag(), {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    });
+    formatters.set(key, f);
+  }
+  return f.format(value);
+}

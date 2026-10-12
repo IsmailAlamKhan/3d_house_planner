@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
 import { startAutosave } from '../persistence/autosave';
@@ -10,7 +10,11 @@ import { useUiStore } from '../ui/uiStore';
 import { LeftSidebar } from './LeftSidebar';
 import { Toaster } from './Toaster';
 import { useManipulationShortcuts } from './useManipulationShortcuts';
+import { CommandPalette, useGlobalHelpKeys } from '../commands/CommandPalette';
+import { ShortcutsDialog } from '../commands/ShortcutsDialog';
+import { CompareDialog } from '../options/CompareDialog';
 import { ExportDialog } from '../export/ExportDialog';
+import { TourOverlay } from '../onboarding/TourOverlay';
 import { ShellWizard } from '../wizard/ShellWizard';
 import { ProjectsDialog } from './ProjectsDialog';
 import { useUndoRedoShortcuts } from './useShortcuts';
@@ -24,11 +28,15 @@ export function App() {
   const { leftDrawerOpen, rightDrawerOpen, setLeftDrawerOpen, setRightDrawerOpen } = useUiStore();
   useUndoRedoShortcuts();
   useManipulationShortcuts();
+  useGlobalHelpKeys();
+  const [ready, setReady] = useState(false);
   useEffect(() => {
     let stop: (() => void) | undefined;
     let cancelled = false;
     void bootstrapProject().then(() => {
-      if (!cancelled) stop = startAutosave(useModel);
+      if (cancelled) return;
+      stop = startAutosave(useModel);
+      setReady(true);
     });
     return () => {
       cancelled = true;
@@ -40,6 +48,11 @@ export function App() {
 
   return (
     <div className="flex h-full flex-col">
+      {!ready && (
+        <div role="status" className="bg-sky-700 px-3 py-1 text-center text-xs text-white">
+          {t('app.loading')}
+        </div>
+      )}
       <TopBar />
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white lg:block">
@@ -65,6 +78,10 @@ export function App() {
       <ProjectsDialog />
       <ShellWizard />
       <ExportDialog />
+      <CommandPalette />
+      <ShortcutsDialog />
+      <TourOverlay />
+      <CompareDialog />
       <Toaster />
       <Drawer
         side="left"

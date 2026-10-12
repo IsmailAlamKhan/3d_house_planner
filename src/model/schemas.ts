@@ -210,6 +210,47 @@ export const SavedViewSchema = z.object({
   thumbnail: z.string().optional(),
 });
 
+/** A pinned comment ("Ask about window size here"): at a spot on a level, or attached to something in the model. */
+export const NoteSchema = z.object({
+  id,
+  text: z.string(),
+  resolved: z.boolean().default(false),
+  createdAt: z.string(),
+  levelId: id,
+  /** Where the pin sits in the plan (also where it falls back to if the thing it was attached to is deleted). */
+  position: PointSchema,
+  /** The wall, room, door, window, furniture … the note is about. The pin follows it when it moves. */
+  entity: z
+    .object({
+      type: z.enum(['wall', 'opening', 'room', 'stair', 'item', 'column', 'roof']),
+      id,
+    })
+    .optional(),
+});
+
+/** The part of a project that design options swap: everything that is "the plan", not the shell or the settings. */
+export const DesignSchema = z.object({
+  levels: z.array(LevelSchema),
+  walls: z.array(WallSchema),
+  openings: z.array(OpeningSchema),
+  rooms: z.array(RoomSchema),
+  stairs: z.array(StairSchema),
+  items: z.array(ItemSchema),
+  columns: z.array(ColumnSchema),
+  roofs: z.array(RoofSchema),
+  materials: z.record(z.string(), MaterialOverrideSchema),
+});
+
+/** Which design is showing. `letter` null = the original ("Main design"); `name` null = use the default title. */
+export const OptionMetaSchema = z.object({
+  id,
+  letter: z.string().nullable(),
+  name: z.string().nullable(),
+});
+
+/** A design that is not currently showing (the one being edited lives in the project's own fields). */
+export const DesignOptionSchema = OptionMetaSchema.extend({ design: DesignSchema });
+
 /** What the user fills in to price the bill of materials. Keys are the BOM line keys (see `export/bom.ts`). */
 export const CostsSchema = z.object({
   currency: z.string().min(1).default('USD'),
@@ -232,6 +273,10 @@ export const ProjectSchema = z.object({
   materials: z.record(z.string(), MaterialOverrideSchema),
   settings: SettingsSchema,
   views: z.array(SavedViewSchema).default([]),
+  notes: z.array(NoteSchema).default([]),
+  /** Other designs of the same home ("Option A", "Option B" …) kept aside while one is being edited. */
+  options: z.array(DesignOptionSchema).default([]),
+  currentOption: OptionMetaSchema.default({ id: 'main', letter: null, name: null }),
   costs: CostsSchema.default({ currency: 'USD', unitCosts: {} }),
   createdAt: z.string(),
   updatedAt: z.string(),

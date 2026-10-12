@@ -1,6 +1,6 @@
 import { layoutStair } from '../../scene3d/generators/stairs';
 import { dist, rotate } from '../../geometry/vec';
-import { t } from '../../i18n';
+import { fmtNum, t } from '../../i18n';
 import type { Level, Point, RoomType, Stair, StairType } from '../../model/types';
 import type { DesignIntent, RoomIntent } from '../schemas';
 import { TYPE_DEFAULTS, floorFor } from './defaults';
@@ -304,7 +304,7 @@ export function solveLayout(input: SolveInput): LayoutPlan {
   const nLevels = intent.levels.length;
   const ftc =
     Math.round(Math.min(3.0, (input.maxHeight - SLAB * (nLevels - 1)) / nLevels) * 100) / 100;
-  if (ftc < 2.4) warnings.push(t('ai.warn.lowCeiling').replace('{h}', ftc.toFixed(2)));
+  if (ftc < 2.4) warnings.push(t('ai.warn.lowCeiling').replace('{h}', fmtNum(ftc, 2)));
   const seed = input.seed ?? 1;
   const tries = input.tries ?? 24;
 
@@ -527,8 +527,8 @@ export function solveLayout(input: SolveInput): LayoutPlan {
       warnings.push(
         t('ai.warn.narrow')
           .replace('{room}', n.name)
-          .replace('{w}', n.width.toFixed(1))
-          .replace('{want}', n.wanted.toFixed(1)),
+          .replace('{w}', fmtNum(n.width, 1))
+          .replace('{want}', fmtNum(n.wanted, 1)),
       );
   }
 

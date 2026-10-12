@@ -13,6 +13,7 @@ import { useCatalogDrag } from './dragStore';
 import { cachedThumbnail, renderThumbnail } from './thumbnails';
 import { formatLength } from '../ui/units';
 import { useModel } from '../model/store';
+import { useUiStore } from '../ui/uiStore';
 
 export const DND_MIME = 'application/x-duplex-catalog';
 
@@ -34,7 +35,7 @@ function Thumb({ entry }: { entry: CatalogEntry }) {
       className="h-16 w-16 object-contain"
     />
   ) : (
-    <div className="flex h-16 w-16 items-center justify-center rounded bg-slate-100 text-lg text-slate-400">
+    <div className="flex h-16 w-16 items-center justify-center rounded bg-slate-100 text-lg text-slate-500">
       {t(entry.nameKey as TranslationKey).charAt(0)}
     </div>
   );
@@ -60,12 +61,16 @@ function Card({ entry }: { entry: CatalogEntry }) {
         setDrag(entry.catalogId);
       }}
       onDragEnd={() => setDrag(null)}
-      onClick={() => setArmed(armed ? null : entry.catalogId)}
+      onClick={() => {
+        setArmed(armed ? null : entry.catalogId);
+        // On a phone the library is a sheet over the plan: close it so the next tap can place the item.
+        if (!armed && window.innerWidth < 640) useUiStore.getState().setLeftDrawerOpen(false);
+      }}
       className={`flex flex-col items-center gap-1 rounded-lg border p-2 text-center text-xs transition ${armed ? 'border-sky-500 bg-sky-50 ring-2 ring-sky-300' : 'border-slate-200 bg-white hover:border-sky-300 hover:shadow-sm'}`}
     >
       <Thumb entry={entry} />
       <span className="line-clamp-2 font-medium leading-tight text-slate-700">{name}</span>
-      <span className="text-[10px] text-slate-400">
+      <span className="text-[10px] text-slate-500">
         {formatLength(w, units, 2)} ×{' '}
         {entry.placement === 'wall'
           ? formatLength(entry.defaultSize.h, units, 2)
@@ -95,7 +100,7 @@ export function LibraryPanel() {
   return (
     <div className="flex h-full flex-col gap-2">
       <label className="relative block">
-        <Search size={14} className="pointer-events-none absolute left-2 top-2.5 text-slate-400" />
+        <Search size={14} className="pointer-events-none absolute left-2 top-2.5 text-slate-500" />
         <input
           type="search"
           value={query}
@@ -106,14 +111,14 @@ export function LibraryPanel() {
         />
       </label>
       {!q && (
-        <div role="tablist" aria-label="Categories" className="flex flex-wrap gap-1">
+        <div role="tablist" aria-label={tt('lib.categories')} className="flex flex-wrap gap-1">
           {CATEGORIES.map((c) => (
             <button
               key={c}
               role="tab"
               aria-selected={category === c}
               onClick={() => setCategory(c)}
-              className={`rounded-full px-2 py-0.5 text-xs ${category === c ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              className={`rounded-full px-2 py-0.5 text-xs ${category === c ? 'bg-sky-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
             >
               {tt(`cat.${c}` as TranslationKey)}
             </button>
@@ -129,7 +134,7 @@ export function LibraryPanel() {
             {tf('msg.armed', { name: tt(armedEntry.nameKey as TranslationKey).toLowerCase() })}
           </span>
           <button
-            aria-label="Cancel"
+            aria-label={tt('ai.cancel')}
             onClick={() => useCatalogDrag.getState().setArmed(null)}
             className="rounded p-0.5 hover:bg-sky-100"
           >

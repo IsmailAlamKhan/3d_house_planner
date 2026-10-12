@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid';
 import { pointInPolygon, polygonArea } from '../geometry/polygon';
 import { type Vec2, dist, projectOnSegment } from '../geometry/vec';
-import { t } from '../i18n';
+import { fmtNum, t } from '../i18n';
 import { createEmptyProject } from '../model/project';
 import { addColumn, addLevel, addOpening, addWall, syncRooms, updateLevel } from '../model/ops';
 import type { Beam, FacadeWindow, Point, Project } from '../model/types';
@@ -150,12 +150,12 @@ export function planHeights(total: number, ground?: number): HeightPlan {
   const warnings: string[] = [];
   const room = total - SLAB;
   if (room < 4.4) {
-    warnings.push(t('wiz.err.noFit').replace('{h}', total.toFixed(2)));
+    warnings.push(t('wiz.err.noFit').replace('{h}', fmtNum(total, 2)));
   }
   const g = ground ?? Math.round((room / 2) * 100) / 100;
   const u = Math.round((room - g) * 100) / 100;
-  if (g < 2.4) warnings.push(t('wiz.warn.ground').replace('{h}', g.toFixed(2)));
-  if (u < 2.4) warnings.push(t('wiz.warn.upper').replace('{h}', u.toFixed(2)));
+  if (g < 2.4) warnings.push(t('wiz.warn.ground').replace('{h}', fmtNum(g, 2)));
+  if (u < 2.4) warnings.push(t('wiz.warn.upper').replace('{h}', fmtNum(u, 2)));
   return { ground: g, upper: u, warnings, ok: room >= 4.4 && g >= 2.4 && u >= 2.4 };
 }
 
@@ -205,8 +205,8 @@ export function projectFromConfig(c: ShellConfig): Project {
     p.shell.beams = c.beams;
     p.shell.windows = c.windows;
     const ground = p.levels[0]!.id;
-    const upper = addLevel(p, { name: 'Upper floor' });
-    updateLevel(p, ground, { floorToCeiling: heights.ground, name: 'Ground floor' });
+    const upper = addLevel(p, { name: t('level.upper') });
+    updateLevel(p, ground, { floorToCeiling: heights.ground, name: t('level.ground') });
     updateLevel(p, upper, { floorToCeiling: heights.upper });
     for (const lvl of [ground, upper]) {
       for (const col of c.columns)
@@ -214,7 +214,8 @@ export function projectFromConfig(c: ShellConfig): Project {
       addShellWalls(p, lvl);
     }
     for (const lvl of [ground, upper]) syncRooms(p, lvl);
-    for (const r of p.rooms) r.name = r.levelId === ground ? 'Open space' : 'Open space (upper)';
+    for (const r of p.rooms)
+      r.name = r.levelId === ground ? t('room.openSpace') : t('room.openSpaceUpper');
   });
 }
 

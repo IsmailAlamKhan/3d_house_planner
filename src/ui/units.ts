@@ -1,3 +1,4 @@
+import { fmtNum, t } from '../i18n';
 import type { Units } from '../model/types';
 
 const FT = 0.3048;
@@ -7,16 +8,18 @@ export const metersToFeet = (m: number): number => m / FT;
 
 /** Formats a length: `3.45 m` or `11′ 4″`. */
 export function formatLength(m: number, units: Units, digits = 2): string {
-  if (units === 'metric') return `${m.toFixed(digits)} m`;
+  if (units === 'metric') return `${fmtNum(m, digits)} ${t('unit.m')}`;
   const totalIn = Math.round(m / IN);
   const sign = totalIn < 0 ? '-' : '';
   const abs = Math.abs(totalIn);
-  return `${sign}${Math.floor(abs / 12)}′ ${abs % 12}″`;
+  return `${sign}${fmtNum(Math.floor(abs / 12), 0)}′ ${fmtNum(abs % 12, 0)}″`;
 }
 
 /** Formats an area: `12.0 m²` or `129 ft²`. */
 export function formatArea(m2: number, units: Units): string {
-  return units === 'metric' ? `${m2.toFixed(1)} m²` : `${Math.round(m2 / (FT * FT))} ft²`;
+  return units === 'metric'
+    ? `${fmtNum(m2, 1)} ${t('unit.m2')}`
+    : `${fmtNum(Math.round(m2 / (FT * FT)), 0)} ${t('unit.ft2')}`;
 }
 
 /**

@@ -20,7 +20,9 @@ import { SavedViewsStrip } from './camera/SavedViewsStrip';
 import { SectionRig } from './camera/SectionRig';
 import { WalkHud } from './camera/WalkHud';
 import { ExportBridge } from '../export/bridge';
+import { NotePins3D } from '../notes/NotePins3D';
 import { useExportFlags } from '../export/flags';
+import { modalOpen } from '../ui/modalOpen';
 
 // Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
 const AmbientOcclusion = lazy(() => import('./AmbientOcclusion'));
@@ -79,6 +81,7 @@ const typing = (t: EventTarget | null) =>
 function useCameraShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (modalOpen()) return;
       if (typing(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
       const cam = useCamera.getState();
       if (e.key === 'Escape' && cam.measuring) cam.setMeasuring(false);
@@ -130,6 +133,7 @@ export function SceneCanvas() {
         <SectionRig />
         {!presentation && <MeasureOverlay />}
         <ExportBridge />
+        <NotePins3D />
         <CameraSystem />
         {showFps && <FpsMeter />}
         {q.ao && (

@@ -37,9 +37,10 @@ export function deleteSelection(p: Project, sel: Selection): string[] {
 /** Duplicates the selected entities, nudged by 0.5 m. Walls bring their openings. Returns the new ids. */
 export function duplicate(p: Project, sel: Selection): string[] {
   if (!sel.type) return [];
-  if (sel.type === 'column') throw new ModelError('Structural columns cannot be duplicated');
+  if (sel.type === 'column')
+    throw new ModelError('Structural columns cannot be duplicated', 'err.columnDup');
   if (sel.type === 'opening')
-    throw new ModelError('Add a new door or window instead of duplicating');
+    throw new ModelError('Add a new door or window instead of duplicating', 'err.openingDup');
   const created: string[] = [];
   for (const id of sel.ids) {
     const nid = newId();

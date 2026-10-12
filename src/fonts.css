@@ -1,0 +1,6 @@
+/* Bengali text: Noto Sans Bengali, bundled with the app (no network). Only the Bengali glyphs are loaded from these
+   files (the browser downloads a weight only when a Bengali character is shown in it). */
+@import '@fontsource/noto-sans-bengali/bengali-400.css';
+@import '@fontsource/noto-sans-bengali/bengali-500.css';
+@import '@fontsource/noto-sans-bengali/bengali-600.css';
+@import '@fontsource/noto-sans-bengali/bengali-700.css';

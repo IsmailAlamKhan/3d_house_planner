@@ -7,7 +7,7 @@ export type NewItem = Pick<Item, 'levelId' | 'catalogId' | 'position'> & Partial
 function assertInBounds(p: Project, levelId: string, position: Point): void {
   getLevel(p, levelId);
   if (!isItemInBounds(p, levelId, position)) {
-    throw new ModelError('That item would be outside the apartment');
+    throw new ModelError('That item would be outside the apartment', 'err.itemOutside');
   }
 }
 

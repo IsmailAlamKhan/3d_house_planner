@@ -91,3 +91,16 @@ Summary: Plan SVGs are sized in millimetres with a metre viewBox, so 5 m is 100 
 Also: iso/front/back/side camera presets now fit every corner of the building for any window shape (`fitPose`).
 Deviations: the PDF cover image and image export skip SSAO (it is a post-process on the live canvas); OBJ has no textures (MTL has colours/opacity only); slabs, roofs and structural beams are not priced; wall quantities use centre-line lengths.
 Limitations: exporting while in walk or top mode temporarily switches to orbit and back; very large 4× images are capped to the GPU limit (8192 px) and the actual size is reported; DXF door arcs are approximate for unusual swings.
+
+## Prompt 11 — UX Polish, Onboarding & Accessibility — DONE
+- [x] First-run tour (8 steps: shell wizard → draw/generate → furniture → materials → walk-through → checks → export), spotlight + Next/Back/Skip, auto-starts once, replayable from Help; works as a bottom card on phones
+- [x] Discoverability: shortcut tooltips, command palette (Ctrl/Cmd+K, ~50 commands), "?" shortcut sheet, empty-state hint on a blank plan, Ctrl/Cmd+S with a "Saved" toast, "Exported" toasts
+- [x] Notes: pin to a spot or to any entity (the pin follows it), shown in 2D and 3D, panel with edit / resolve / delete / show; saved in the project
+- [x] Design options: "Save a copy as new option" (Option A, B …), switch, rename, delete, and a synced side-by-side 3D comparison with area/room/check counts; saved in the project
+- [x] Bengali (বাংলা) for every string (compiler- and test-enforced), model error messages included; Noto Sans Bengali bundled; Bengali digits/units via Intl; language switcher in Settings and the palette
+- [x] Light/dark themes through CSS-variable colour tokens (the drawing area stays on light "paper"), reduced-motion setting + `prefers-reduced-motion`, loading banner and error boundary
+- [x] Accessibility: accessible modal (focus trap, Esc, focus restore) for every dialog/drawer, visible focus ring, labels on icon buttons, AA contrast verified for both themes by a test
+- [x] Phone/tablet: bottom-sheet panels, wrapping top bar and toolbars, 40 px touch targets; Playwright at 390 × 844 with touch (tap-to-place, tour, language switch)
+Summary: Unit tests (Bengali completeness/placeholders/digits, contrast, options, notes) and Playwright (tour, language, theme, palette, shortcuts, dialogs, notes, options + compare, phone) are green.
+Deviations: the plan canvas and 3D view keep their light look in dark theme; default level/room names created by the AI/templates are data (English) — only wizard-created names follow the language; the viewer snapshot is English only.
+Limitations: no right-to-left or other languages; comparison shows two designs (not three); notes have no author/thread.

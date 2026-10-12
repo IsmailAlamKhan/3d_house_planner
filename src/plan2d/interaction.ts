@@ -28,6 +28,10 @@ import { faceField, sideOfWall } from '../model/ops';
 import { computeEndpointMove, computeWallMove, wallsOnRoomOutline } from './moves';
 import { usePlanStore } from './planStore';
 import { fitBounds, panBy, toWorld, zoomAt } from './view';
+import { modalOpen } from '../ui/modalOpen';
+import { createNote, pinAt } from '../notes/actions';
+import { useUiStore } from '../ui/uiStore';
+import { t } from '../i18n';
 
 const SNAP_PX = 10;
 const DRAG_START_PX = 3;
@@ -57,7 +61,7 @@ function tryEdit<T>(
   try {
     return edit((p) => fn(p, level.id));
   } catch (e) {
-    toast(e instanceof ModelError ? e.message : 'Something went wrong with that edit.');
+    toast(e instanceof ModelError ? e.message : t('toast.editFailed'));
     return undefined;
   }
 }
@@ -147,8 +151,7 @@ export function deleteSelected(): void {
     if (ensureEditable()) deleteSelectedCatalog();
     return;
   }
-  if (selection.type === 'column')
-    return toast('Structural columns are fixed and cannot be deleted.');
+  if (selection.type === 'column') return toast(t('toast.columnFixed'));
   tryEdit((p) => {
     if (selection.type === 'wall') ops.deleteWallsAndSync(p, selection.ids);
     else if (selection.type === 'room')
@@ -364,7 +367,36 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     if (tool === 'eyedropper') {
       const surface = surfaceAt(w);
       if (surface) eyedrop(surface, e.altKey);
-      else toast('That surface can’t take a material.');
+      else toast(t('mat.noSurface'));
+      return;
+    }
+
+    // A pin on the plan opens its note (in the select and note tools).
+    if (tool === 'select' || tool === 'note') {
+      const pin = pinAt(w);
+      if (pin) {
+        useUiStore.getState().setActiveNoteId(pin);
+        useUiStore.getState().setLeftTab('notes');
+        useUiStore.getState().setLeftDrawerOpen(window.innerWidth < 1024);
+        return;
+      }
+    }
+
+    if (tool === 'note') {
+      const { walls, rooms, columns, items, openings, stairs } = levelData();
+      const hit = hitTest(w, {
+        walls,
+        rooms,
+        columns,
+        items,
+        openings,
+        stairs,
+        selection: NO_SELECTION,
+        px: 1 / usePlanStore.getState().view.scale,
+      });
+      const entity = hit && 'id' in hit ? { type: hit.type, id: hit.id } : undefined;
+      createNote(w, entity);
+      useModel.getState().setTool('select');
       return;
     }
 
@@ -657,6 +689,7 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
   }
 
   function onKeyDown(e: KeyboardEvent) {
+    if (modalOpen()) return;
     const el = e.target as HTMLElement | null;
     if (
       el &&
@@ -719,7 +752,14 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     }
     if (drawing) return;
     const k = e.key.toLowerCase();
-    const tools = { v: 'select', w: 'wall', r: 'room', m: 'measure', i: 'eyedropper' } as const;
+    const tools = {
+      v: 'select',
+      w: 'wall',
+      r: 'room',
+      m: 'measure',
+      i: 'eyedropper',
+      n: 'note',
+    } as const;
     if (k === 'r' && (store.selection.type === 'item' || store.selection.type === 'stair')) return;
     if (k in tools) store.setTool(tools[k as keyof typeof tools]);
   }

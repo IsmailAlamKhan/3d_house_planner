@@ -9,3 +9,5 @@ export * from './plan';
 export * from './paint';
 export * from './views';
 export * from './costs';
+export * from './notes';
+export * from './options';

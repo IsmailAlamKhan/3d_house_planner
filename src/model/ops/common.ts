@@ -1,12 +1,27 @@
 import { current, isDraft } from 'immer';
 import { nanoid } from 'nanoid';
+import { type TranslationKey, tf } from '../../i18n';
 import type { Item, Level, Opening, Project, Room, Stair, Wall } from '../types';
 
 /** Thrown when an operation would break a model integrity rule. The store discards the whole edit. */
 export class ModelError extends Error {
-  constructor(message: string) {
+  readonly key?: TranslationKey;
+  readonly params?: Record<string, string | number>;
+
+  /**
+   * `message` is the English text. When a translation `key` is given, `message` is looked up in the current language
+   * each time it is read, so every place that shows `e.message` is translated.
+   */
+  constructor(message: string, key?: TranslationKey, params?: Record<string, string | number>) {
     super(message);
     this.name = 'ModelError';
+    this.key = key;
+    this.params = params;
+    if (key)
+      Object.defineProperty(this, 'message', {
+        get: () => tf(key, params ?? {}),
+        configurable: true,
+      });
   }
 }
 

@@ -1,4 +1,4 @@
-import { type TranslationKey, useT } from '../i18n';
+import { type TranslationKey, fmtNum, useT } from '../i18n';
 import { STAIR_TYPES } from '../model/schemas';
 import { updateStair } from '../model/ops';
 import type { Stair } from '../model/types';
@@ -69,8 +69,8 @@ export function StairProps({ stair }: { stair: Stair }) {
         <p className="py-1 text-xs text-slate-600">
           {t('stair.summary')
             .replace('{n}', String(layout.riserCount))
-            .replace('{riser}', (layout.riser * 100).toFixed(1))
-            .replace('{tread}', (layout.tread * 100).toFixed(0))
+            .replace('{riser}', fmtNum(layout.riser * 100, 1))
+            .replace('{tread}', fmtNum(layout.tread * 100, 0))
             .replace('{rise}', formatLength(layout.rise, units))}
         </p>
       )}

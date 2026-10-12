@@ -1,7 +1,7 @@
 import { getEntry, itemSize } from '../../catalog';
 import { placeExistingItem, placeItem, placeOnWall } from '../../catalog/placement';
 import { pointInPolygon } from '../../geometry/polygon';
-import { type TranslationKey, t } from '../../i18n';
+import { type TranslationKey, fmtNum, t } from '../../i18n';
 import * as ops from '../../model/ops';
 import { ModelError } from '../../model/ops';
 import type { Project, Room } from '../../model/types';
@@ -15,7 +15,7 @@ export interface EditContext {
   activeLevelId: string;
 }
 
-const fmt = (m: number) => `${Math.abs(m).toFixed(1)} m`;
+const fmt = (m: number) => `${fmtNum(Math.abs(m), 1)} ${t('unit.m')}`;
 const sideWord = (s: Side) => s;
 
 function applyOne(p: Project, op: EditOperation, ctx: EditContext): void {

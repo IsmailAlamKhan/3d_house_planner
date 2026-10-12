@@ -8,13 +8,16 @@ import {
 } from '../integrity';
 import type { Point, Project, Wall } from '../types';
 import { ModelError, clone, getLevel, getWall, newId } from './common';
+import { fmtNum } from '../../i18n';
 
 export type NewWall = Pick<Wall, 'levelId' | 'start' | 'end'> & Partial<Omit<Wall, 'id'>>;
 
 export function addWall(p: Project, input: NewWall): string {
   getLevel(p, input.levelId);
   if (!isWallLengthValid(input.start, input.end)) {
-    throw new ModelError(`Wall must be at least ${MIN_WALL_LENGTH} m long`);
+    throw new ModelError(`Wall must be at least ${MIN_WALL_LENGTH} m long`, 'err.wallLength', {
+      min: fmtNum(MIN_WALL_LENGTH, 2),
+    });
   }
   const id = newId();
   p.walls.push({
@@ -40,16 +43,18 @@ export function updateWall(
   const wall = getWall(p, id);
   const next = { ...wall, ...patch };
   if (!isWallLengthValid(next.start, next.end)) {
-    throw new ModelError(`Wall must be at least ${MIN_WALL_LENGTH} m long`);
+    throw new ModelError(`Wall must be at least ${MIN_WALL_LENGTH} m long`, 'err.wallLength', {
+      min: fmtNum(MIN_WALL_LENGTH, 2),
+    });
   }
   const len = wallLength(next);
   const height = wallHeight(p, next);
   for (const o of p.openings.filter((o) => o.wallId === id)) {
     if (!openingFitsWall(len, o.offset, o.width)) {
-      throw new ModelError('Wall is too short for the openings on it');
+      throw new ModelError('Wall is too short for the openings on it', 'err.wallShortOpenings');
     }
     if (o.sillHeight + o.height > height + 1e-9) {
-      throw new ModelError('Wall is too low for the openings on it');
+      throw new ModelError('Wall is too low for the openings on it', 'err.wallLowOpenings');
     }
   }
   Object.assign(wall, patch);
@@ -72,13 +77,13 @@ export function splitWall(p: Project, id: string, at: number | Point): [string, 
     d = ((at.x - wall.start.x) * abx + (at.y - wall.start.y) * aby) / len;
   }
   if (d < MIN_WALL_LENGTH || len - d < MIN_WALL_LENGTH) {
-    throw new ModelError('Split point leaves a wall that is too short');
+    throw new ModelError('Split point leaves a wall that is too short', 'err.splitShort');
   }
   const mid = lerp(wall.start, wall.end, d / len);
   const openings = p.openings.filter((o) => o.wallId === id);
   for (const o of openings) {
     if (o.offset - o.width / 2 < d && o.offset + o.width / 2 > d) {
-      throw new ModelError('Cannot split a wall through a door or window');
+      throw new ModelError('Cannot split a wall through a door or window', 'err.splitOpening');
     }
   }
   const secondId = newId();

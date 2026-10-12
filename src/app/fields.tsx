@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { ModelError } from '../model/ops';
 import { edit } from '../model/store';
 import { usePlanStore } from '../plan2d/planStore';
+import { t } from '../i18n';
 
 export const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
 
@@ -93,7 +94,7 @@ export function useEditor() {
       edit(fn);
       setError(null);
     } catch (e) {
-      const msg = e instanceof ModelError ? e.message : 'Could not apply that change.';
+      const msg = e instanceof ModelError ? e.message : t('err.applyFailed');
       setError(msg);
       setToast(null);
     }

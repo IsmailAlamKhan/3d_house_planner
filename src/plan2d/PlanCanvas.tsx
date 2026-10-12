@@ -16,6 +16,8 @@ import { carriedId, useCatalogDrag } from '../catalog/dragStore';
 import { getEntry, itemSize } from '../catalog';
 import { rotateHandlePos } from './hit';
 import { usePlanStore } from './planStore';
+import { NotesLayer } from '../notes/NotesLayer';
+import { useUiStore } from '../ui/uiStore';
 
 const WALL_FILL = { exterior: '#334155', interior: '#475569', partition: '#64748b' } as const;
 const pts = (poly: Vec2[]) => poly.map((p) => `${p.x},${p.y}`).join(' ');
@@ -103,6 +105,7 @@ export function PlanCanvas() {
     () => project.rooms.filter((r) => r.levelId === activeLevelId),
     [project.rooms, activeLevelId],
   );
+  const activeNoteId = useUiStore((s) => s.activeNoteId);
   const columns = useMemo(
     () => project.columns.filter((c) => c.levelId === activeLevelId),
     [project.columns, activeLevelId],
@@ -319,7 +322,7 @@ export function PlanCanvas() {
   const box = drag?.kind === 'box' ? drag : null;
 
   return (
-    <div ref={boxRef} className="relative h-full w-full overflow-hidden bg-slate-100">
+    <div ref={boxRef} className="plan-paper relative h-full w-full overflow-hidden">
       <svg
         ref={(el) => {
           planSvgRef.current = el;
@@ -513,6 +516,13 @@ export function PlanCanvas() {
             />
           ))}
 
+          <NotesLayer
+            project={project}
+            levelId={activeLevelId}
+            view={view}
+            activeId={activeNoteId}
+          />
+
           <ColumnsLayer
             columns={columns}
             view={view}
@@ -667,6 +677,31 @@ export function PlanCanvas() {
       </svg>
 
       <PlanToolbar />
+
+      {tool === 'select' && walls.every((w) => w.type === 'exterior') && !items.length && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center px-6">
+          <div className="pointer-events-auto max-w-sm rounded-xl border border-dashed border-slate-400 bg-white/90 p-4 text-center text-sm text-slate-700 shadow-sm">
+            <p data-testid="empty-plan">{t('empty.plan')}</p>
+            <div className="mt-3 flex justify-center gap-2">
+              <button
+                className="rounded-md bg-sky-700 px-3 py-1 text-white hover:bg-sky-800"
+                onClick={() => useModel.getState().setTool('wall')}
+              >
+                {t('empty.draw')}
+              </button>
+              <button
+                className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-100"
+                onClick={() => {
+                  useUiStore.getState().setLeftTab('ai');
+                  useUiStore.getState().setLeftDrawerOpen(window.innerWidth < 1024);
+                }}
+              >
+                {t('sidebar.ai')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {level && (
         <div className="pointer-events-none absolute right-2 top-2 rounded-md bg-white/90 px-2 py-1 text-xs font-medium text-slate-600 shadow-sm">

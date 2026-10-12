@@ -7,6 +7,7 @@ import {
   rotateSelectedItems,
 } from '../catalog/actions';
 import { useModel } from '../model/store';
+import { modalOpen } from '../ui/modalOpen';
 
 const NUDGE = 0.05;
 const BIG_NUDGE = 0.25;
@@ -19,6 +20,7 @@ const BIG_NUDGE = 0.25;
 export function useManipulationShortcuts(): void {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (modalOpen()) return;
       const el = e.target as HTMLElement | null;
       if (
         el &&

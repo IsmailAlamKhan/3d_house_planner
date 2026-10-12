@@ -13,6 +13,7 @@ import {
   saveProject,
   type ProjectSummary,
 } from '../persistence/repo';
+import { Modal } from '../ui/Modal';
 import { useUiStore } from '../ui/uiStore';
 
 const btn = 'inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm hover:bg-slate-100';
@@ -75,17 +76,14 @@ export function ProjectsDialog() {
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-label={t('projects.title')}
+    <Modal
+      open
+      onClose={() => setOpen(false)}
+      label={t('projects.title')}
+      className="max-w-lg"
+      placement="sheet"
     >
-      <button
-        aria-label={t('drawer.close')}
-        className="absolute inset-0 bg-slate-900/40"
-        onClick={() => setOpen(false)}
-      />
-      <div className="relative flex max-h-full w-full max-w-lg flex-col rounded-lg bg-white shadow-xl">
+      <>
         <div className="flex items-center border-b border-slate-200 px-4 py-3">
           <h2 className="flex-1 font-semibold">{t('projects.title')}</h2>
           <button aria-label={t('drawer.close')} className={btn} onClick={() => setOpen(false)}>
@@ -185,7 +183,7 @@ export function ProjectsDialog() {
             </li>
           ))}
         </ul>
-      </div>
-    </div>
+      </>
+    </Modal>
   );
 }

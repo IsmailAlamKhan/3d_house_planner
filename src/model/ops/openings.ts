@@ -16,13 +16,13 @@ const DEFAULTS: Record<
 function validate(p: Project, o: Opening): void {
   const wall = getWall(p, o.wallId);
   if (!openingFitsWall(wallLength(wall), o.offset, o.width)) {
-    throw new ModelError('That door/window does not fit on this wall');
+    throw new ModelError('That door/window does not fit on this wall', 'err.openingFit');
   }
   if (o.sillHeight + o.height > wallHeight(p, wall) + 1e-9) {
-    throw new ModelError('That door/window is taller than the wall');
+    throw new ModelError('That door/window is taller than the wall', 'err.openingTall');
   }
   if (findOverlappingOpening(p.openings, o.wallId, o)) {
-    throw new ModelError('That spot is already taken by another door/window');
+    throw new ModelError('That spot is already taken by another door/window', 'err.openingTaken');
   }
 }
 
@@ -66,7 +66,10 @@ export function updateOpening(p: Project, id: string, patch: Partial<Omit<Openin
     existing.locked &&
     GEOMETRY.some((k) => k in patch && (patch as Record<string, unknown>)[k] !== existing[k])
   ) {
-    throw new ModelError('That window is part of the existing building and is fixed.');
+    throw new ModelError(
+      'That window is part of the existing building and is fixed.',
+      'err.windowFixed',
+    );
   }
   validate(p, { ...existing, ...patch });
   Object.assign(existing, patch);
@@ -74,6 +77,9 @@ export function updateOpening(p: Project, id: string, patch: Partial<Omit<Openin
 
 export function deleteOpening(p: Project, id: string): void {
   if (getOpening(p, id).locked)
-    throw new ModelError('That window is part of the existing building and cannot be removed.');
+    throw new ModelError(
+      'That window is part of the existing building and cannot be removed.',
+      'err.windowKeep',
+    );
   p.openings = p.openings.filter((o) => o.id !== id);
 }

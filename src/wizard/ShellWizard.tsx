@@ -1,9 +1,10 @@
 import { X } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { useT } from '../i18n';
+import { fmtNum, useT } from '../i18n';
 import { useModel } from '../model/store';
 import { saveProject } from '../persistence/repo';
 import { TEMPLATES } from '../templates';
+import { Modal } from '../ui/Modal';
 import { useUiStore } from '../ui/uiStore';
 import { projectWithTemplate } from './finish';
 import {
@@ -103,13 +104,14 @@ export function ShellWizard() {
   const canNext = step === 1 ? errors.length === 0 : step === 2 ? heights.ok : true;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      role="dialog"
-      aria-label={t('wiz.title')}
+    <Modal
+      open
+      onClose={() => setOpen(false)}
+      label={t('wiz.title')}
+      className="max-w-xl"
+      placement="sheet"
     >
-      <div className="absolute inset-0 bg-slate-900/40" onClick={() => setOpen(false)} />
-      <div className="relative flex max-h-full w-full max-w-xl flex-col rounded-lg bg-white shadow-xl">
+      <>
         <div className="flex items-center border-b border-slate-200 px-4 py-3">
           <h2 className="flex-1 font-semibold">
             {t('wiz.title')} — {step}/4{' '}
@@ -211,7 +213,7 @@ export function ShellWizard() {
                 onChange={(v) => set({ groundHeight: v })}
               />
               <p className="text-sm">
-                {t('wiz.upperResult').replace('{h}', heights.upper.toFixed(2))}
+                {t('wiz.upperResult').replace('{h}', fmtNum(heights.upper, 2))}
               </p>
               {heights.warnings.map((w) => (
                 <p key={w} role="alert" className="text-sm text-amber-700">
@@ -228,7 +230,7 @@ export function ShellWizard() {
                   <div key={i} className="flex items-center gap-1 text-sm">
                     <input
                       className={field}
-                      aria-label="column x"
+                      aria-label={`${t('wiz.columns')} x`}
                       type="number"
                       step={0.1}
                       value={col.position.x}
@@ -242,7 +244,7 @@ export function ShellWizard() {
                     />
                     <input
                       className={field}
-                      aria-label="column y"
+                      aria-label={`${t('wiz.columns')} y`}
                       type="number"
                       step={0.1}
                       value={col.position.y}
@@ -325,7 +327,7 @@ export function ShellWizard() {
                     >
                       {[0.2, 0.3, 0.4, 0.5, 0.6].map((d) => (
                         <option key={d} value={d}>
-                          {d.toFixed(1)} m
+                          {fmtNum(d, 1)} {t('unit.m')}
                         </option>
                       ))}
                     </select>
@@ -375,7 +377,7 @@ export function ShellWizard() {
                       className={field}
                       type="number"
                       step={0.1}
-                      aria-label="plumbing x"
+                      aria-label={`${t('wiz.plumbing')} x`}
                       value={p.x}
                       onChange={(e) =>
                         set({
@@ -389,7 +391,7 @@ export function ShellWizard() {
                       className={field}
                       type="number"
                       step={0.1}
-                      aria-label="plumbing y"
+                      aria-label={`${t('wiz.plumbing')} y`}
                       value={p.y}
                       onChange={(e) =>
                         set({
@@ -540,8 +542,8 @@ export function ShellWizard() {
             </button>
           )}
         </div>
-      </div>
-    </div>
+      </>
+    </Modal>
   );
 }
 

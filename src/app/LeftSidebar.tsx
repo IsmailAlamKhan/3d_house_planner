@@ -1,20 +1,22 @@
-import { Bot, Layers, ListChecks, Shapes } from 'lucide-react';
+import { Bot, Layers, ListChecks, Shapes, StickyNote } from 'lucide-react';
 import { useT } from '../i18n';
 import { AiPanel } from '../ai/AiPanel';
 import { ChecksPanel, useIssueCount } from '../checks/ChecksPanel';
 import { LibraryPanel } from '../catalog/LibraryPanel';
+import { NotesPanel } from '../notes/NotesPanel';
 import { LevelsPanel } from './LevelsPanel';
 import { useUiStore, type LeftTab } from '../ui/uiStore';
 
 const tabs: {
   id: LeftTab;
-  label: 'sidebar.library' | 'sidebar.levels' | 'sidebar.ai' | 'sidebar.checks';
+  label: 'sidebar.library' | 'sidebar.levels' | 'sidebar.ai' | 'sidebar.checks' | 'sidebar.notes';
   icon: typeof Bot;
 }[] = [
   { id: 'library', label: 'sidebar.library', icon: Shapes },
   { id: 'levels', label: 'sidebar.levels', icon: Layers },
   { id: 'ai', label: 'sidebar.ai', icon: Bot },
   { id: 'checks', label: 'sidebar.checks', icon: ListChecks },
+  { id: 'notes', label: 'sidebar.notes', icon: StickyNote },
 ];
 
 export function LeftSidebar() {
@@ -28,6 +30,7 @@ export function LeftSidebar() {
           <button
             key={id}
             role="tab"
+            data-tour={`tab-${id}`}
             aria-selected={leftTab === id}
             onClick={() => setLeftTab(id)}
             className={`flex flex-1 flex-col items-center gap-0.5 px-1 py-2 text-xs ${
@@ -41,7 +44,7 @@ export function LeftSidebar() {
               {id === 'checks' && issues.errors + issues.warnings > 0 && (
                 <span
                   aria-label={`${issues.errors + issues.warnings}`}
-                  className={`absolute -right-2 -top-1.5 rounded-full px-1 text-[9px] font-bold leading-4 text-white ${issues.errors ? 'bg-red-500' : 'bg-amber-500'}`}
+                  className={`absolute -right-2 -top-1.5 rounded-full px-1 text-[9px] font-bold leading-4 text-white ${issues.errors ? 'bg-red-700' : 'bg-amber-700'}`}
                 >
                   {issues.errors + issues.warnings}
                 </span>
@@ -61,6 +64,8 @@ export function LeftSidebar() {
           <LibraryPanel />
         ) : leftTab === 'checks' ? (
           <ChecksPanel />
+        ) : leftTab === 'notes' ? (
+          <NotesPanel />
         ) : (
           <AiPanel />
         )}

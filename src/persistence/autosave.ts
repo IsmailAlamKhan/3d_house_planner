@@ -31,3 +31,11 @@ export function startAutosave(
     }
   };
 }
+
+/** Saves the open project right now (Ctrl/Cmd+S) and returns once it is stored. */
+export async function saveNow(backend?: StorageBackend): Promise<void> {
+  const { useModel } = await import('../model/store');
+  const { project } = useModel.getState();
+  setLastProjectId(project.id);
+  await saveProject(project, backend);
+}

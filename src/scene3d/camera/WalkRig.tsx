@@ -13,6 +13,7 @@ import {
   nearestStandable,
   spawnWalker,
 } from './walk';
+import { modalOpen } from '../../ui/modalOpen';
 
 /** Touch joystick and keyboard share this: the latest requested movement. */
 export const joystick = { x: 0, y: 0 };
@@ -53,6 +54,7 @@ export function WalkRig() {
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
+      if (modalOpen()) return;
       if (typing(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === 'Escape') {
         useCamera.getState().setMode('orbit');
