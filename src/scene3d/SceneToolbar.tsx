@@ -1,0 +1,107 @@
+import { DoorOpen, Home, Maximize } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useT } from '../i18n';
+import type { WallMode } from './sceneModel';
+import { type LevelFilter, useSceneStore } from './sceneStore';
+
+function Toggle({
+  active,
+  label,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      title={label}
+      aria-label={label}
+      aria-pressed={active}
+      onClick={onClick}
+      className={`rounded-md p-2 ${active ? 'bg-sky-100 text-sky-700' : 'text-slate-600 hover:bg-slate-100'}`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function Segmented<T extends string>({
+  value,
+  options,
+  onChange,
+  label,
+}: {
+  value: T;
+  options: { id: T; label: string }[];
+  onChange: (v: T) => void;
+  label: string;
+}) {
+  return (
+    <div role="group" aria-label={label} className="flex rounded-md bg-slate-100 p-0.5 text-xs">
+      {options.map((o) => (
+        <button
+          key={o.id}
+          aria-pressed={value === o.id}
+          onClick={() => onChange(o.id)}
+          className={`rounded px-2 py-1 ${value === o.id ? 'bg-white font-semibold shadow-sm' : 'text-slate-600'}`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function SceneToolbar() {
+  const t = useT();
+  const { levelFilter, dollhouse, wallMode, doorsOpen, setPref, resetCamera } = useSceneStore();
+  return (
+    <div className="pointer-events-none absolute left-2 top-2 flex max-w-[calc(100%-1rem)] flex-wrap items-center gap-1">
+      <div
+        role="toolbar"
+        aria-label="3D view options"
+        className="pointer-events-auto flex flex-wrap items-center gap-1 rounded-lg border border-slate-200 bg-white/95 p-1 shadow-sm"
+      >
+        <Segmented<LevelFilter>
+          label={t('view3d.levels')}
+          value={levelFilter}
+          onChange={(v) => setPref('levelFilter', v)}
+          options={[
+            { id: 'all', label: t('view3d.allLevels') },
+            { id: 'below', label: t('view3d.activeBelow') },
+          ]}
+        />
+        <Segmented<WallMode>
+          label={t('view3d.walls')}
+          value={wallMode}
+          onChange={(v) => setPref('wallMode', v)}
+          options={[
+            { id: 'up', label: t('view3d.wallsUp') },
+            { id: 'cut', label: t('view3d.wallsCut') },
+            { id: 'transparent', label: t('view3d.wallsTransparent') },
+          ]}
+        />
+        <Toggle
+          active={dollhouse}
+          label={t('view3d.dollhouse')}
+          onClick={() => setPref('dollhouse', !dollhouse)}
+        >
+          <Home size={18} />
+        </Toggle>
+        <Toggle
+          active={doorsOpen}
+          label={t('view3d.doorsOpen')}
+          onClick={() => setPref('doorsOpen', !doorsOpen)}
+        >
+          <DoorOpen size={18} />
+        </Toggle>
+        <Toggle active={false} label={t('view3d.resetCamera')} onClick={resetCamera}>
+          <Maximize size={18} />
+        </Toggle>
+      </div>
+    </div>
+  );
+}

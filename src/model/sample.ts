@@ -115,7 +115,6 @@ export function createSampleProject(): Project {
       rotation: Math.PI / 2,
       width: 1,
     });
-    addRoof(p, { levelId: L1, kind: 'void', polygon: rect(8, 7.4, 9, 11.9) });
     addRoof(p, { levelId: L1, kind: 'flat', polygon: rect(0, 0, 10, 12) });
 
     addItem(p, { levelId: L0, catalogId: 'sofa-3seat', position: { x: 3, y: 5.5 } });
