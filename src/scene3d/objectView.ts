@@ -4,38 +4,46 @@ const variants = new Map<string, Material>();
 
 export interface ObjectFlags {
   highlight: boolean;
+  /** Make lamp surfaces (meshes marked `userData.lamp`) glow. */
+  lit?: boolean;
   clip?: Plane;
 }
 
-/** Shared material variant (selection tint and/or clipping plane) so many instances reuse a few materials. */
-function variantOf(base: Material, flags: ObjectFlags): Material {
-  const std = base as MeshStandardMaterial;
-  if (!flags.highlight && !flags.clip) return base;
-  const key = `${base.uuid}|${flags.highlight ? 'h' : ''}|${flags.clip ? flags.clip.constant : ''}`;
+/** Shared material variant (selection tint, lamp glow and/or clipping plane) so many instances reuse a few materials. */
+function variantOf(base: Material, flags: ObjectFlags, isLamp: boolean): Material {
+  const glow = !!flags.lit && isLamp;
+  if (!flags.highlight && !flags.clip && !glow) return base;
+  const key = `${base.uuid}|${flags.highlight ? 'h' : ''}|${glow ? 'l' : ''}|${flags.clip ? flags.clip.constant : ''}`;
   let v = variants.get(key);
   if (!v) {
-    v = base.clone();
-    if (flags.highlight && 'emissive' in std) {
-      (v as MeshStandardMaterial).emissive.set('#0ea5e9');
-      (v as MeshStandardMaterial).emissiveIntensity = 0.55;
+    const clone = base.clone() as MeshStandardMaterial;
+    if (glow && 'emissive' in clone) {
+      clone.emissive.copy(clone.color);
+      clone.emissiveIntensity = 1.8;
     }
-    if (flags.clip) v.clippingPlanes = [flags.clip];
-    variants.set(key, v);
+    if (flags.highlight && 'emissive' in clone) {
+      clone.emissive.set('#0ea5e9');
+      clone.emissiveIntensity = 0.55;
+    }
+    if (flags.clip) clone.clippingPlanes = [flags.clip];
+    variants.set(key, clone);
+    v = clone;
   }
   return v;
 }
 
 /**
- * A render copy of a catalog object: shares geometry with the cached template, swaps in tinted / clipped
+ * A render copy of a catalog object: shares geometry with the cached template, swaps in tinted / glowing / clipped
  * material variants when needed. The template itself is never mutated.
  */
 export function prepareObject(template: Object3D, flags: ObjectFlags): Object3D {
   const copy = template.clone(true);
   copy.traverse((o) => {
-    if (o instanceof Mesh)
-      o.material = Array.isArray(o.material)
-        ? o.material.map((m: Material) => variantOf(m, flags))
-        : variantOf(o.material as Material, flags);
+    if (!(o instanceof Mesh)) return;
+    const lamp = o.userData.lamp === true;
+    o.material = Array.isArray(o.material)
+      ? o.material.map((m: Material) => variantOf(m, flags, lamp))
+      : variantOf(o.material as Material, flags, lamp);
   });
   return copy;
 }

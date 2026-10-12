@@ -16,6 +16,7 @@ interface Def {
   placement?: Placement;
   mountHeight?: number;
   wallSnap?: boolean;
+  lamp?: CatalogEntry['lamp'];
   props?: PropSpec[];
   defaults: Props;
   build: (g: Group, p: Props, s: Size) => void;
@@ -30,6 +31,7 @@ function entry(d: Def): CatalogEntry {
     placement: d.placement ?? 'floor',
     mountHeight: d.mountHeight,
     wallSnap: d.wallSnap,
+    lamp: d.lamp,
     defaultSize: d.size,
     minScale: 0.4,
     maxScale: 3,
@@ -644,6 +646,7 @@ function ceilingLight(): CatalogEntry {
     category: 'other',
     size: { w: 0.4, d: 0.4, h: 0.08 },
     placement: 'ceiling',
+    lamp: { y: () => -0.15, color: '#ffe2b0', intensity: 26 },
     defaults: { color: '#fff7d6' },
     props: [colorProp('cprop.lightColor')],
     build: (g, p, s) => {
@@ -651,6 +654,7 @@ function ceilingLight(): CatalogEntry {
       d.scale.set(s.w, 1, s.d);
       const l = cyl(g, 0.42, 0.42, 0.01, [0, -0.005, 0], c(p), 0.2, 32);
       l.scale.set(s.w, 1, s.d);
+      l.userData.lamp = true;
     },
     draw: (p, s) => (
       <g>
@@ -668,13 +672,14 @@ function pendantLight(): CatalogEntry {
     category: 'other',
     size: { w: 0.45, d: 0.45, h: 0.9 },
     placement: 'ceiling',
+    lamp: { y: () => 0.1, color: '#ffd9a0', intensity: 20 },
     defaults: { color: '#f59e0b' },
     props: [colorProp('cprop.shadeColor')],
     build: (g, p, s) => {
       cyl(g, 0.004, 0.004, s.h - 0.25, [0, 0.25, 0], '#27272a', 0.5, 6);
       const shade = cyl(g, 0.06, 0.5, 0.25, [0, 0, 0], c(p), 0.5, 28);
       shade.scale.set(s.w, 1, s.d);
-      sphere(g, 0.05, [0, 0.1, 0], '#fff7d6');
+      sphere(g, 0.05, [0, 0.1, 0], '#fff7d6').userData.lamp = true;
     },
     draw: (p, s) => (
       <g>
@@ -690,6 +695,7 @@ function floorLamp(): CatalogEntry {
     id: 'floor-lamp',
     category: 'other',
     size: { w: 0.4, d: 0.4, h: 1.6 },
+    lamp: { y: (s) => s.h - 0.2, color: '#ffd9a0', intensity: 13 },
     defaults: { color: '#f3e9d2' },
     props: [colorProp('cprop.shadeColor')],
     build: (g, p, s) => {
@@ -697,6 +703,7 @@ function floorLamp(): CatalogEntry {
       cyl(g, 0.012, 0.012, s.h - 0.4, [0, 0.03, 0], '#27272a', 0.4, 8);
       const shade = cyl(g, 0.14, 0.2, 0.3, [0, s.h - 0.34, 0], c(p), 0.8, 24, 0, 0.9);
       shade.scale.set(s.w / 0.4, 1, s.d / 0.4);
+      shade.userData.lamp = true;
     },
     draw: (p, s) => (
       <g>

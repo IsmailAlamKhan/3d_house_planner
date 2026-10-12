@@ -1,4 +1,7 @@
-import { DoorOpen, Home, Maximize, Move3d, Rotate3d } from 'lucide-react';
+import { DoorOpen, Home, Maximize, Move3d, Pipette, Rotate3d } from 'lucide-react';
+import { EyedropperHint } from '../app/EyedropperHint';
+import { LightingPanel } from './LightingPanel';
+import { useModel } from '../model/store';
 import type { ReactNode } from 'react';
 import { useT } from '../i18n';
 import type { WallMode } from './sceneModel';
@@ -57,6 +60,8 @@ function Segmented<T extends string>({
 
 export function SceneToolbar() {
   const t = useT();
+  const tool = useModel((s) => s.tool);
+  const setTool = useModel((s) => s.setTool);
   const { levelFilter, dollhouse, wallMode, doorsOpen, gizmoMode, setPref, resetCamera } =
     useSceneStore();
   return (
@@ -113,10 +118,19 @@ export function SceneToolbar() {
         >
           <Rotate3d size={18} />
         </Toggle>
+        <Toggle
+          active={tool === 'eyedropper'}
+          label={t('tool.eyedropper')}
+          onClick={() => setTool(tool === 'eyedropper' ? 'select' : 'eyedropper')}
+        >
+          <Pipette size={18} />
+        </Toggle>
+        <LightingPanel />
         <Toggle active={false} label={t('view3d.resetCamera')} onClick={resetCamera}>
           <Maximize size={18} />
         </Toggle>
       </div>
+      {tool === 'eyedropper' && <EyedropperHint />}
     </div>
   );
 }

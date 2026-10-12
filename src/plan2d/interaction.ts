@@ -22,6 +22,9 @@ import { getEntry, itemSize } from '../catalog';
 import { placeExistingItem, snapAngle } from '../catalog/placement';
 import { boxSelect, hitTest, type ItemBox, type OpeningBox } from './hit';
 import { openingFrame } from './symbols';
+import { eyedrop } from '../materials/eyedropper';
+import type { Surface } from '../materials/surfaces';
+import { faceField, sideOfWall } from '../model/ops';
 import { computeEndpointMove, computeWallMove, wallsOnRoomOutline } from './moves';
 import { usePlanStore } from './planStore';
 import { fitBounds, panBy, toWorld, zoomAt } from './view';
@@ -156,6 +159,31 @@ export function fitToShell(): void {
   if (!size.w || !size.h) return;
   const b = polygonBounds(useModel.getState().project.shell.footprint);
   usePlanStore.getState().setView(fitBounds(b.min, b.max, size));
+}
+
+/** The paintable surface under a plan point: a wall face (by which side of the wall was clicked), a floor, or an item. */
+function surfaceAt(w: Vec2): Surface | null {
+  const { view } = usePlanStore.getState();
+  const { project, walls, rooms, columns, items, openings } = levelData();
+  const hit = hitTest(w, {
+    walls,
+    rooms,
+    columns,
+    items,
+    openings,
+    selection: NO_SELECTION,
+    px: 1 / view.scale,
+  });
+  if (!hit || hit.type === 'handle' || hit.type === 'rotate') return null;
+  if (hit.type === 'wall') {
+    const wall = walls.find((x) => x.id === hit.id);
+    return wall
+      ? { type: 'wall', wallId: wall.id, field: faceField(project, wall, sideOfWall(wall, w)) }
+      : null;
+  }
+  if (hit.type === 'room') return { type: 'floor', roomId: hit.id };
+  if (hit.type === 'item') return { type: 'item', itemId: hit.id };
+  return null;
 }
 
 /** Typed-length helpers (wall tool). */
@@ -317,6 +345,13 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     if (armed) {
       placeCatalogEntry(armed, freePoint(w), { snapWalls: !e.altKey });
       useCatalogDrag.getState().setArmed(null);
+      return;
+    }
+
+    if (tool === 'eyedropper') {
+      const surface = surfaceAt(w);
+      if (surface) eyedrop(surface, e.altKey);
+      else toast('That surface can’t take a material.');
       return;
     }
 
@@ -646,7 +681,7 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     }
     if (drawing) return;
     const k = e.key.toLowerCase();
-    const tools = { v: 'select', w: 'wall', r: 'room', m: 'measure' } as const;
+    const tools = { v: 'select', w: 'wall', r: 'room', m: 'measure', i: 'eyedropper' } as const;
     if (k === 'r' && store.selection.type === 'item') return;
     if (k in tools) store.setTool(tools[k as keyof typeof tools]);
   }

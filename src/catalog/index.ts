@@ -42,3 +42,7 @@ export function itemSize(entry: CatalogEntry, scale: { x: number; y: number; z: 
     d: entry.defaultSize.d * scale.z,
   };
 }
+
+/** The colour property that tints an item's main surface — what a library material replaces. */
+export const surfaceKey = (entry: CatalogEntry): string | undefined =>
+  entry.props.find((p) => p.kind === 'color')?.key;

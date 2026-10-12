@@ -6,3 +6,4 @@ export * from './rooms';
 export * from './selection';
 export * from './walls';
 export * from './plan';
+export * from './paint';

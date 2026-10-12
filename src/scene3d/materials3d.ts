@@ -1,5 +1,5 @@
 import { DoubleSide, MeshStandardMaterial, type Plane } from 'three';
-import { resolveMaterial } from '../materials';
+import { getTexture, resolveMaterial } from '../materials';
 import type { MaterialOverride } from '../model/types';
 
 const cache = new Map<string, MeshStandardMaterial>();
@@ -24,9 +24,12 @@ export function getMaterial(
   let m = cache.get(id);
   if (!m) {
     const spec = resolveMaterial(key, overrides);
+    const map = getTexture(spec.def);
     const translucent = spec.opacity < 1 || flags.ghost;
     m = new MeshStandardMaterial({
-      color: spec.color,
+      // A texture already carries the colour; only an explicit override tints it.
+      color: map ? (overrides[key]?.color ?? '#ffffff') : spec.color,
+      map,
       roughness: spec.roughness,
       metalness: spec.metalness,
       transparent: translucent,

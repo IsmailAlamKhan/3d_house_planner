@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import {
   type CatalogEntry,
   type PropSpec,
@@ -6,13 +5,16 @@ import {
   entryForOpening,
   itemSize,
   openingStyles,
+  surfaceKey,
 } from '../catalog';
 import { type TranslationKey, useT } from '../i18n';
-import { ModelError, updateItem, updateOpening } from '../model/ops';
+import { ModelError, paintItemSurface, updateItem, updateOpening } from '../model/ops';
 import { useModel } from '../model/store';
 import type { Item, Opening } from '../model/types';
 import { formatLength, parseLength } from '../ui/units';
 import { CommitField, Row, inputCls, shared, useEditor } from './fields';
+import { MaterialPicker } from './MaterialPicker';
+import { NativeColor } from './NativeColor';
 
 type Mixed = string;
 
@@ -26,22 +28,11 @@ function ColorField({
   value: string | undefined;
   onCommit: (v: string) => void;
 }) {
-  const ref = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    // The native `change` event fires when the picker closes; React's onChange would fire on every drag.
-    const onChange = () => onCommit(el.value);
-    el.addEventListener('change', onChange);
-    return () => el.removeEventListener('change', onChange);
-  });
   return (
     <Row name={name}>
-      <input
-        key={value}
-        ref={ref}
-        type="color"
-        defaultValue={value ?? '#cccccc'}
+      <NativeColor
+        value={value ?? '#cccccc'}
+        onCommit={onCommit}
         className="h-7 w-32 cursor-pointer rounded border border-slate-300 bg-white p-0.5"
       />
     </Row>
@@ -199,6 +190,17 @@ function ItemProps({ items }: { items: Item[] }) {
             const m = parseLength(v, units);
             if (m !== null && m >= 0) run((d) => updateItem(d, single.id, { elevation: m }));
           }}
+        />
+      )}
+      {entry && surfaceKey(entry) && (
+        <MaterialPicker
+          label={t('mat.itemSurface')}
+          value={shared(items, (i) =>
+            typeof i.props.material === 'string' ? i.props.material : null,
+          )}
+          categories={['surface', 'floor']}
+          onPick={(m) => run((d) => ids.forEach((id) => paintItemSurface(d, id, m)))}
+          onClear={() => run((d) => ids.forEach((id) => paintItemSurface(d, id, null)))}
         />
       )}
       {entry?.props.map((spec) => (

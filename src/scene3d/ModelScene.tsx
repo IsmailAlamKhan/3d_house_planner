@@ -1,6 +1,7 @@
 import { type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { EdgesGeometry, Plane, Vector3 } from 'three';
+import { t } from '../i18n';
 import { useModel } from '../model/store';
 import type { MaterialOverride } from '../model/types';
 import { type AnyPart, type ObjectPart, type Part, isObjectPart } from './generators/common';
@@ -10,8 +11,12 @@ import { TransformControls } from '@react-three/drei';
 import { moveItemTo } from '../catalog/actions';
 import { useCatalogDrag } from '../catalog/dragStore';
 import { selectFrom3d } from './select';
+import { eyedrop } from '../materials/eyedropper';
+import { toast } from '../catalog/actions';
+import { surfaceFromPart } from './eyedropper3d';
 import { DEFAULT_CUT_HEIGHT, type LevelScene, SceneBuilder } from './sceneModel';
 import { useSceneStore } from './sceneStore';
+import { interiorLightsOn } from './lighting';
 
 /** Builds (and memoizes) the renderable model for the current project and view options. */
 export function useSceneModel(): LevelScene[] {
@@ -54,6 +59,8 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
     ? (e: ThreeEvent<MouseEvent>) => {
         if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
         e.stopPropagation();
+        if (useModel.getState().tool === 'eyedropper')
+          return paintFrom3d(part, e.face?.materialIndex, e.nativeEvent.altKey);
         selectFrom3d(part.entity, e.nativeEvent.shiftKey);
       }
     : undefined;
@@ -76,17 +83,27 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
   );
 }
 
+/** Eyedropper click in the 3D view: copy the surface's material, or paint the held one onto it. */
+function paintFrom3d(part: AnyPart, materialIndex: number | undefined, alt: boolean): void {
+  const surface = surfaceFromPart(useModel.getState().project, part, materialIndex);
+  if (surface) eyedrop(surface, alt);
+  else toast(t('mat.noSurface'));
+}
+
 function ObjectView({
   part,
   clip,
   selected,
   gizmo,
+  lit,
 }: {
   part: ObjectPart;
   clip: Plane | undefined;
   selected: boolean;
   /** Show the move / rotate handle (a single selected piece of furniture). */
   gizmo: boolean;
+  /** Interior lights are on: lamp surfaces glow. */
+  lit: boolean;
 }) {
   const mode = useSceneStore((s) => s.gizmoMode);
   // Bumped after a handle drag so the object snaps back to whatever the model says.
@@ -95,9 +112,10 @@ function ObjectView({
     void nonce;
     return prepareObject(part.object, {
       highlight: selected,
+      lit: lit && part.lamp,
       clip: part.clipToCut ? clip : undefined,
     });
-  }, [part, selected, clip, nonce]);
+  }, [part, selected, clip, nonce, lit]);
   const commit = () => {
     const id = part.entity?.id;
     if (id) {
@@ -116,6 +134,8 @@ function ObjectView({
       onClick={(e: ThreeEvent<MouseEvent>) => {
         if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
         e.stopPropagation();
+        if (useModel.getState().tool === 'eyedropper')
+          return paintFrom3d(part, undefined, e.nativeEvent.altKey);
         selectFrom3d(part.entity, e.nativeEvent.shiftKey);
       }}
     >
@@ -142,7 +162,8 @@ export function ModelScene() {
   const overrides = useModel((s) => s.project.materials);
   const activeLevelId = useModel((s) => s.activeLevelId);
   const selection = useModel((s) => s.selection);
-  const { levelFilter, dollhouse, wallMode } = useSceneStore();
+  const { levelFilter, dollhouse, wallMode, lighting } = useSceneStore();
+  const lightsOn = interiorLightsOn(lighting);
 
   const activeIndex = levels.find((l) => l.level.id === activeLevelId)?.level.index ?? Infinity;
   const selected = useMemo(
@@ -173,6 +194,7 @@ export function ModelScene() {
                     key={p.id}
                     part={p}
                     clip={clips.get(level.id)}
+                    lit={lightsOn}
                     selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
                     gizmo={
                       !!p.entity &&

@@ -44,6 +44,8 @@ export interface ObjectPart {
   /** Positioned in level-local coordinates. Materials are shared and must not be mutated. */
   object: Object3D;
   clipToCut?: boolean;
+  /** Contains glowing lamp surfaces (they light up when the interior lights are on). */
+  lamp?: boolean;
 }
 
 export type AnyPart = Part | ObjectPart;

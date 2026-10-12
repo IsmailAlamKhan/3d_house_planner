@@ -2,11 +2,22 @@ import { type ReactNode } from 'react';
 import { polygonArea } from '../geometry/polygon';
 import { type TranslationKey, useT } from '../i18n';
 import { entryForOpening, getEntry } from '../catalog';
-import { updateRoom, updateWall } from '../model/ops';
+import {
+  type WallFaceField,
+  faceField,
+  paintLevelCeilings,
+  paintLevelFloors,
+  paintLevelWalls,
+  paintRoomWalls,
+  roomOnSide,
+  updateRoom,
+  updateWall,
+} from '../model/ops';
 import { ROOM_TYPES, WALL_TYPES } from '../model/schemas';
 import { useModel } from '../model/store';
 import type { Room, Wall } from '../model/types';
 import { ItemProps, OpeningProps } from './CatalogProps';
+import { MaterialPicker, ShortcutButton } from './MaterialPicker';
 import { CommitField, Row, SelectField, shared, useEditor } from './fields';
 import {
   formatArea,
@@ -17,24 +28,53 @@ import {
   smallUnitLabel,
 } from '../ui/units';
 
-/** Placeholder material ids until the materials library (prompt 8) provides the real catalog. */
-const WALL_MATERIALS = [
-  'paint-white',
-  'paint-cream',
-  'paint-grey',
-  'brick-red',
-  'concrete',
-  'wood-panel',
-  'tile-white',
-];
-const FLOOR_MATERIALS = [
-  'floor-oak',
-  'floor-walnut',
-  'floor-tile-grey',
-  'floor-tile-white',
-  'floor-concrete',
-  'floor-carpet-grey',
-];
+/** Picker for one face (inside / outside finish) of the selected wall(s), with the "same for this room / level" shortcuts. */
+function WallFacePicker({
+  field,
+  walls,
+  label,
+  onPick,
+}: {
+  field: WallFaceField;
+  walls: Wall[];
+  label: string;
+  onPick: (m: string) => void;
+}) {
+  const t = useT();
+  const project = useModel((s) => s.project);
+  const { run } = useEditor();
+  const wall = walls.length === 1 ? walls[0]! : null;
+  // The room this face looks into, if any.
+  const room = wall
+    ? (['left', 'right'] as const)
+        .map((side) =>
+          faceField(project, wall, side) === field ? roomOnSide(project, wall, side) : undefined,
+        )
+        .find(Boolean)
+    : undefined;
+  return (
+    <MaterialPicker
+      label={label}
+      value={shared(walls, (w) => w[field])}
+      categories={['wall']}
+      customPaint
+      onPick={onPick}
+    >
+      {wall && room && (
+        <ShortcutButton onClick={() => run((d) => paintRoomWalls(d, room.id, wall[field]))}>
+          {t('mat.allRoom')}
+        </ShortcutButton>
+      )}
+      {wall && (
+        <ShortcutButton
+          onClick={() => run((d) => paintLevelWalls(d, wall.levelId, field, wall[field]))}
+        >
+          {t('mat.allLevel')}
+        </ShortcutButton>
+      )}
+    </MaterialPicker>
+  );
+}
 
 function WallProps({ walls }: { walls: Wall[] }) {
   const t = useT();
@@ -83,20 +123,15 @@ function WallProps({ walls }: { walls: Wall[] }) {
           if (m !== null && m > 0) patch({ height: m });
         }}
       />
-      <SelectField
-        name={t('props.insideMaterial')}
-        value={shared(walls, (w) => w.materialInside)}
-        options={WALL_MATERIALS}
-        mixed={mixed}
-        onChange={(v) => patch({ materialInside: v })}
-      />
-      <SelectField
-        name={t('props.outsideMaterial')}
-        value={shared(walls, (w) => w.materialOutside)}
-        options={WALL_MATERIALS}
-        mixed={mixed}
-        onChange={(v) => patch({ materialOutside: v })}
-      />
+      {(['materialInside', 'materialOutside'] as const).map((field) => (
+        <WallFacePicker
+          key={field}
+          field={field}
+          walls={walls}
+          label={t(field === 'materialInside' ? 'props.insideMaterial' : 'props.outsideMaterial')}
+          onPick={(m) => patch({ [field]: m })}
+        />
+      ))}
       {error && (
         <p role="alert" className="pt-1 text-xs text-red-600">
           {error}
@@ -115,6 +150,7 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
   const mixed = t('props.mixed');
   const name = shared(rooms, (r) => r.name);
   const area = rooms.reduce((a, r) => a + polygonArea(r.polygon), 0);
+  const level = shared(rooms, (r) => r.levelId);
   return (
     <div>
       <CommitField
@@ -130,13 +166,35 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
         mixed={mixed}
         onChange={(v) => patch({ type: v as Room['type'] })}
       />
-      <SelectField
-        name={t('props.floorMaterial')}
+      <MaterialPicker
+        label={t('props.floorMaterial')}
         value={shared(rooms, (r) => r.floorMaterial)}
-        options={FLOOR_MATERIALS}
-        mixed={mixed}
-        onChange={(v) => patch({ floorMaterial: v })}
-      />
+        categories={['floor']}
+        onPick={(m) => patch({ floorMaterial: m })}
+      >
+        {level && (
+          <ShortcutButton
+            onClick={() => run((d) => paintLevelFloors(d, level, rooms[0]!.floorMaterial))}
+          >
+            {t('mat.allLevel')}
+          </ShortcutButton>
+        )}
+      </MaterialPicker>
+      <MaterialPicker
+        label={t('props.ceilingMaterial')}
+        value={shared(rooms, (r) => r.ceilingMaterial)}
+        categories={['ceiling']}
+        customPaint
+        onPick={(m) => patch({ ceilingMaterial: m })}
+      >
+        {level && (
+          <ShortcutButton
+            onClick={() => run((d) => paintLevelCeilings(d, level, rooms[0]!.ceilingMaterial))}
+          >
+            {t('mat.allLevel')}
+          </ShortcutButton>
+        )}
+      </MaterialPicker>
       <Row name={t('props.area')}>
         <span className="w-32 px-2 text-sm tabular-nums">{formatArea(area, units)}</span>
       </Row>

@@ -143,6 +143,8 @@ export const MaterialOverrideSchema = z.object({
 /** Per-project design defaults. View preferences (snap, grid, ghosts) are UI state, not project data. */
 export const SettingsSchema = z.object({
   defaultWallThickness: positive,
+  /** Bearing (degrees clockwise from north) of the direction the top of the plan points. Drives the sun in 3D. */
+  compass: z.number().min(0).max(360).default(0),
 });
 
 export const ProjectSchema = z.object({

@@ -301,6 +301,55 @@ describe('items', () => {
   });
 });
 
+describe('real-world UV scale (textures keep their size on every surface)', () => {
+  const uvSpan = (g: BufferGeometry, from = 0, count?: number) => {
+    const uv = g.getAttribute('uv');
+    const idx = g.getIndex();
+    const n = count ?? (idx ? idx.count : uv.count);
+    let minU = Infinity;
+    let maxU = -Infinity;
+    let minV = Infinity;
+    let maxV = -Infinity;
+    for (let i = from; i < from + n; i++) {
+      const k = idx ? idx.getX(i) : i;
+      minU = Math.min(minU, uv.getX(k));
+      maxU = Math.max(maxU, uv.getX(k));
+      minV = Math.min(minV, uv.getY(k));
+      maxV = Math.max(maxV, uv.getY(k));
+    }
+    return { du: maxU - minU, dv: maxV - minV };
+  };
+
+  it('room floors: UVs are in metres, so one tile is the same size in a small and a big room', () => {
+    const p = createSampleProject();
+    const big = p.rooms.find((r) => r.name === 'Living room')!; // 6 × 7 m
+    const small = p.rooms.find((r) => r.name === 'Bathroom')!; // 3 × 5 m
+    const a = uvSpan(generateRoomFloor(big, [])!.geometry);
+    const b = uvSpan(generateRoomFloor(small, [])!.geometry);
+    expect(a.du).toBeCloseTo(6);
+    expect(a.dv).toBeCloseTo(7);
+    expect(b.du).toBeCloseTo(3);
+    expect(b.dv).toBeCloseTo(5);
+  });
+
+  it('wall faces: UVs span the wall length × height in metres, so tiles on a short and a long wall match', () => {
+    for (const len of [2, 6]) {
+      const w = wall({ end: { x: len, y: 0 } });
+      const part = generateWall({
+        wall: w,
+        polygon: computeWallPolygons([w]).get('w')!,
+        openings: [],
+        height: 2.7,
+        footprint: fp,
+      })!;
+      const lid = part.geometry.groups.find((g) => g.materialIndex === 0)!;
+      const { du, dv } = uvSpan(part.geometry, lid.start, lid.count);
+      expect(du).toBeCloseTo(len);
+      expect(dv).toBeCloseTo(2.7);
+    }
+  });
+});
+
 describe('slabs, floors, ceilings, roofs, columns', () => {
   const p = createSampleProject();
   const L0 = p.levels[0]!;

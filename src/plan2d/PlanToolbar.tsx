@@ -3,6 +3,7 @@ import {
   Maximize,
   MousePointer2,
   PenLine,
+  Pipette,
   Ruler,
   Square,
   Trash2,
@@ -13,6 +14,7 @@ import { type TranslationKey, useT } from '../i18n';
 import { useModel } from '../model/store';
 import type { Tool } from '../model/types';
 import { deleteSelected, fitToShell } from './interaction';
+import { EyedropperHint } from '../app/EyedropperHint';
 import { usePlanStore } from './planStore';
 
 function Btn({
@@ -47,6 +49,7 @@ const TOOLS: { id: Tool; label: TranslationKey; icon: ReactNode }[] = [
   { id: 'wall', label: 'tool.wall', icon: <PenLine size={18} /> },
   { id: 'room', label: 'tool.room', icon: <Square size={18} /> },
   { id: 'measure', label: 'tool.measure', icon: <Ruler size={18} /> },
+  { id: 'eyedropper', label: 'tool.eyedropper', icon: <Pipette size={18} /> },
 ];
 
 export function PlanToolbar() {
@@ -89,6 +92,7 @@ export function PlanToolbar() {
           <Maximize size={18} />
         </Btn>
       </div>
+      {tool === 'eyedropper' && <EyedropperHint />}
       {tool === 'room' && (
         <div className="pointer-events-auto flex rounded-lg border border-slate-200 bg-white/95 p-0.5 text-xs shadow-sm">
           {(['rect', 'poly'] as const).map((m) => (

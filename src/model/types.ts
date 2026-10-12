@@ -29,4 +29,5 @@ export interface Selection {
   ids: string[];
 }
 
-export type Tool = 'select' | 'wall' | 'room' | 'opening' | 'item' | 'stair' | 'measure';
+export type Tool =
+  'select' | 'wall' | 'room' | 'opening' | 'item' | 'stair' | 'measure' | 'eyedropper';

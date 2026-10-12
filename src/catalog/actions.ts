@@ -46,7 +46,7 @@ export function evaluateDrop(
   return r.ok ? { ok: true, kind: 'item', placement: r } : r;
 }
 
-function activeEditableLevel(): { id: string } | null {
+export function activeEditableLevel(): { id: string } | null {
   const { project, activeLevelId } = useModel.getState();
   const level = project.levels.find((l) => l.id === activeLevelId);
   if (!level) return null;

@@ -48,3 +48,14 @@ export function wallHeight(project: Project, wall: Wall): number {
   const level = project.levels.find((l) => l.id === wall.levelId);
   return wall.height ?? level?.floorToCeiling ?? 2.7;
 }
+
+/** Which side of the wall is "inside": +1 = left (+z) is inside. Exterior walls face away from the shell. */
+export function insideSign(wall: Wall, footprint: Point[]): 1 | -1 {
+  if (wall.type !== 'exterior') return 1;
+  const mid = { x: (wall.start.x + wall.end.x) / 2, y: (wall.start.y + wall.end.y) / 2 };
+  const len = dist(wall.start, wall.end);
+  const nx = -(wall.end.y - wall.start.y) / len;
+  const ny = (wall.end.x - wall.start.x) / len;
+  const probe = Math.max(0.2, wall.thickness);
+  return pointInPolygon({ x: mid.x + nx * probe, y: mid.y + ny * probe }, footprint) ? 1 : -1;
+}

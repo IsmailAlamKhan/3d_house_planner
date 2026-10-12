@@ -35,6 +35,10 @@ export function useManipulationShortcuts(): void {
         useCatalogDrag.getState().setArmed(null);
         return;
       }
+      if (e.key === 'Escape' && useModel.getState().tool === 'eyedropper') {
+        useModel.getState().setTool('select');
+        return;
+      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'd') {
         e.preventDefault();
         duplicateSelected();

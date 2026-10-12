@@ -15,11 +15,13 @@
   "dependencies": {
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@react-three/postprocessing": "^2.19.1",
     "idb-keyval": "^6.3.0",
     "immer": "^11.1.21",
     "lucide-react": "^1.55.0",
     "nanoid": "^6.0.2",
     "polygon-clipping": "^0.15.7",
+    "postprocessing": "^6.39.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.186.1",

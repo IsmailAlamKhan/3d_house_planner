@@ -1,16 +1,22 @@
 import { Canvas, useThree } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
-import { useEffect, useMemo } from 'react';
+import { Suspense, lazy, useEffect, useMemo } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { polygonBounds } from '../geometry/polygon';
 import { useModel } from '../model/store';
 import { validateStair } from './generators/stairs';
 import { ModelScene } from './ModelScene';
 import { DropTarget } from './DropTarget';
+import { FpsMeter } from './FpsMeter';
+import { InteriorLights, SceneLights } from './SceneLights';
+import { QUALITY, resolveQuality } from './quality';
 import { carriedId, useCatalogDrag } from '../catalog/dragStore';
 import { SceneToolbar } from './SceneToolbar';
 import { selectFrom3d } from './select';
 import { useSceneStore } from './sceneStore';
+
+// Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
+const AmbientOcclusion = lazy(() => import('./AmbientOcclusion'));
 
 /** Frames the apartment whenever a project is opened or the user asks to reset the camera. */
 function CameraRig() {
@@ -82,38 +88,33 @@ function CarryMessage() {
 
 /** 3D viewport: the live model generated from the project, with orbit controls and click-to-select. */
 export function SceneCanvas() {
+  const choice = useSceneStore((s) => s.quality);
+  const showFps = useSceneStore((s) => s.showFps);
+  const quality = useMemo(() => resolveQuality(choice), [choice]);
+  const q = QUALITY[quality];
+  const night = useSceneStore((s) => s.lighting.mode === 'night');
   return (
     <div data-testid="scene-canvas" className="relative h-full w-full bg-slate-200">
+      {/* Antialiasing is fixed when the GL context is created, so a quality change remounts the canvas. */}
       <Canvas
-        shadows
-        camera={{ position: [15, 14, 20], fov: 45, near: 0.1, far: 500 }}
-        gl={{ localClippingEnabled: true, antialias: true }}
+        key={quality}
+        shadows={q.shadows}
+        dpr={q.dpr}
+        camera={{ position: [15, 14, 20], fov: 45, near: 0.1, far: 800 }}
+        gl={{ localClippingEnabled: true, antialias: q.antialias }}
         onPointerMissed={(e) => {
           if (!useCatalogDrag.getState().armedId) selectFrom3d(undefined, e.shiftKey);
         }}
       >
-        <color attach="background" args={['#dbe4ee']} />
-        <hemisphereLight args={['#ffffff', '#8b95a1', 0.7]} />
-        <directionalLight
-          position={[14, 24, 10]}
-          intensity={1.3}
-          castShadow
-          shadow-mapSize={[2048, 2048]}
-          shadow-camera-left={-20}
-          shadow-camera-right={20}
-          shadow-camera-top={20}
-          shadow-camera-bottom={-20}
-          shadow-camera-near={1}
-          shadow-camera-far={80}
-          shadow-bias={-0.0004}
-        />
+        <SceneLights quality={quality} />
+        <InteriorLights quality={quality} />
         <Grid
           position={[0, -0.25, 0]}
           args={[60, 60]}
           cellSize={1}
           sectionSize={5}
-          cellColor="#b6c0cc"
-          sectionColor="#8794a3"
+          cellColor={night ? '#26304f' : '#b6c0cc'}
+          sectionColor={night ? '#34406a' : '#8794a3'}
           fadeDistance={60}
           infiniteGrid
         />
@@ -121,6 +122,12 @@ export function SceneCanvas() {
         <DropTarget />
         <OrbitControls makeDefault maxPolarAngle={Math.PI * 0.495} />
         <CameraRig />
+        {showFps && <FpsMeter />}
+        {q.ao && (
+          <Suspense fallback={null}>
+            <AmbientOcclusion />
+          </Suspense>
+        )}
       </Canvas>
       <SceneToolbar />
       <StairWarnings />

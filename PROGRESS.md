@@ -38,3 +38,12 @@ Limitations: doubleHeight rooms open the slab above but their walls are not exte
 - [x] Properties for furniture (size, rotation, elevation, colours/variants) and doors/windows (style, size, sill, swing, mirror, offset, frame colours)
 Summary: Doors and windows are catalog-styled openings that cut real holes in 3D walls; furniture is catalog items scaled from default sizes. Placement rules are pure and unit-tested; Playwright covers drag from library to 2D and 3D, tap-to-place, move/slide drags, keyboard manipulation and refusals.
 Limitations: dining chairs and similar sets are one item (not separable); bay windows project outward but do not extend the wall; gizmo in 3D works on furniture only (doors/windows are moved in 2D or with arrow keys); no collision blocking (warnings only).
+
+## Prompt 6 — Materials, Textures & Lighting — DONE
+- [x] Material library with 40 presets and procedural, seamless, cached canvas textures; custom paint colours; real-world UV scale on every surface
+- [x] Swatch-grid picker for wall faces, floors, ceilings, furniture surfaces; "same for this room / level"; eyedropper (2D + 3D)
+- [x] Sun with time of day (06–20) + compass, shadows, sky dome + local environment light, Morning/Noon/Evening/Night presets, emissive lamps + point lights (capped by quality)
+- [x] Low/Medium/High (+Auto) quality: shadows, AA, pixel ratio, SSAO on High only; FPS readout
+Summary: Floors and walls keep one real-world pattern size everywhere (unit-tested via UV spans); the sun sweeps east→south→west so window shadows move; Evening/Night switch the sample's lamps on. Measured ~120 fps on an Apple-GPU laptop at High with the sample duplex.
+Deviations: "herringbone" is a chevron-style parquet (alternating slanted planks) rather than a true square-ended herringbone; sample project gained four lamp items so lighting presets show something.
+Limitations: lamp point lights are ranked by distance to the apartment centre, not the camera; item surface materials replace the colour of the main-surface meshes only; no normal/bump maps.
