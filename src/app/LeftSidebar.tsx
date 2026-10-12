@@ -1,5 +1,6 @@
 import { Bot, Layers, Shapes } from 'lucide-react';
 import { useT } from '../i18n';
+import { AiPanel } from '../ai/AiPanel';
 import { LibraryPanel } from '../catalog/LibraryPanel';
 import { LevelsPanel } from './LevelsPanel';
 import { useUiStore, type LeftTab } from '../ui/uiStore';
@@ -46,7 +47,7 @@ export function LeftSidebar() {
         ) : leftTab === 'library' ? (
           <LibraryPanel />
         ) : (
-          t('sidebar.empty')
+          <AiPanel />
         )}
       </div>
     </div>

@@ -1,7 +1,8 @@
 # Progress
 
 ## Deviations
-- (none yet)
+- Prompt 7: Zod 4 ships `z.toJSONSchema`, so `zod-to-json-schema` is not used.
+- Prompt 6: "herringbone" is a chevron-style parquet, not a true herringbone.
 
 ## Prompt 1 — Project Setup & Architecture — DONE
 - [x] Scaffold, scripts, folder structure, app shell, 3D + 2D canvases, i18n, docs, tests
@@ -47,3 +48,14 @@ Limitations: dining chairs and similar sets are one item (not separable); bay wi
 Summary: Floors and walls keep one real-world pattern size everywhere (unit-tested via UV spans); the sun sweeps east→south→west so window shadows move; Evening/Night switch the sample's lamps on. Measured ~120 fps on an Apple-GPU laptop at High with the sample duplex.
 Deviations: "herringbone" is a chevron-style parquet (alternating slanted planks) rather than a true square-ended herringbone; sample project gained four lamp items so lighting presets show something.
 Limitations: lamp point lights are ranked by distance to the apartment centre, not the camera; item surface materials replace the colour of the main-surface meshes only; no normal/bump maps.
+
+## Prompt 7 — AI Assistant: Prompt-to-Model and Prompt-to-Edit — DONE
+- [x] Zod `DesignIntent` / `EditOperation` schemas + JSON Schema for constrained decoding
+- [x] Provider abstraction (Ollama default, OpenAI-compatible, offline), `/api/ai` proxy (dev + preview) with allow-list, size/time limits, FIFO queue; settings + Test connection + status
+- [x] Layout solver (stair hall, adjacency-aware treemap, plumbing/stacking/column-snapping, doors/windows/entrance, furniture, plain-language warnings) and `applyPlan` as one undo step
+- [x] Offline generator (keyword rules) + offline edit reader; automatic fallback with a banner/message
+- [x] Edit operations (resize, move wall, add/remove/rename room, materials, items, openings, stair type) with preview diff, single-undo apply, never partial
+- [x] Robustness: compact prompts + examples, fence stripping, one repair round-trip, timeout/cancel, invalid output never applied
+- [x] UI: Design/Edit modes, examples, 3 variations with thumbnails, Apply/Discard
+Summary: "2 bedroom duplex with open kitchen" works with no model: valid 2-level model with stair, doors, windows, rooms and furniture. 83 AI unit tests (schemas, solver incl. unmet-adjacency/L-shaped shell/columns, offline briefs, edit ops, preview diff, pipeline with fake providers, store flows, proxy against a fake Ollama) + 3 Playwright flows.
+Limitations: verified against the real Ollama only for the "not reachable / model not installed" paths (Ollama is installed on this Mac but has no models; pulling a multi-GB model was not done) — successful model generations are covered with stubbed responses; the solver works on the largest rectangle inside the shell (warns when it is not a rectangle); `removeRoom` merges rooms instead of leaving a void; no double-height rooms or beams in generated designs (prompt 8).
