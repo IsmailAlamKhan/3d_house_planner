@@ -48,6 +48,9 @@ interface PlanState extends Prefs {
   snapResult: SnapResult | null;
   /** Short message shown over the canvas (e.g. why an edit was refused). */
   toast: string | null;
+  /** A region to pulse on the plan for a moment (used when jumping to a check result). */
+  flash: { min: Vec2; max: Vec2; key: number } | null;
+  setFlash: (f: { min: Vec2; max: Vec2 } | null) => void;
   setView: (v: View) => void;
   setSize: (s: { w: number; h: number }) => void;
   setCursor: (c: Vec2 | null, s?: SnapResult | null) => void;
@@ -62,6 +65,8 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   cursor: null,
   snapResult: null,
   toast: null,
+  flash: null,
+  setFlash: (f) => set({ flash: f ? { ...f, key: Date.now() } : null }),
   setView: (view) => set({ view }),
   setSize: (size) => set({ size }),
   setCursor: (cursor, snapResult = null) => set({ cursor, snapResult }),

@@ -2,7 +2,9 @@ import { Eye, EyeOff, Lock, Plus, Unlock } from 'lucide-react';
 import { useState } from 'react';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
-import { addLevel, updateLevel } from '../model/ops';
+import { addLevel, copyWallsFromBelow, updateLevel } from '../model/ops';
+import { toast } from '../catalog/actions';
+import { tf } from '../i18n';
 
 export function LevelsPanel() {
   const t = useT();
@@ -68,6 +70,25 @@ export function LevelsPanel() {
           </li>
         ))}
       </ul>
+      {(() => {
+        const active = levels.find((l) => l.id === activeId);
+        if (!active || active.index === 0) return null;
+        return (
+          <button
+            onClick={() => {
+              const n = apply((p) => copyWallsFromBelow(p, active.id));
+              toast(
+                n
+                  ? tf('levels.copied', { n, level: active.name })
+                  : tf('levels.copiedNone', { level: active.name }),
+              );
+            }}
+            className="w-full rounded-md border border-slate-300 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            {t('levels.copyBelow')}
+          </button>
+        );
+      })()}
       <button
         onClick={() => {
           const id = apply((p) => addLevel(p));

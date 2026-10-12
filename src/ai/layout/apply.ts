@@ -6,6 +6,7 @@ import { ModelError } from '../../model/ops';
 import type { Project } from '../../model/types';
 import type { LayoutPlan, PlannedRoom } from './plan';
 import { rectCenter } from './plan';
+import { addFacadeWindows } from '../../wizard/shell';
 import { wallFor } from './defaults';
 import type { DesignIntent } from '../schemas';
 
@@ -70,6 +71,9 @@ export function applyPlan(
     });
   }
 
+  // The building's existing windows are fixed: they go in first, planned openings fit around them.
+  for (const l of p.levels) addFacadeWindows(p, l.id);
+
   for (const o of plan.openings) {
     const wall = p.walls.find(
       (w) =>
@@ -122,6 +126,7 @@ export function applyPlan(
       room.type = match.type;
       room.floorMaterial = match.floorMaterial;
       room.ceilingMaterial = match.ceilingMaterial;
+      room.doubleHeight = match.doubleHeight ?? false;
       ops.paintRoomWalls(p, room.id, match.type === 'bathroom' ? 'tile-white' : wallMaterial);
     }
   }

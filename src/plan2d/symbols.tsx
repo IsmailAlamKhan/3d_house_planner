@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import { entryForOpening, getEntry, itemSize, withDefaults } from '../catalog';
 import { boxCorners } from '../geometry/collide';
 import { type Vec2, dist } from '../geometry/vec';
-import type { Item, Opening, Wall } from '../model/types';
+import type { Item, Opening, Project, Stair, Wall } from '../model/types';
+import { layoutStair, stairFootprintPlan, stairVoidPlan } from '../scene3d/generators/stairs';
 import { insideSign } from '../scene3d/generators/walls';
 
 const rad = (r: number) => (r * 180) / Math.PI;
@@ -116,5 +117,107 @@ export function itemCorners(item: Item, pose?: { position: Vec2; rotation: numbe
     size.w,
     size.d,
     pose?.rotation ?? item.rotation,
+  );
+}
+
+const ptsOf = (poly: Vec2[]) => poly.map((p) => `${p.x},${p.y}`).join(' ');
+
+/** Plan polygons of a stair for hit-testing: its steps on the lower level, the arrival opening on the upper one. */
+export function stairHitPolys(project: Project, stair: Stair, levelId: string): Vec2[][] {
+  const from = project.levels.find((l) => l.id === stair.fromLevelId);
+  const to = project.levels.find((l) => l.id === stair.toLevelId);
+  if (!from || !to) return [];
+  const layout = layoutStair(stair, from, to);
+  if (levelId === stair.fromLevelId) return stairFootprintPlan(stair, layout);
+  if (levelId === stair.toLevelId) return stairFootprintPlan(stair, layout);
+  return [];
+}
+
+/**
+ * Stair in plan. On its lower level: every step with an arrow marked UP. On the level it arrives at: the footprint
+ * as a dashed outline (that is where the slab opens), marked DN — it is the same stair, so moving one moves both.
+ */
+export function StairSymbol({
+  project,
+  stair,
+  levelId,
+  selected,
+  override,
+}: {
+  project: Project;
+  stair: Stair;
+  levelId: string;
+  selected: boolean;
+  override?: { position: Vec2; rotation: number };
+}): ReactNode {
+  const from = project.levels.find((l) => l.id === stair.fromLevelId);
+  const to = project.levels.find((l) => l.id === stair.toLevelId);
+  if (!from || !to) return null;
+  const pose = override
+    ? { ...stair, position: override.position, rotation: override.rotation }
+    : stair;
+  const layout = layoutStair(pose, from, to);
+  const steps = stairFootprintPlan(pose, layout);
+  const stroke = selected ? '#0284c7' : '#9d174d';
+  const toWorld = (p: Vec2): Vec2 => ({
+    x: pose.position.x + p.x * Math.cos(pose.rotation) - p.y * Math.sin(pose.rotation),
+    y: pose.position.y + p.x * Math.sin(pose.rotation) + p.y * Math.cos(pose.rotation),
+  });
+  const run = layout.runs[0]?.points ?? [];
+  const a = run[0] ? toWorld(run[0].p) : pose.position;
+  const b = run.length ? toWorld(run[run.length - 1]!.p) : pose.position;
+  const isFrom = levelId === stair.fromLevelId;
+  const label = isFrom ? 'UP' : 'DN';
+  const voids = stairVoidPlan(pose, layout);
+  return (
+    <g data-stair={stair.id} pointerEvents="none">
+      {isFrom ? (
+        <>
+          {steps.map((poly, i) => (
+            <polygon
+              key={i}
+              points={ptsOf(poly)}
+              fill={selected ? '#e0f2fe' : '#fdf2f8'}
+              fillOpacity={0.9}
+              stroke={stroke}
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+          <line
+            x1={a.x}
+            y1={a.y}
+            x2={b.x}
+            y2={b.y}
+            stroke={stroke}
+            strokeWidth={1.5}
+            vectorEffect="non-scaling-stroke"
+          />
+          <circle cx={a.x} cy={a.y} r={0.07} fill={stroke} />
+        </>
+      ) : (
+        voids.map((poly, i) => (
+          <polygon
+            key={i}
+            points={ptsOf(poly)}
+            fill="none"
+            stroke={stroke}
+            strokeWidth={1.5}
+            strokeDasharray="6 4"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))
+      )}
+      <text
+        x={(a.x + b.x) / 2}
+        y={(a.y + b.y) / 2 - 0.15}
+        fontSize={0.22}
+        textAnchor="middle"
+        fill={stroke}
+        fontWeight={700}
+      >
+        {label}
+      </text>
+    </g>
   );
 }

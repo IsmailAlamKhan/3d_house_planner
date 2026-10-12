@@ -32,6 +32,8 @@ export interface HitScene {
   columns: Column[];
   items?: ItemBox[];
   openings?: OpeningBox[];
+  /** Stairs visible on this level (their plan polygons). */
+  stairs?: { id: string; polys: Vec2[][] }[];
   selection: Selection;
   /** Pixel → meter conversion (1 / view scale). */
   px: number;
@@ -85,6 +87,8 @@ export function hitTest(p: Vec2, s: HitScene): Hit | null {
     if (Math.abs(u) <= o.width / 2 && Math.abs(v) <= o.thickness / 2 + 3 * s.px)
       return { type: 'opening', id: o.id };
   }
+  for (const st of s.stairs ?? [])
+    if (st.polys.some((poly) => pointInPolygon(p, poly))) return { type: 'stair', id: st.id };
   for (const c of s.columns) {
     const hw = c.size.w / 2 + 2 * s.px;
     const hd = c.size.d / 2 + 2 * s.px;

@@ -29,12 +29,36 @@ export const STAIR_TYPES = ['straight', 'L', 'U', 'spiral'] as const;
 export const COLUMN_SHAPES = ['rect', 'round'] as const;
 export const ROOF_KINDS = ['flat', 'skylight', 'void'] as const;
 
+/** A structural beam below a slab: an annotation checked against headroom (it hangs `drop` m below the ceiling). */
+export const BeamSchema = z.object({
+  id,
+  start: PointSchema,
+  end: PointSchema,
+  width: positive,
+  /** How far the beam hangs below the ceiling (m). */
+  drop: z.number().min(0).max(2),
+});
+
+/** A window that already exists in the facade (becomes a locked opening in the exterior wall). */
+export const FacadeWindowSchema = z.object({
+  id,
+  /** Index of the footprint edge (edge i runs from footprint[i] to footprint[i+1]). */
+  edge: z.number().int().min(0),
+  /** Distance from the edge's start to the window centre (m). */
+  offset: num,
+  width: positive,
+  height: positive,
+  sillHeight: z.number().nonnegative(),
+});
+
 export const ShellSchema = z.object({
   footprint: z.array(PointSchema).min(3),
   maxHeight: positive,
   entrance: z.object({ position: PointSchema, direction: num }),
   fixedPlumbingPoints: z.array(PointSchema),
   notes: z.string(),
+  beams: z.array(BeamSchema).default([]),
+  windows: z.array(FacadeWindowSchema).default([]),
 });
 
 export const LevelSchema = z.object({
@@ -74,6 +98,8 @@ export const OpeningSchema = z.object({
   swing: z.enum(SWINGS),
   /** Catalog style options (e.g. frame color). */
   props: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).default({}),
+  /** Part of the existing building (facade windows): cannot be moved, resized or deleted. */
+  locked: z.boolean().default(false),
 });
 
 export const RoomSchema = z.object({
@@ -145,6 +171,15 @@ export const SettingsSchema = z.object({
   defaultWallThickness: positive,
   /** Bearing (degrees clockwise from north) of the direction the top of the plan points. Drives the sun in 3D. */
   compass: z.number().min(0).max(360).default(0),
+  /** Limits used by the constraint checker. */
+  checks: z
+    .object({
+      /** Longest comfortable drain run from a wet room to a plumbing point (m). */
+      maxDrainRun: positive.default(6),
+      /** Minimum area (m²) per room type; types not listed use the built-in defaults. */
+      minAreas: z.record(z.string(), z.number().nonnegative()).default({}),
+    })
+    .default({ maxDrainRun: 6, minAreas: {} }),
 });
 
 export const ProjectSchema = z.object({

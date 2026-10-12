@@ -118,13 +118,13 @@ export function createSampleProject(): Project {
     addRoof(p, { levelId: L1, kind: 'flat', polygon: rect(0, 0, 10, 12) });
 
     addItem(p, { levelId: L0, catalogId: 'sofa-3seat', position: { x: 3, y: 5.5 } });
-    addItem(p, { levelId: L0, catalogId: 'dining-table-6', position: { x: 8, y: 3 } });
+    addItem(p, { levelId: L0, catalogId: 'dining-table-6', position: { x: 8, y: 2.1 } });
     addItem(p, { levelId: L0, catalogId: 'desk', position: { x: 5, y: 11.3 } });
     addItem(p, { levelId: L0, catalogId: 'ceiling-light', position: { x: 4.8, y: 1.5 } });
     addItem(p, { levelId: L0, catalogId: 'pendant-light', position: { x: 8, y: 3 } });
     addItem(p, { levelId: L0, catalogId: 'floor-lamp', position: { x: 0.5, y: 6.4 } });
     addItem(p, { levelId: L1, catalogId: 'ceiling-light', position: { x: 4.5, y: 4.5 } });
-    addItem(p, { levelId: L1, catalogId: 'bed-queen', position: { x: 3, y: 2.5 } });
+    addItem(p, { levelId: L1, catalogId: 'bed-queen', position: { x: 3, y: 2 } });
     addItem(p, {
       levelId: L1,
       catalogId: 'wardrobe',

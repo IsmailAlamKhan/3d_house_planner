@@ -384,6 +384,8 @@ export function solveLayout(input: SolveInput): LayoutPlan {
     specs: RoomSpec[][];
     score: number;
     notes: string[];
+    /** Region held by the double-height room (left open on the upper levels). */
+    dh?: Rect;
   } | null = null;
   for (const cand of candidates) {
     const notes: string[] = [];
@@ -392,10 +394,25 @@ export function solveLayout(input: SolveInput): LayoutPlan {
     let total = cand.penalty;
     let below: LevelResult | null = null;
     let belowSpecs: RoomSpec[] = [];
+    // A double-height room takes a whole region by itself (the largest), on the ground level only.
+    const dhWish = nLevels > 1 ? wishesByLevel[0]!.find((w) => w.intent.doubleHeight) : undefined;
+    const dhIdx =
+      dhWish && cand.regions.length >= 2
+        ? cand.regions.reduce((bi, r, i) => (rectArea(r) > rectArea(cand.regions[bi]!) ? i : bi), 0)
+        : -1;
+    const dhRect = dhIdx >= 0 ? cand.regions[dhIdx]! : undefined;
+    if (dhWish && !dhRect) total += 40;
+    const freeRegions = dhRect ? cand.regions.filter((_, i) => i !== dhIdx) : cand.regions;
     for (let li = 0; li < nLevels; li++) {
-      const available = cand.regions.reduce((s, r) => s + rectArea(r), 0);
-      const { specs } = scaleAreas(wishesByLevel[li]!, available, notes, intent.levels[li]!.name);
-      if (specs.length < cand.regions.length) {
+      const available = freeRegions.reduce((s, r) => s + rectArea(r), 0);
+      const wishes =
+        li === 0 && dhRect ? wishesByLevel[0]!.filter((w) => w !== dhWish) : wishesByLevel[li]!;
+      const scaled = scaleAreas(wishes, available, notes, intent.levels[li]!.name).specs;
+      const specs =
+        li === 0 && dhRect && dhWish
+          ? [...scaled, { ...specFor(dhWish, rectArea(dhRect)), fixed: dhRect, doubleHeight: true }]
+          : scaled;
+      if (specs.filter((s) => !s.fixed).length < freeRegions.length) {
         total += 1000;
         results.push({
           rects: new Map(),
@@ -418,7 +435,7 @@ export function solveLayout(input: SolveInput): LayoutPlan {
       const ctx: LevelContext = {
         shell,
         hall: cand.hall,
-        regions: cand.regions,
+        regions: freeRegions,
         plumbing: input.plumbing,
         wetBelow,
         roomsBelow,
@@ -431,7 +448,7 @@ export function solveLayout(input: SolveInput): LayoutPlan {
       belowSpecs = specs;
     }
     if (!best || total < best.score)
-      best = { cand, results, specs: specsPerLevel, score: total, notes };
+      best = { cand, results, specs: specsPerLevel, score: total, notes, dh: dhRect };
   }
   const chosen = best!;
   warnings.push(...chosen.notes);
@@ -443,7 +460,7 @@ export function solveLayout(input: SolveInput): LayoutPlan {
   for (let li = 0; li < nLevels; li++) {
     const hasHall = chosen.cand.hall.w > 0;
     const rectsByName = new Map(chosen.results[li]!.rects);
-    const fixed = hasHall ? [chosen.cand.hall] : [];
+    const fixed = [...(hasHall ? [chosen.cand.hall] : []), ...(chosen.dh ? [chosen.dh] : [])];
     const minW = new Map(chosen.specs[li]!.map((s) => [s.name, s.minWidth]));
     const snapped = snapToColumns(rectsByName, fixed, shell, columns, minW);
     if (snapped)
@@ -481,6 +498,22 @@ export function solveLayout(input: SolveInput): LayoutPlan {
         minWidth: spec.minWidth,
         floorMaterial: floorFor(spec.type, style),
         ceilingMaterial: 'paint-white',
+        doubleHeight: spec.doubleHeight,
+      });
+    }
+    // Above a double-height room the plan is open: keep its walls (a guard line) but no floor, doors or furniture.
+    if (li > 0 && chosen.dh) {
+      rooms.push({
+        key: `L${li}:Open to below`,
+        level: li,
+        name: 'Open to below',
+        type: 'other',
+        rect: chosen.dh,
+        wantedArea: rectArea(chosen.dh),
+        minWidth: 1,
+        floorMaterial: 'floor-oak',
+        ceilingMaterial: 'paint-white',
+        void: true,
       });
     }
     // Report constraints that stayed unmet.

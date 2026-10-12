@@ -1,23 +1,26 @@
-import { Bot, Layers, Shapes } from 'lucide-react';
+import { Bot, Layers, ListChecks, Shapes } from 'lucide-react';
 import { useT } from '../i18n';
 import { AiPanel } from '../ai/AiPanel';
+import { ChecksPanel, useIssueCount } from '../checks/ChecksPanel';
 import { LibraryPanel } from '../catalog/LibraryPanel';
 import { LevelsPanel } from './LevelsPanel';
 import { useUiStore, type LeftTab } from '../ui/uiStore';
 
 const tabs: {
   id: LeftTab;
-  label: 'sidebar.library' | 'sidebar.levels' | 'sidebar.ai';
+  label: 'sidebar.library' | 'sidebar.levels' | 'sidebar.ai' | 'sidebar.checks';
   icon: typeof Bot;
 }[] = [
   { id: 'library', label: 'sidebar.library', icon: Shapes },
   { id: 'levels', label: 'sidebar.levels', icon: Layers },
   { id: 'ai', label: 'sidebar.ai', icon: Bot },
+  { id: 'checks', label: 'sidebar.checks', icon: ListChecks },
 ];
 
 export function LeftSidebar() {
   const t = useT();
   const { leftTab, setLeftTab } = useUiStore();
+  const issues = useIssueCount();
   return (
     <div className="flex h-full flex-col">
       <div role="tablist" className="flex border-b border-slate-200">
@@ -33,7 +36,17 @@ export function LeftSidebar() {
                 : 'text-slate-600 hover:bg-slate-50'
             }`}
           >
-            <Icon size={16} />
+            <span className="relative">
+              <Icon size={16} />
+              {id === 'checks' && issues.errors + issues.warnings > 0 && (
+                <span
+                  aria-label={`${issues.errors + issues.warnings}`}
+                  className={`absolute -right-2 -top-1.5 rounded-full px-1 text-[9px] font-bold leading-4 text-white ${issues.errors ? 'bg-red-500' : 'bg-amber-500'}`}
+                >
+                  {issues.errors + issues.warnings}
+                </span>
+              )}
+            </span>
             {t(label)}
           </button>
         ))}
@@ -46,6 +59,8 @@ export function LeftSidebar() {
           <LevelsPanel />
         ) : leftTab === 'library' ? (
           <LibraryPanel />
+        ) : leftTab === 'checks' ? (
+          <ChecksPanel />
         ) : (
           <AiPanel />
         )}

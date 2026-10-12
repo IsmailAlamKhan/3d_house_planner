@@ -29,7 +29,8 @@ export function useManipulationShortcuts(): void {
       )
         return;
       const { selection } = useModel.getState();
-      const catalogSel = selection.type === 'item' || selection.type === 'opening';
+      const catalogSel =
+        selection.type === 'item' || selection.type === 'opening' || selection.type === 'stair';
 
       if (e.key === 'Escape' && useCatalogDrag.getState().armedId) {
         useCatalogDrag.getState().setArmed(null);
@@ -49,7 +50,7 @@ export function useManipulationShortcuts(): void {
       switch (e.key) {
         case 'r':
         case 'R':
-          if (selection.type === 'item') {
+          if (selection.type === 'item' || selection.type === 'stair') {
             e.preventDefault();
             rotateSelectedItems(e.shiftKey ? -Math.PI / 2 : Math.PI / 2);
           }

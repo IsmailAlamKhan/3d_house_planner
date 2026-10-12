@@ -21,6 +21,10 @@ export interface PlannedRoom {
   minWidth: number;
   floorMaterial: string;
   ceilingMaterial: string;
+  /** Open to the level above (the slab above is left out). */
+  doubleHeight?: boolean;
+  /** Only a placeholder for the floor opening above a double-height room: no doors, windows or furniture. */
+  void?: boolean;
 }
 
 export interface PlannedWall {

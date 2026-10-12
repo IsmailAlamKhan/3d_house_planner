@@ -15,12 +15,20 @@ export function slabVoids(project: Project, level: Level): Vec2[][] {
   }
   for (const r of project.roofs)
     if (r.levelId === level.id && r.kind === 'void') out.push(r.polygon);
-  const below = project.levels.find((l) => l.index === level.index - 1);
-  if (below) {
-    for (const room of project.rooms)
-      if (room.levelId === below.id && room.doubleHeight) out.push(room.polygon);
-  }
+  out.push(...doubleHeightVoids(project, level).map((v) => v.polygon));
   return out;
+}
+
+/** Openings in `level`'s floor above double-height rooms of the level below (with the room they belong to). */
+export function doubleHeightVoids(
+  project: Project,
+  level: Level,
+): { roomId: string; polygon: Vec2[] }[] {
+  const below = project.levels.find((l) => l.index === level.index - 1);
+  if (!below) return [];
+  return project.rooms
+    .filter((r) => r.levelId === below.id && r.doubleHeight)
+    .map((r) => ({ roomId: r.id, polygon: r.polygon }));
 }
 
 /** The level directly above `level`, if any. */

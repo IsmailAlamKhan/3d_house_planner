@@ -491,7 +491,7 @@ export interface FurnishInput {
 /** Default furniture for every room of the plan. */
 export function furnishPlan(input: FurnishInput): PlannedItem[] {
   const out: PlannedItem[] = [];
-  for (const room of input.rooms) {
+  for (const room of input.rooms.filter((r) => !r.void)) {
     const mine = input.openings.filter((o) => o.level === room.level && o.rooms.includes(room.key));
     const f = new RoomFurnisher(
       room,

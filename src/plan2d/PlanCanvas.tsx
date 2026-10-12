@@ -1,3 +1,4 @@
+import { beamPolygon } from '../checks/rules';
 import { useEffect, useMemo, useRef } from 'react';
 import { useT } from '../i18n';
 import { detectRoomPolygons } from '../geometry/rooms';
@@ -10,7 +11,7 @@ import { useDraft } from './draftStore';
 import { fitToShell, interaction as inter, planSvgRef, typedEndpoint } from './interaction';
 import { ColumnsLayer, DimensionLabel, Grid, RoomsLayer, ShellLayer } from './layers';
 import { PlanToolbar } from './PlanToolbar';
-import { ItemSymbol, OpeningSymbol } from './symbols';
+import { ItemSymbol, OpeningSymbol, StairSymbol } from './symbols';
 import { carriedId, useCatalogDrag } from '../catalog/dragStore';
 import { getEntry, itemSize } from '../catalog';
 import { rotateHandlePos } from './hit';
@@ -27,7 +28,7 @@ export function PlanCanvas() {
   const activeLevelId = useModel((s) => s.activeLevelId);
   const selection = useModel((s) => s.selection);
   const tool = useModel((s) => s.tool);
-  const { view, size, showGhosts, showAllDimensions, roomMode, snapResult } = usePlanStore();
+  const { view, size, showGhosts, showAllDimensions, roomMode, snapResult, flash } = usePlanStore();
   const {
     chain,
     typed,
@@ -40,6 +41,7 @@ export function PlanCanvas() {
     panning,
     itemPreview,
     openingPreview,
+    stairPreview,
   } = useDraft();
   const carried = useCatalogDrag(carriedId);
   const catalogHover = useCatalogDrag((s) => s.hover);
@@ -120,11 +122,14 @@ export function PlanCanvas() {
   );
   const ghostPolys = useMemo(() => {
     if (!showGhosts) return [];
+    const activeIndex = project.levels.find((l) => l.id === activeLevelId)?.index ?? 0;
     return project.levels
       .filter((l) => l.id !== activeLevelId && l.visible)
       .flatMap((l) => {
         const ws: WallSeg[] = project.walls.filter((w) => w.levelId === l.id);
-        return [...computeWallPolygons(ws).values()];
+        // The level directly below is the one to align with: draw it clearly; other levels stay faint.
+        const below = l.index === activeIndex - 1;
+        return [...computeWallPolygons(ws).values()].map((poly) => ({ poly, below }));
       });
   }, [showGhosts, project.levels, project.walls, activeLevelId]);
 
@@ -241,6 +246,7 @@ export function PlanCanvas() {
           flip: false,
           swing: 'left' as const,
           props: {},
+          locked: false,
         };
         const len = Math.hypot(w.end.x - w.start.x, w.end.y - w.start.y);
         const ux = (w.end.x - w.start.x) / len;
@@ -338,15 +344,16 @@ export function PlanCanvas() {
           <Grid view={view} size={size} />
           <ShellLayer footprint={project.shell.footprint} />
 
-          {ghostPolys.map((poly, i) => (
+          {ghostPolys.map(({ poly, below }, i) => (
             <polygon
               key={i}
               points={pts(poly)}
-              fill="none"
-              stroke="#94a3b8"
-              strokeOpacity={0.55}
-              strokeDasharray="4 3"
-              strokeWidth={1}
+              fill={below ? '#cbd5e1' : 'none'}
+              fillOpacity={below ? 0.35 : 0}
+              stroke={below ? '#475569' : '#94a3b8'}
+              strokeOpacity={below ? 0.9 : 0.4}
+              strokeDasharray={below ? '6 3' : '4 3'}
+              strokeWidth={below ? 1.5 : 1}
               vectorEffect="non-scaling-stroke"
               pointerEvents="none"
             />
@@ -425,6 +432,40 @@ export function PlanCanvas() {
             );
           })}
 
+          {project.stairs
+            .filter((st) => st.fromLevelId === activeLevelId || st.toLevelId === activeLevelId)
+            .map((st) => (
+              <StairSymbol
+                key={st.id}
+                project={project}
+                stair={st}
+                levelId={activeLevelId}
+                selected={selection.type === 'stair' && selectedIds.has(st.id)}
+                override={
+                  stairPreview?.id === st.id
+                    ? { position: stairPreview.position, rotation: st.rotation }
+                    : undefined
+                }
+              />
+            ))}
+
+          {flash && (
+            <rect
+              key={flash.key}
+              x={flash.min.x}
+              y={flash.min.y}
+              width={flash.max.x - flash.min.x}
+              height={flash.max.y - flash.min.y}
+              fill="#f59e0b"
+              fillOpacity={0.18}
+              stroke="#f59e0b"
+              strokeWidth={3}
+              vectorEffect="non-scaling-stroke"
+              pointerEvents="none"
+              className="plan-flash"
+            />
+          )}
+
           {rotateItem && (
             <g pointerEvents="none">
               <line
@@ -456,6 +497,21 @@ export function PlanCanvas() {
           )}
 
           {ghost}
+
+          {project.shell.beams.map((b) => (
+            <polygon
+              key={b.id}
+              data-testid="plan-beam"
+              points={beamPolygon(b.start, b.end, b.width)
+                .map((q) => `${q.x},${q.y}`)
+                .join(' ')}
+              fill="none"
+              stroke="#64748b"
+              strokeWidth={1.2}
+              strokeDasharray="6 4"
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
 
           <ColumnsLayer
             columns={columns}

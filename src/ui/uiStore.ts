@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 
-export type LeftTab = 'library' | 'levels' | 'ai';
+export type LeftTab = 'library' | 'levels' | 'ai' | 'checks';
 
 interface UiState {
   leftTab: LeftTab;
   projectsOpen: boolean;
   setProjectsOpen: (o: boolean) => void;
+  wizardOpen: boolean;
+  setWizardOpen: (o: boolean) => void;
   leftDrawerOpen: boolean;
   rightDrawerOpen: boolean;
   setLeftTab: (t: LeftTab) => void;
@@ -18,6 +20,8 @@ export const useUiStore = create<UiState>((set) => ({
   leftTab: 'library',
   projectsOpen: false,
   setProjectsOpen: (projectsOpen) => set({ projectsOpen }),
+  wizardOpen: false,
+  setWizardOpen: (wizardOpen) => set({ wizardOpen }),
   leftDrawerOpen: false,
   rightDrawerOpen: false,
   setLeftTab: (leftTab) => set({ leftTab }),

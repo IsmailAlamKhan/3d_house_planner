@@ -2,6 +2,7 @@ import { computeWallPolygons } from '../geometry/walls';
 import type { Level, Opening, Project } from '../model/types';
 import { PartCache } from './cache';
 import {
+  generateBeam,
   generateColumn,
   generateFlatRoof,
   generateRoomCeiling,
@@ -12,7 +13,8 @@ import type { AnyPart } from './generators/common';
 import { generateItemPart } from './generators/items';
 import { generateOpeningParts } from './generators/openings';
 import { generateStair } from './generators/stairs';
-import { levelAbove, slabVoids } from './generators/voids';
+import { doubleHeightVoids, levelAbove, slabVoids } from './generators/voids';
+import { generateVoidBalustrade } from './generators/balustrade';
 import { generateWall } from './generators/walls';
 
 export type WallMode = 'up' | 'cut' | 'transparent';
@@ -111,6 +113,14 @@ export class SceneBuilder {
         );
       }
 
+      for (const beam of project.shell.beams) {
+        parts.push(
+          ...c.get(`beam:${level.id}:${beam.id}`, [beam, level.floorToCeiling], () => [
+            generateBeam(beam, level),
+          ]),
+        );
+      }
+
       for (const stair of project.stairs.filter((s) => s.fromLevelId === level.id)) {
         const to = project.levels.find((l) => l.id === stair.toLevelId);
         if (!to) continue;
@@ -125,6 +135,22 @@ export class SceneBuilder {
             const p = generateItemPart(item);
             return p ? [p] : [];
           }),
+        );
+      }
+
+      for (const dh of doubleHeightVoids(project, level)) {
+        parts.push(
+          ...c.get(
+            `balustrade:${level.id}:${dh.roomId}`,
+            [JSON.stringify(dh.polygon), ...walls],
+            () =>
+              generateVoidBalustrade(
+                `balustrade:${level.id}:${dh.roomId}`,
+                dh.polygon,
+                walls,
+                dh.roomId,
+              ),
+          ),
         );
       }
 

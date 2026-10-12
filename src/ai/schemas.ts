@@ -30,6 +30,8 @@ export const RoomIntentSchema = z.object({
   needsPlumbing: z.boolean().optional(),
   /** Name of a room on the level below this one should sit under (e.g. stack bathrooms). */
   above: nonEmpty.optional(),
+  /** A tall, open space (ground floor only): no floor above it; it takes a whole region of the plan. */
+  doubleHeight: z.boolean().optional(),
 });
 
 export const LevelIntentSchema = z.object({

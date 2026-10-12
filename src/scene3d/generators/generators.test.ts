@@ -81,6 +81,7 @@ const opening = (over = {}) => ({
   flip: false,
   swing: 'left' as const,
   props: {},
+  locked: false,
   ...over,
 });
 const fp = [

@@ -3,6 +3,8 @@ import type * as S from './schemas';
 
 export type Point = z.infer<typeof S.PointSchema>;
 export type Shell = z.infer<typeof S.ShellSchema>;
+export type Beam = z.infer<typeof S.BeamSchema>;
+export type FacadeWindow = z.infer<typeof S.FacadeWindowSchema>;
 export type Level = z.infer<typeof S.LevelSchema>;
 export type Wall = z.infer<typeof S.WallSchema>;
 export type Opening = z.infer<typeof S.OpeningSchema>;

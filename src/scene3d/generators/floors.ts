@@ -1,6 +1,6 @@
 import { CylinderGeometry, BoxGeometry } from 'three';
 import type { Vec2 } from '../../geometry/vec';
-import type { Column, Level, Room } from '../../model/types';
+import type { Beam, Column, Level, Room } from '../../model/types';
 import {
   type Part,
   extrudeMulti,
@@ -115,4 +115,18 @@ export function generateColumn(column: Column, level: Level): Part {
     geometry: geo,
     materials: ['column'],
   };
+}
+
+/** A structural beam hanging `drop` m below the ceiling of its level (same concrete as the columns). */
+export function generateBeam(beam: Beam, level: Level): Part {
+  const h = level.floorToCeiling;
+  const len = Math.hypot(beam.end.x - beam.start.x, beam.end.y - beam.start.y) || 0.01;
+  const geo = new BoxGeometry(len, beam.drop, beam.width);
+  geo.rotateY(-Math.atan2(beam.end.y - beam.start.y, beam.end.x - beam.start.x));
+  geo.translate(
+    (beam.start.x + beam.end.x) / 2,
+    h - beam.drop / 2,
+    (beam.start.y + beam.end.y) / 2,
+  );
+  return { id: `beam:${beam.id}`, layer: 'column', geometry: geo, materials: ['column'] };
 }

@@ -3,7 +3,7 @@ import { detectRoomPolygons, matchRooms, polygonIoU, samePolygon } from '../../g
 import { dist, projectOnSegment, sub } from '../../geometry/vec';
 import { MIN_WALL_LENGTH } from '../integrity';
 import type { Point, Project, Wall } from '../types';
-import { getLevel, getRoom, newId } from './common';
+import { ModelError, getLevel, getRoom, newId } from './common';
 import { addWall, updateWall, type NewWall } from './walls';
 
 const ON_WALL_TOL = 1e-3;
@@ -156,4 +156,39 @@ export function exclusiveWallsOfRoom(p: Project, roomId: string): string[] {
 export function deleteRoomWithWalls(p: Project, roomId: string): void {
   deleteWallsAndSync(p, exclusiveWallsOfRoom(p, roomId));
   p.rooms = p.rooms.filter((r) => r.id !== roomId);
+}
+
+/**
+ * Starts a level from the one below it: adds every wall of the lower level that the level does not already have
+ * (same type, thickness and finishes; doors and windows are not copied), then re-detects rooms.
+ * Returns how many walls were added.
+ */
+export function copyWallsFromBelow(p: Project, levelId: string): number {
+  const level = getLevel(p, levelId);
+  const below = p.levels.find((l) => l.index === level.index - 1);
+  if (!below) throw new ModelError('There is no level below to copy from.');
+  const same = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y) < 1e-3;
+  let added = 0;
+  for (const w of p.walls.filter((x) => x.levelId === below.id)) {
+    const exists = p.walls.some(
+      (x) =>
+        x.levelId === levelId &&
+        ((same(x.start, w.start) && same(x.end, w.end)) ||
+          (same(x.start, w.end) && same(x.end, w.start))),
+    );
+    if (exists) continue;
+    addWall(p, {
+      levelId,
+      start: w.start,
+      end: w.end,
+      thickness: w.thickness,
+      height: w.height,
+      type: w.type,
+      materialInside: w.materialInside,
+      materialOutside: w.materialOutside,
+    });
+    added++;
+  }
+  syncRooms(p, levelId);
+  return added;
 }

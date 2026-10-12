@@ -21,7 +21,7 @@ import {
 import { getEntry, itemSize } from '../catalog';
 import { placeExistingItem, snapAngle } from '../catalog/placement';
 import { boxSelect, hitTest, type ItemBox, type OpeningBox } from './hit';
-import { openingFrame } from './symbols';
+import { openingFrame, stairHitPolys } from './symbols';
 import { eyedrop } from '../materials/eyedropper';
 import type { Surface } from '../materials/surfaces';
 import { faceField, sideOfWall } from '../model/ops';
@@ -86,8 +86,12 @@ function levelData() {
       thickness: wall.thickness,
     });
   }
+  const stairs = project.stairs
+    .filter((st) => st.fromLevelId === activeLevelId || st.toLevelId === activeLevelId)
+    .map((st) => ({ id: st.id, polys: stairHitPolys(project, st, activeLevelId) }));
   return {
     project,
+    stairs,
     walls,
     rooms: project.rooms.filter((r) => r.levelId === activeLevelId),
     columns: project.columns.filter((c) => c.levelId === activeLevelId),
@@ -139,7 +143,7 @@ function commitRoom(polygon: Vec2[]): void {
 export function deleteSelected(): void {
   const { selection } = useModel.getState();
   if (!selection.type) return;
-  if (selection.type === 'item' || selection.type === 'opening') {
+  if (selection.type === 'item' || selection.type === 'opening' || selection.type === 'stair') {
     if (ensureEditable()) deleteSelectedCatalog();
     return;
   }
@@ -227,13 +231,14 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
   function startSelectPress(w: Vec2, raw: PointerEvent): void {
     const { selection, setSelection } = useModel.getState();
     const { view } = usePlanStore.getState();
-    const { walls, rooms, columns, items, openings } = levelData();
+    const { walls, rooms, columns, items, openings, stairs } = levelData();
     const hit = hitTest(w, {
       walls,
       rooms,
       columns,
       items,
       openings,
+      stairs,
       selection,
       px: 1 / view.scale,
     });
@@ -281,6 +286,14 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     }
     if (hit.type === 'opening') {
       useDraft.setState({ drag: { kind: 'opening', id: hit.id, startRaw: w, moved: false } });
+      return;
+    }
+    if (hit.type === 'stair') {
+      const st = useModel.getState().project.stairs.find((x) => x.id === hit.id);
+      if (st)
+        useDraft.setState({
+          drag: { kind: 'stair', id: hit.id, startRaw: w, grab: sub(w, st.position), moved: false },
+        });
       return;
     }
     if (hit.type === 'wall' || hit.type === 'room') {
@@ -461,6 +474,16 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       });
       return ps.setCursor(raw, null);
     }
+    if (drag?.kind === 'stair') {
+      const px = Math.hypot(sPos.x - toScreenX(drag.startRaw), sPos.y - toScreenY(drag.startRaw));
+      if (!drag.moved && px < DRAG_START_PX) return;
+      const position = freePoint(sub(w, drag.grab));
+      useDraft.setState({
+        drag: { ...drag, moved: true },
+        stairPreview: { id: drag.id, position },
+      });
+      return ps.setCursor(position, null);
+    }
     if (drag?.kind === 'opening') {
       const px = Math.hypot(sPos.x - toScreenX(drag.startRaw), sPos.y - toScreenY(drag.startRaw));
       if (!drag.moved && px < DRAG_START_PX) return;
@@ -553,7 +576,19 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     const draft = useDraft.getState();
     const drag = draft.drag;
     if (!drag) return;
-    useDraft.setState({ drag: null, preview: [], itemPreview: null, openingPreview: null });
+    useDraft.setState({
+      drag: null,
+      preview: [],
+      itemPreview: null,
+      openingPreview: null,
+      stairPreview: null,
+    });
+    if (drag.kind === 'stair') {
+      const pv = draft.stairPreview;
+      if (drag.moved && pv && ensureEditable())
+        tryEdit((p) => ops.updateStair(p, drag.id, { position: pv.position }));
+      return;
+    }
     if (drag.kind === 'item') {
       const pv = draft.itemPreview;
       if (drag.moved && pv) {
@@ -673,7 +708,10 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       return;
     }
     if (e.key === 'Enter' && tool === 'room' && draft.roomPts.length) return finishPolygonRoom();
-    const catalogSel = store.selection.type === 'item' || store.selection.type === 'opening';
+    const catalogSel =
+      store.selection.type === 'item' ||
+      store.selection.type === 'opening' ||
+      store.selection.type === 'stair';
     // Furniture / door / window keys (R rotate, Delete, arrows, Ctrl+D) are handled app-wide.
     if ((e.key === 'Delete' || e.key === 'Backspace') && tool === 'select' && !catalogSel) {
       e.preventDefault();
@@ -682,7 +720,7 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     if (drawing) return;
     const k = e.key.toLowerCase();
     const tools = { v: 'select', w: 'wall', r: 'room', m: 'measure', i: 'eyedropper' } as const;
-    if (k === 'r' && store.selection.type === 'item') return;
+    if (k === 'r' && (store.selection.type === 'item' || store.selection.type === 'stair')) return;
     if (k in tools) store.setTool(tools[k as keyof typeof tools]);
   }
 

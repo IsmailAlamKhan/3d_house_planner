@@ -209,6 +209,14 @@ export function nudgeSelection(dx: number, dy: number): void {
           if (it) ops.moveItem(d, id, { x: it.position.x + dx, y: it.position.y + dy });
         }),
       );
+    } else if (selection.type === 'stair') {
+      edit((d) =>
+        selection.ids.forEach((id) => {
+          const st = d.stairs.find((x) => x.id === id);
+          if (st)
+            ops.updateStair(d, id, { position: { x: st.position.x + dx, y: st.position.y + dy } });
+        }),
+      );
     } else if (selection.type === 'opening') {
       const along = dx !== 0 ? dx : dy;
       edit((d) =>
@@ -227,8 +235,14 @@ export function nudgeSelection(dx: number, dy: number): void {
 export function deleteSelectedCatalog(): void {
   if (!activeEditableLevel()) return;
   const { selection } = useModel.getState();
-  if (selection.type !== 'item' && selection.type !== 'opening') return;
-  edit((d) => ops.deleteSelection(d, selection));
+  if (selection.type !== 'item' && selection.type !== 'opening' && selection.type !== 'stair')
+    return;
+  try {
+    edit((d) => ops.deleteSelection(d, selection));
+  } catch (e) {
+    toast(e instanceof ModelError ? e.message : String(e));
+    return;
+  }
   useModel.getState().setSelection({ type: null, ids: [] });
 }
 

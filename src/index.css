@@ -16,3 +16,19 @@ body {
     'Segoe UI',
     sans-serif;
 }
+
+/* Pulses the spot a check result points at. */
+@keyframes plan-flash {
+  0%,
+  100% {
+    stroke-opacity: 1;
+    fill-opacity: 0.28;
+  }
+  50% {
+    stroke-opacity: 0.25;
+    fill-opacity: 0.05;
+  }
+}
+.plan-flash {
+  animation: plan-flash 0.8s ease-in-out 3;
+}

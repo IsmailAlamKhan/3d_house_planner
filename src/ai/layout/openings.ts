@@ -156,7 +156,7 @@ export function planOpenings(input: OpeningPlanInput): OpeningPlan {
   }
 
   for (const level of levels) {
-    const lr = rooms.filter((r) => r.level === level);
+    const lr = rooms.filter((r) => r.level === level && !r.void);
     const byName = new Map(lr.map((r) => [r.name.toLowerCase(), r]));
     const hall = lr.find((r) => r.key === input.hallKey.get(level));
     const connected = new Set<string>();

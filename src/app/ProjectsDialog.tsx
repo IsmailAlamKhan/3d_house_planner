@@ -2,7 +2,6 @@ import { Copy, Download, FilePlus, Pencil, Trash2, Upload, X } from 'lucide-reac
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useT } from '../i18n';
 import { downloadTextFile, exportProjectJson, importProjectJson } from '../model/io';
-import { createEmptyProject } from '../model/project';
 import { useModel } from '../model/store';
 import {
   cloneProject,
@@ -57,10 +56,8 @@ export function ProjectsDialog() {
   };
 
   const create = async () => {
-    await saveProject(useModel.getState().project);
-    useModel.getState().loadProject(createEmptyProject(t('project.defaultName')));
-    await saveProject(useModel.getState().project);
     setOpen(false);
+    useUiStore.getState().setWizardOpen(true);
   };
 
   const importFile = async (file: File) => {

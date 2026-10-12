@@ -17,6 +17,7 @@ import { ROOM_TYPES, WALL_TYPES } from '../model/schemas';
 import { useModel } from '../model/store';
 import type { Room, Wall } from '../model/types';
 import { ItemProps, OpeningProps } from './CatalogProps';
+import { StairProps } from './StairProps';
 import { MaterialPicker, ShortcutButton } from './MaterialPicker';
 import { CommitField, Row, SelectField, shared, useEditor } from './fields';
 import {
@@ -151,6 +152,11 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
   const name = shared(rooms, (r) => r.name);
   const area = rooms.reduce((a, r) => a + polygonArea(r.polygon), 0);
   const level = shared(rooms, (r) => r.levelId);
+  const levels = useModel((s) => s.project.levels);
+  const levelAboveExists = rooms.every((r) => {
+    const l = levels.find((x) => x.id === r.levelId);
+    return !!l && levels.some((x) => x.index === l.index + 1);
+  });
   return (
     <div>
       <CommitField
@@ -195,6 +201,16 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
           </ShortcutButton>
         )}
       </MaterialPicker>
+      <Row name={t('props.doubleHeight')}>
+        <input
+          type="checkbox"
+          className="mr-auto h-4 w-4"
+          checked={shared(rooms, (r) => r.doubleHeight) === true}
+          disabled={!levelAboveExists}
+          title={levelAboveExists ? undefined : t('props.doubleHeightNoLevel')}
+          onChange={(e) => patch({ doubleHeight: e.target.checked })}
+        />
+      </Row>
       <Row name={t('props.area')}>
         <span className="w-32 px-2 text-sm tabular-nums">{formatArea(area, units)}</span>
       </Row>
@@ -244,6 +260,12 @@ export function PropertiesPanel() {
           : undefined;
       title = entry ? t(entry.nameKey as TranslationKey) : `${t('props.opening')}${suffix}`;
       body = <OpeningProps key={openings.map((o) => o.id).join()} openings={openings} />;
+    }
+  } else if (selection.type === 'stair') {
+    const stair = project.stairs.find((x) => x.id === selection.ids[0]);
+    if (stair) {
+      title = t('props.stair');
+      body = <StairProps key={stair.id} stair={stair} />;
     }
   } else if (selection.type === 'column') {
     title = t('props.column');

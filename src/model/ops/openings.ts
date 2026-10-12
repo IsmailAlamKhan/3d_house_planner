@@ -41,19 +41,39 @@ export function addOpening(p: Project, input: NewOpening): string {
     flip: input.flip ?? false,
     swing: input.swing ?? d.swing,
     props: { ...(input.props ?? {}) },
+    locked: input.locked ?? false,
   };
   validate(p, opening);
   p.openings.push(opening);
   return opening.id;
 }
 
+const GEOMETRY: (keyof Opening)[] = [
+  'wallId',
+  'offset',
+  'width',
+  'height',
+  'sillHeight',
+  'kind',
+  'flip',
+  'swing',
+];
+
 export function updateOpening(p: Project, id: string, patch: Partial<Omit<Opening, 'id'>>): void {
   const existing = getOpening(p, id);
+  // Windows that already exist in the building's facade keep their place and size (style and frame colour may change).
+  if (
+    existing.locked &&
+    GEOMETRY.some((k) => k in patch && (patch as Record<string, unknown>)[k] !== existing[k])
+  ) {
+    throw new ModelError('That window is part of the existing building and is fixed.');
+  }
   validate(p, { ...existing, ...patch });
   Object.assign(existing, patch);
 }
 
 export function deleteOpening(p: Project, id: string): void {
-  getOpening(p, id);
+  if (getOpening(p, id).locked)
+    throw new ModelError('That window is part of the existing building and cannot be removed.');
   p.openings = p.openings.filter((o) => o.id !== id);
 }

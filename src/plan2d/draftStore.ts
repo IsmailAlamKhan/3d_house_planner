@@ -16,6 +16,7 @@ export type Drag =
     }
   | { kind: 'item'; id: string; startRaw: Vec2; grab: Vec2; moved: boolean; clickHit?: boolean }
   | { kind: 'opening'; id: string; startRaw: Vec2; moved: boolean; clickHit?: boolean }
+  | { kind: 'stair'; id: string; startRaw: Vec2; grab: Vec2; moved: boolean }
   | { kind: 'rotate'; id: string }
   | { kind: 'endpoint'; wallId: string; end: 'start' | 'end'; to: Vec2 }
   | { kind: 'box'; a: Vec2; b: Vec2 };
@@ -36,6 +37,8 @@ interface DraftState {
     ok: boolean;
     messages: string[];
   } | null;
+  /** Where the stair being dragged would go (the same stair on both levels). */
+  stairPreview: { id: string; position: Vec2 } | null;
   /** Where the door/window being dragged would land. */
   openingPreview: {
     id: string;
@@ -63,6 +66,7 @@ const empty = {
   preview: [] as WallGeometry[],
   itemPreview: null,
   openingPreview: null,
+  stairPreview: null,
   hover: null,
 };
 

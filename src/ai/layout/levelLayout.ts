@@ -18,6 +18,9 @@ export interface RoomSpec {
   wet: boolean;
   /** Name of a room on the level below this one should sit above. */
   above?: string;
+  /** The room's rectangle is decided up front (a double-height space takes a whole region). */
+  fixed?: Rect;
+  doubleHeight?: boolean;
 }
 
 export interface LevelContext {
@@ -195,25 +198,31 @@ export function layoutLevel(
   tries: number,
 ): LevelResult {
   const rnd = rng(seed);
-  const chain = adjacencyOrder(rooms);
+  // Rooms with a fixed rectangle are not tiled — they only take part in scoring.
+  const free = rooms.filter((r) => !r.fixed);
+  const fixed = rooms.filter((r) => r.fixed);
+  const chain = adjacencyOrder(free);
   const orders: RoomSpec[][] = [chain, chain.slice().reverse()];
   for (let i = 0; i < tries; i++) {
     // Half the shuffles keep rooms sorted by size (squarified works best that way), half are fully random.
-    const base = shuffled(rooms, rnd);
+    const base = shuffled(free, rnd);
     orders.push(i % 2 === 0 ? base : base.sort((a, b) => b.area - a.area + (rnd() - 0.5) * 4));
   }
   let best: LevelResult | null = null;
   for (const order of orders) {
-    const groups = partition(order, ctx.regions);
     const rects = new Map<string, Rect>();
-    groups.forEach((group, gi) => {
-      if (!group.length) return;
-      const placed = squarify(
-        group.map((r) => r.area),
-        ctx.regions[gi]!,
-      );
-      group.forEach((room, i) => rects.set(room.name, placed[i]!));
-    });
+    for (const f of fixed) rects.set(f.name, f.fixed!);
+    if (order.length) {
+      const groups = partition(order, ctx.regions);
+      groups.forEach((group, gi) => {
+        if (!group.length) return;
+        const placed = squarify(
+          group.map((r) => r.area),
+          ctx.regions[gi]!,
+        );
+        group.forEach((room, i) => rects.set(room.name, placed[i]!));
+      });
+    }
     if (rects.size !== rooms.length) continue;
     const result = evaluate(rooms, rects, ctx);
     if (!best || result.score < best.score) best = result;
