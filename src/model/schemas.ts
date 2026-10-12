@@ -182,6 +182,34 @@ export const SettingsSchema = z.object({
     .default({ maxDrainRun: 6, minAreas: {} }),
 });
 
+const Vec3Schema = z.tuple([num, num, num]);
+
+/** A named camera position ("Kitchen from living room"), with a small preview picture. */
+export const SavedViewSchema = z.object({
+  id,
+  name: z.string().min(1),
+  /** 'orbit' keeps the perspective camera; 'top' is the orthographic plan view; 'walk' is first person. */
+  mode: z.enum(['orbit', 'top', 'walk']).default('orbit'),
+  position: Vec3Schema,
+  target: Vec3Schema,
+  /** Orthographic zoom (top view only). */
+  zoom: positive.optional(),
+  /** The section cuts that were on when the view was saved. */
+  section: z
+    .object({
+      horizontal: z.object({ on: z.boolean(), height: num }),
+      vertical: z.object({
+        on: z.boolean(),
+        axis: z.enum(['x', 'z']),
+        pos: num,
+        flip: z.boolean(),
+      }),
+    })
+    .optional(),
+  /** Small JPEG data URL (about 160 px wide). */
+  thumbnail: z.string().optional(),
+});
+
 export const ProjectSchema = z.object({
   id,
   name: z.string(),
@@ -197,6 +225,7 @@ export const ProjectSchema = z.object({
   roofs: z.array(RoofSchema),
   materials: z.record(z.string(), MaterialOverrideSchema),
   settings: SettingsSchema,
+  views: z.array(SavedViewSchema).default([]),
   createdAt: z.string(),
   updatedAt: z.string(),
   schemaVersion: z.number().int(),

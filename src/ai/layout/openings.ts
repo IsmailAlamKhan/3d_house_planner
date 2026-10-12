@@ -193,7 +193,16 @@ export function planOpenings(input: OpeningPlanInput): OpeningPlan {
     }
 
     // Reach every room from the hall: repeatedly add the best door from the reached set to an unreached neighbour.
-    const reached = new Set<string>(hall ? [hall.key] : []);
+    // Without a stair hall (a single-level home) start from the room the entrance opens into, else the most public room.
+    const root =
+      hall ??
+      (level === 0 && entranceRoom && !entranceRoom.void ? entranceRoom : undefined) ??
+      [...lr].sort(
+        (a, b) =>
+          GROUP_PRIORITY(a.type) - GROUP_PRIORITY(b.type) ||
+          b.rect.w * b.rect.h - a.rect.w * a.rect.h,
+      )[0];
+    const reached = new Set<string>(root ? [root.key] : []);
     const graph = new Map<string, Set<string>>();
     for (const c of connected) {
       const [x, y] = c.split('|') as [string, string];

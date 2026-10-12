@@ -1,6 +1,7 @@
 import { DoorOpen, Home, Maximize, Move3d, Pipette, Rotate3d } from 'lucide-react';
 import { EyedropperHint } from '../app/EyedropperHint';
 import { LightingPanel } from './LightingPanel';
+import { CameraToolbar } from './camera/CameraToolbar';
 import { useModel } from '../model/store';
 import type { ReactNode } from 'react';
 import { useT } from '../i18n';
@@ -65,7 +66,7 @@ export function SceneToolbar() {
   const { levelFilter, dollhouse, wallMode, doorsOpen, gizmoMode, setPref, resetCamera } =
     useSceneStore();
   return (
-    <div className="pointer-events-none absolute left-2 top-2 flex max-w-[calc(100%-1rem)] flex-wrap items-center gap-1">
+    <div className="pointer-events-none absolute left-2 top-2 flex max-w-[calc(100%-1rem)] flex-col items-start gap-1">
       <div
         role="toolbar"
         aria-label="3D view options"
@@ -130,6 +131,7 @@ export function SceneToolbar() {
           <Maximize size={18} />
         </Toggle>
       </div>
+      <CameraToolbar />
       {tool === 'eyedropper' && <EyedropperHint />}
     </div>
   );

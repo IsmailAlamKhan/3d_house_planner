@@ -16,12 +16,16 @@ import { toast } from '../catalog/actions';
 import { surfaceFromPart } from './eyedropper3d';
 import { DEFAULT_CUT_HEIGHT, type LevelScene, SceneBuilder } from './sceneModel';
 import { useSceneStore } from './sceneStore';
+import { useCamera } from './camera/cameraStore';
+import { roomFocus } from './camera/isolation';
 import { interiorLightsOn } from './lighting';
 
 /** Builds (and memoizes) the renderable model for the current project and view options. */
 export function useSceneModel(): LevelScene[] {
   const project = useModel((s) => s.project);
-  const wallMode = useSceneStore((s) => s.wallMode);
+  const wallModePref = useSceneStore((s) => s.wallMode);
+  const walking = useCamera((s) => s.mode === 'walk');
+  const wallMode = walking ? 'up' : wallModePref;
   const doorsOpen = useSceneStore((s) => s.doorsOpen);
   const [builder] = useState(() => new SceneBuilder());
   useEffect(() => () => builder.dispose(), [builder]);
@@ -29,6 +33,26 @@ export function useSceneModel(): LevelScene[] {
     () => builder.build(project, { wallMode, cutHeight: DEFAULT_CUT_HEIGHT, doorsOpen }),
     [builder, project, wallMode, doorsOpen],
   );
+}
+
+/** While measuring, a click picks a point on the surface instead of selecting. Returns true when it was used. */
+function measureClick(e: ThreeEvent<MouseEvent>): boolean {
+  const cam = useCamera.getState();
+  if (cam.mode === 'walk') return true; // walking: clicks are for looking around
+  if (!cam.measuring) return false;
+  e.stopPropagation();
+  cam.addMeasurePoint([e.point.x, e.point.y, e.point.z]);
+  return true;
+}
+
+/** Double-click selects the thing and brings it into view. */
+function focusOnDoubleClick(entity: NonNullable<Part['entity']>) {
+  return (e: ThreeEvent<MouseEvent>) => {
+    if (useCamera.getState().mode === 'walk' || useCamera.getState().measuring) return;
+    e.stopPropagation();
+    selectFrom3d(entity, false);
+    useCamera.getState().requestFocus();
+  };
 }
 
 interface PartMeshProps {
@@ -42,7 +66,7 @@ interface PartMeshProps {
 function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
   const materials = useMemo(() => {
     const flags = {
-      ghost: ghost && part.layer === 'wall',
+      ghost,
       clip: part.clipToCut ? clip : undefined,
       highlight: selected,
     };
@@ -55,15 +79,16 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
   );
   useEffect(() => () => edges?.dispose(), [edges]);
   const translucent = part.materials.includes('glass');
-  const onClick = part.entity
-    ? (e: ThreeEvent<MouseEvent>) => {
-        if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
-        e.stopPropagation();
-        if (useModel.getState().tool === 'eyedropper')
-          return paintFrom3d(part, e.face?.materialIndex, e.nativeEvent.altKey);
-        selectFrom3d(part.entity, e.nativeEvent.shiftKey);
-      }
-    : undefined;
+  const onClick = (e: ThreeEvent<MouseEvent>) => {
+    if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
+    if (measureClick(e)) return;
+    if (!part.entity) return;
+    e.stopPropagation();
+    if (useModel.getState().tool === 'eyedropper')
+      return paintFrom3d(part, e.face?.materialIndex, e.nativeEvent.altKey);
+    selectFrom3d(part.entity, e.nativeEvent.shiftKey);
+  };
+  const onDoubleClick = part.entity ? focusOnDoubleClick(part.entity) : undefined;
   return (
     <>
       <mesh
@@ -72,6 +97,7 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
         castShadow={!translucent && part.layer !== 'floor'}
         receiveShadow={!translucent}
         onClick={onClick}
+        onDoubleClick={onDoubleClick}
         userData={{ entity: part.entity }}
       />
       {edges && (
@@ -96,8 +122,10 @@ function ObjectView({
   selected,
   gizmo,
   lit,
+  ghost,
 }: {
   part: ObjectPart;
+  ghost: boolean;
   clip: Plane | undefined;
   selected: boolean;
   /** Show the move / rotate handle (a single selected piece of furniture). */
@@ -114,8 +142,9 @@ function ObjectView({
       highlight: selected,
       lit: lit && part.lamp,
       clip: part.clipToCut ? clip : undefined,
+      ghost,
     });
-  }, [part, selected, clip, nonce, lit]);
+  }, [part, selected, clip, nonce, lit, ghost]);
   const commit = () => {
     const id = part.entity?.id;
     if (id) {
@@ -131,8 +160,10 @@ function ObjectView({
   return (
     <group
       userData={{ entity: part.entity }}
+      onDoubleClick={part.entity ? focusOnDoubleClick(part.entity) : undefined}
       onClick={(e: ThreeEvent<MouseEvent>) => {
         if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
+        if (measureClick(e)) return;
         e.stopPropagation();
         if (useModel.getState().tool === 'eyedropper')
           return paintFrom3d(part, undefined, e.nativeEvent.altKey);
@@ -160,30 +191,52 @@ function ObjectView({
 export function ModelScene() {
   const levels = useSceneModel();
   const overrides = useModel((s) => s.project.materials);
+  const project = useModel((s) => s.project);
   const activeLevelId = useModel((s) => s.activeLevelId);
   const selection = useModel((s) => s.selection);
-  const { levelFilter, dollhouse, wallMode, lighting } = useSceneStore();
+  const { levelFilter, dollhouse: dollhousePref, wallMode, lighting } = useSceneStore();
+  const mode = useCamera((s) => s.mode);
+  const isolation = useCamera((s) => s.isolation);
+  const xray = useCamera((s) => s.xray);
   const lightsOn = interiorLightsOn(lighting);
+  // Walking through the home: everything is shown, whatever the 3D view options say.
+  const walking = mode === 'walk';
+  const dollhouse = dollhousePref && !walking;
 
   const activeIndex = levels.find((l) => l.level.id === activeLevelId)?.level.index ?? Infinity;
   const selected = useMemo(
     () => new Set(selection.ids.map((id) => `${selection.type}:${id}`)),
     [selection],
   );
+  const focus = useMemo(
+    () => (isolation.kind === 'room' && !walking ? roomFocus(project, isolation.roomId) : null),
+    [isolation, project, walking],
+  );
   const clips = useMemo(() => {
     const m = new Map<string, Plane>();
-    if (wallMode === 'cut')
+    if (wallMode === 'cut' && !walking)
       for (const l of levels)
         m.set(l.level.id, new Plane(new Vector3(0, -1, 0), l.level.elevation + DEFAULT_CUT_HEIGHT));
     return m;
-  }, [levels, wallMode]);
+  }, [levels, wallMode, walking]);
+
+  /** Faint rendering: transparent walls, x-ray (everything but furniture) and rooms other than the isolated one. */
+  const ghostOf = (part: AnyPart, levelId: string): boolean => {
+    if (walking) return false;
+    if (focus) return !focus.isSolid(part, levelId);
+    if (xray) return part.layer !== 'item' && !(part.entity?.type === 'item');
+    return wallMode === 'transparent' && part.layer === 'wall';
+  };
 
   return (
     <>
       {levels
-        .filter(
-          ({ level }) => level.visible && (levelFilter === 'all' || level.index <= activeIndex),
-        )
+        .filter(({ level }) => {
+          if (!level.visible) return false;
+          if (walking) return true;
+          if (isolation.kind === 'level') return level.id === isolation.levelId;
+          return levelFilter === 'all' || level.index <= activeIndex;
+        })
         .map(({ level, parts }) => (
           <group key={level.id} position={[0, level.elevation, 0]}>
             {parts
@@ -195,13 +248,15 @@ export function ModelScene() {
                     part={p}
                     clip={clips.get(level.id)}
                     lit={lightsOn}
+                    ghost={ghostOf(p, level.id)}
                     selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
                     gizmo={
                       !!p.entity &&
                       p.entity.type === 'item' &&
                       selection.type === 'item' &&
                       selection.ids.length === 1 &&
-                      selection.ids[0] === p.entity.id
+                      selection.ids[0] === p.entity.id &&
+                      !walking
                     }
                   />
                 ) : (
@@ -209,7 +264,7 @@ export function ModelScene() {
                     key={p.id}
                     part={p}
                     overrides={overrides}
-                    ghost={wallMode === 'transparent'}
+                    ghost={ghostOf(p, level.id)}
                     clip={clips.get(level.id)}
                     selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
                   />

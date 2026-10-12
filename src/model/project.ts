@@ -36,6 +36,7 @@ export function createEmptyProject(name = 'Untitled home'): Project {
     roofs: [],
     materials: {},
     settings: { defaultWallThickness: 0.15, compass: 0, checks: { maxDrainRun: 6, minAreas: {} } },
+    views: [],
     createdAt: now,
     updatedAt: now,
     schemaVersion: SCHEMA_VERSION,

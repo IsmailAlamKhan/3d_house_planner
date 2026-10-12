@@ -32,7 +32,13 @@ const goodIntent = {
         { type: 'kitchen', name: 'Kitchen', targetArea: 12 },
       ],
     },
-    { name: 'Upper', rooms: [{ type: 'bedroom', name: 'Bedroom', targetArea: 15 }] },
+    {
+      name: 'Upper',
+      rooms: [
+        { type: 'bedroom', name: 'Bedroom', targetArea: 15 },
+        { type: 'bedroom', name: 'Bedroom 2', targetArea: 12 },
+      ],
+    },
   ],
 };
 

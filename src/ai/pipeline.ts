@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod';
+import { briefProblems } from './briefCheck';
 import { t } from '../i18n';
 import type { Project, Selection } from '../model/types';
 import { offlineEdit } from './offlineEdit';
@@ -77,7 +78,10 @@ export function validate<T>(
   };
 }
 
-/** Asks the model, validates, and if needed sends the validation errors back ONCE before giving up. */
+/**
+ * Asks the model, validates, and if needed sends the problems back ONCE before giving up. `check` can flag a valid
+ * answer that misses what the brief asked for; if the second answer is no better, the first (valid) one is kept.
+ */
 async function askValidated<T>(
   provider: LLMProvider,
   messages: LLMMessage[],
@@ -85,22 +89,29 @@ async function askValidated<T>(
   jsonSchema: Record<string, unknown>,
   signal: AbortSignal | undefined,
   temperature: number,
+  check?: (value: T) => string[],
 ): Promise<T> {
   const first = await provider.generate({ messages, schema: jsonSchema, temperature, signal });
   const a = validate(schema, first);
-  if (a.ok) return a.value;
+  const firstProblems = a.ok ? (check?.(a.value) ?? []) : a.errors;
+  if (a.ok && !firstProblems.length) return a.value;
+
   const second = await provider.generate({
     messages: [
       ...messages,
       { role: 'assistant', content: first.slice(0, 6000) },
-      { role: 'user', content: repairPrompt(a.errors) },
+      { role: 'user', content: repairPrompt(firstProblems) },
     ],
     schema: jsonSchema,
     temperature: Math.min(temperature, 0.2),
     signal,
   });
   const b = validate(schema, second);
-  if (b.ok) return b.value;
+  if (b.ok) {
+    if (!a.ok) return b.value;
+    return (check?.(b.value).length ?? 0) <= firstProblems.length ? b.value : a.value;
+  }
+  if (a.ok) return a.value;
   throw new AiOutputError(t('ai.err.invalid'), b.errors);
 }
 
@@ -156,6 +167,7 @@ export async function generateIntent(brief: string, opts: GenerateOptions): Prom
       jsonSchemaOf(DesignIntentSchema),
       opts.signal,
       TEMPS[Math.min(variation, TEMPS.length - 1)]!,
+      (i) => briefProblems(brief, i),
     );
     return { intent, source: provider.id, notes: [] };
   } catch (e) {

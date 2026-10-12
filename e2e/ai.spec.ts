@@ -12,7 +12,24 @@ const project = (page: Page) =>
     (window as unknown as { __duplex: { getProject: () => unknown } }).__duplex.getProject(),
   ) as Promise<P>;
 
-test.beforeEach(async ({ page }) => {
+/** The generation flows must not depend on whether a model is installed on the machine running the tests. */
+async function pointAtDeadServer(page: Page) {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'duplex-designer:ai-settings',
+      JSON.stringify({
+        provider: 'openai',
+        model: 'qwen3:14b',
+        openaiBaseUrl: 'http://127.0.0.1:1/v1',
+        openaiModel: 'none',
+        timeoutSec: 20,
+      }),
+    );
+  });
+}
+
+test.beforeEach(async ({ page }, info) => {
+  if (!info.title.startsWith('AI settings')) await pointAtDeadServer(page);
   await page.goto('/');
   await page.getByRole('button', { name: '2D', exact: true }).click();
   await page.getByRole('tab', { name: 'AI Assistant' }).click();

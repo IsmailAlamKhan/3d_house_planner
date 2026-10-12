@@ -1,6 +1,7 @@
 import { DoubleSide, MeshStandardMaterial, type Plane } from 'three';
 import { getTexture, resolveMaterial } from '../materials';
 import type { MaterialOverride } from '../model/types';
+import { registerClippable } from './clipping';
 
 const cache = new Map<string, MeshStandardMaterial>();
 
@@ -36,10 +37,10 @@ export function getMaterial(
       opacity: flags.ghost ? Math.min(spec.opacity, 0.25) : spec.opacity,
       depthWrite: !translucent,
       side: key === 'glass' ? DoubleSide : undefined,
-      clippingPlanes: flags.clip ? [flags.clip] : null,
       emissive: flags.highlight ? '#0ea5e9' : '#000000',
       emissiveIntensity: flags.highlight ? 0.6 : 0,
     });
+    registerClippable(m, flags.clip);
     cache.set(id, m);
   }
   return m;

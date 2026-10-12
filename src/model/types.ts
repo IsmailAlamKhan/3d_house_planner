@@ -15,6 +15,7 @@ export type Item = z.infer<typeof S.ItemSchema>;
 export type Roof = z.infer<typeof S.RoofSchema>;
 export type MaterialOverride = z.infer<typeof S.MaterialOverrideSchema>;
 export type Settings = z.infer<typeof S.SettingsSchema>;
+export type SavedView = z.infer<typeof S.SavedViewSchema>;
 export type Project = z.infer<typeof S.ProjectSchema>;
 
 export type Units = (typeof S.UNITS)[number];

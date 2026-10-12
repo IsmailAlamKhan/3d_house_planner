@@ -1,8 +1,6 @@
-import { Canvas, useThree } from '@react-three/fiber';
-import { Grid, OrbitControls } from '@react-three/drei';
+import { Canvas } from '@react-three/fiber';
+import { Grid } from '@react-three/drei';
 import { Suspense, lazy, useEffect, useMemo } from 'react';
-import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import { polygonBounds } from '../geometry/polygon';
 import { useModel } from '../model/store';
 import { validateStair } from './generators/stairs';
 import { ModelScene } from './ModelScene';
@@ -14,34 +12,16 @@ import { carriedId, useCatalogDrag } from '../catalog/dragStore';
 import { SceneToolbar } from './SceneToolbar';
 import { selectFrom3d } from './select';
 import { useSceneStore } from './sceneStore';
+import { CameraSystem } from './camera/CameraSystem';
+import { useCamera } from './camera/cameraStore';
+import { MeasureOverlay } from './camera/MeasureOverlay';
+import { Minimap } from './camera/Minimap';
+import { SavedViewsStrip } from './camera/SavedViewsStrip';
+import { SectionRig } from './camera/SectionRig';
+import { WalkHud } from './camera/WalkHud';
 
 // Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
 const AmbientOcclusion = lazy(() => import('./AmbientOcclusion'));
-
-/** Frames the apartment whenever a project is opened or the user asks to reset the camera. */
-function CameraRig() {
-  // `makeDefault` publishes the controls here once they exist, so framing waits for them.
-  const controls = useThree((s) => s.controls) as OrbitControlsImpl | null;
-  const getState = useThree((s) => s.get);
-  const projectId = useModel((s) => s.project.id);
-  const resetKey = useSceneStore((s) => s.cameraResetKey);
-  useEffect(() => {
-    const { shell, levels } = useModel.getState().project;
-    const b = polygonBounds(shell.footprint);
-    const cx = (b.min.x + b.max.x) / 2;
-    const cz = (b.min.y + b.max.y) / 2;
-    const span = Math.max(b.max.x - b.min.x, b.max.y - b.min.y, 4);
-    const top = Math.max(shell.maxHeight, ...levels.map((l) => l.elevation + l.floorToCeiling));
-    const { camera, size } = getState();
-    // Pull back further when the viewport is narrow (e.g. split view) so the whole apartment fits.
-    const fit = 1 / Math.min(1, size.width / Math.max(size.height, 1));
-    camera.position.set(cx + span * 0.9 * fit, top + span * 0.9 * fit, cz + span * 1.3 * fit);
-    camera.updateProjectionMatrix();
-    controls?.target.set(cx, top / 3, cz);
-    controls?.update();
-  }, [getState, controls, projectId, resetKey]);
-  return null;
-}
 
 function StairWarnings() {
   const project = useModel((s) => s.project);
@@ -86,6 +66,27 @@ function CarryMessage() {
   );
 }
 
+const typing = (t: EventTarget | null) =>
+  t instanceof HTMLElement &&
+  (t.tagName === 'INPUT' ||
+    t.tagName === 'TEXTAREA' ||
+    t.tagName === 'SELECT' ||
+    t.isContentEditable);
+
+/** F focuses the selection; Esc stops measuring. */
+function useCameraShortcuts() {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (typing(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+      const cam = useCamera.getState();
+      if (e.key === 'Escape' && cam.measuring) cam.setMeasuring(false);
+      else if ((e.key === 'f' || e.key === 'F') && cam.mode !== 'walk') cam.requestFocus();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+}
+
 /** 3D viewport: the live model generated from the project, with orbit controls and click-to-select. */
 export function SceneCanvas() {
   const choice = useSceneStore((s) => s.quality);
@@ -93,6 +94,7 @@ export function SceneCanvas() {
   const quality = useMemo(() => resolveQuality(choice), [choice]);
   const q = QUALITY[quality];
   const night = useSceneStore((s) => s.lighting.mode === 'night');
+  useCameraShortcuts();
   return (
     <div data-testid="scene-canvas" className="relative h-full w-full bg-slate-200">
       {/* Antialiasing is fixed when the GL context is created, so a quality change remounts the canvas. */}
@@ -120,8 +122,9 @@ export function SceneCanvas() {
         />
         <ModelScene />
         <DropTarget />
-        <OrbitControls makeDefault maxPolarAngle={Math.PI * 0.495} />
-        <CameraRig />
+        <SectionRig />
+        <MeasureOverlay />
+        <CameraSystem />
         {showFps && <FpsMeter />}
         {q.ao && (
           <Suspense fallback={null}>
@@ -130,6 +133,9 @@ export function SceneCanvas() {
         )}
       </Canvas>
       <SceneToolbar />
+      <SavedViewsStrip />
+      <Minimap />
+      <WalkHud />
       <StairWarnings />
       <CarryMessage />
     </div>
