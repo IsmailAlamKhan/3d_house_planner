@@ -17,6 +17,7 @@ import { surfaceFromPart } from './eyedropper3d';
 import { DEFAULT_CUT_HEIGHT, type LevelScene, SceneBuilder } from './sceneModel';
 import { useSceneStore } from './sceneStore';
 import { useCamera } from './camera/cameraStore';
+import { useExportFlags } from '../export/flags';
 import { roomFocus } from './camera/isolation';
 import { interiorLightsOn } from './lighting';
 
@@ -199,14 +200,18 @@ export function ModelScene() {
   const isolation = useCamera((s) => s.isolation);
   const xray = useCamera((s) => s.xray);
   const lightsOn = interiorLightsOn(lighting);
+  const presentation = useExportFlags((s) => s.presentation);
   // Walking through the home: everything is shown, whatever the 3D view options say.
   const walking = mode === 'walk';
   const dollhouse = dollhousePref && !walking;
 
   const activeIndex = levels.find((l) => l.level.id === activeLevelId)?.level.index ?? Infinity;
   const selected = useMemo(
-    () => new Set(selection.ids.map((id) => `${selection.type}:${id}`)),
-    [selection],
+    () =>
+      presentation
+        ? new Set<string>()
+        : new Set(selection.ids.map((id) => `${selection.type}:${id}`)),
+    [selection, presentation],
   );
   const focus = useMemo(
     () => (isolation.kind === 'room' && !walking ? roomFocus(project, isolation.roomId) : null),
@@ -256,7 +261,8 @@ export function ModelScene() {
                       selection.type === 'item' &&
                       selection.ids.length === 1 &&
                       selection.ids[0] === p.entity.id &&
-                      !walking
+                      !walking &&
+                      !presentation
                     }
                   />
                 ) : (

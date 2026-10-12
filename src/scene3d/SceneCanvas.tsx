@@ -19,6 +19,8 @@ import { Minimap } from './camera/Minimap';
 import { SavedViewsStrip } from './camera/SavedViewsStrip';
 import { SectionRig } from './camera/SectionRig';
 import { WalkHud } from './camera/WalkHud';
+import { ExportBridge } from '../export/bridge';
+import { useExportFlags } from '../export/flags';
 
 // Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
 const AmbientOcclusion = lazy(() => import('./AmbientOcclusion'));
@@ -94,6 +96,7 @@ export function SceneCanvas() {
   const quality = useMemo(() => resolveQuality(choice), [choice]);
   const q = QUALITY[quality];
   const night = useSceneStore((s) => s.lighting.mode === 'night');
+  const presentation = useExportFlags((s) => s.presentation);
   useCameraShortcuts();
   return (
     <div data-testid="scene-canvas" className="relative h-full w-full bg-slate-200">
@@ -110,20 +113,23 @@ export function SceneCanvas() {
       >
         <SceneLights quality={quality} />
         <InteriorLights quality={quality} />
-        <Grid
-          position={[0, -0.25, 0]}
-          args={[60, 60]}
-          cellSize={1}
-          sectionSize={5}
-          cellColor={night ? '#26304f' : '#b6c0cc'}
-          sectionColor={night ? '#34406a' : '#8794a3'}
-          fadeDistance={60}
-          infiniteGrid
-        />
+        {!presentation && (
+          <Grid
+            position={[0, -0.25, 0]}
+            args={[60, 60]}
+            cellSize={1}
+            sectionSize={5}
+            cellColor={night ? '#26304f' : '#b6c0cc'}
+            sectionColor={night ? '#34406a' : '#8794a3'}
+            fadeDistance={60}
+            infiniteGrid
+          />
+        )}
         <ModelScene />
         <DropTarget />
         <SectionRig />
-        <MeasureOverlay />
+        {!presentation && <MeasureOverlay />}
+        <ExportBridge />
         <CameraSystem />
         {showFps && <FpsMeter />}
         {q.ao && (

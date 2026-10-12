@@ -6,7 +6,7 @@ import { useCamera } from './cameraStore';
 import { defaultSection } from './section';
 
 /** Thumbnails of the views saved in the project; click one to fly there. */
-export function SavedViewsStrip() {
+export function SavedViewsStrip({ readOnly = false }: { readOnly?: boolean }) {
   const t = useT();
   const views = useModel((s) => s.project.views);
   const setMode = useCamera((s) => s.setMode);
@@ -37,25 +37,27 @@ export function SavedViewsStrip() {
             )}
             <span className="block truncate text-[11px] text-slate-700">{v.name}</span>
           </button>
-          <div className="absolute right-0.5 top-0.5 flex gap-0.5 opacity-0 focus-within:opacity-100 group-hover:opacity-100">
-            <button
-              aria-label={`${t('cam.viewRename')}: ${v.name}`}
-              className="rounded bg-white/90 p-0.5 text-slate-600 shadow hover:text-sky-700"
-              onClick={() => {
-                const name = window.prompt(t('cam.viewName'), v.name);
-                if (name?.trim()) useModel.getState().apply((p) => renameView(p, v.id, name));
-              }}
-            >
-              <Pencil size={12} />
-            </button>
-            <button
-              aria-label={`${t('cam.viewDelete')}: ${v.name}`}
-              className="rounded bg-white/90 p-0.5 text-slate-600 shadow hover:text-red-600"
-              onClick={() => useModel.getState().apply((p) => deleteView(p, v.id))}
-            >
-              <X size={12} />
-            </button>
-          </div>
+          {!readOnly && (
+            <div className="absolute right-0.5 top-0.5 flex gap-0.5 opacity-0 focus-within:opacity-100 group-hover:opacity-100">
+              <button
+                aria-label={`${t('cam.viewRename')}: ${v.name}`}
+                className="rounded bg-white/90 p-0.5 text-slate-600 shadow hover:text-sky-700"
+                onClick={() => {
+                  const name = window.prompt(t('cam.viewName'), v.name);
+                  if (name?.trim()) useModel.getState().apply((p) => renameView(p, v.id, name));
+                }}
+              >
+                <Pencil size={12} />
+              </button>
+              <button
+                aria-label={`${t('cam.viewDelete')}: ${v.name}`}
+                className="rounded bg-white/90 p-0.5 text-slate-600 shadow hover:text-red-600"
+                onClick={() => useModel.getState().apply((p) => deleteView(p, v.id))}
+              >
+                <X size={12} />
+              </button>
+            </div>
+          )}
         </li>
       ))}
     </ul>

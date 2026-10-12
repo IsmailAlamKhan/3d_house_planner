@@ -110,3 +110,9 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - `scene3d/clipping.ts`: every model material registers itself; `setSectionPlanes` updates their `clippingPlanes` (the sky/grid stay unclipped).
 - The scene hides nothing in walk mode (all levels, walls up); isolation/x-ray decide per-part ghosting in `ModelScene`.
 - `window.__duplex.getCamera()` is a read-only test hook like `getProject()`.
+
+## Export & sharing (prompt 10)
+- `src/export/`: pure builders — `planSvg.tsx` (static per-level SVG in plan metres, paper-sized strokes; reuses the editor's symbols via `renderToStaticMarkup`), `pdf.ts` (jsPDF; `Placement` records every drawing's size in mm), `dxf.ts`, `model3d.ts` (GLB via GLTFExporter, OBJ/MTL writer), `bom.ts` (quantities, pricing, CSV), `snapshot.ts` (self-contained HTML).
+- `bridge.tsx` registers a capture function from inside the Canvas; `scene.ts` opens the 3D view if needed (`withScene`) and takes the hero picture; `flags.ts` switches presentation/transparent looks.
+- `ExportDialog.tsx` (tabs: Images, PDF plans, 3D model, Plan files, Costs, Share). Unit costs live in `project.costs` and change through `setUnitCost`/`setCurrency` ops (undoable, saved with the project).
+- Snapshot viewer: `src/viewer/` is a second Vite entry (`vite.viewer.config.ts`, IIFE + CSS) built into `public/viewer/`; `fetchViewerBundle()` loads it at export time and `buildSnapshotHtml` inlines it with the project JSON.

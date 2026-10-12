@@ -269,7 +269,7 @@ function SaveView() {
 }
 
 /** Camera modes, standard views, section, isolation, measuring and saved views for the 3D viewport. */
-export function CameraToolbar() {
+export function CameraToolbar({ readOnly = false }: { readOnly?: boolean }) {
   const t = useT();
   const mode = useCamera((s) => s.mode);
   const setMode = useCamera((s) => s.setMode);
@@ -343,7 +343,7 @@ export function CameraToolbar() {
           <Trash2 size={16} />
         </button>
       )}
-      <SaveView />
+      {!readOnly && <SaveView />}
       {mode === 'walk' && <PersonStanding size={16} className="text-sky-600" aria-hidden />}
       {measuring && (
         <span role="status" className="px-1 text-xs text-orange-700">

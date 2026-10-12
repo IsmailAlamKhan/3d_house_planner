@@ -210,6 +210,12 @@ export const SavedViewSchema = z.object({
   thumbnail: z.string().optional(),
 });
 
+/** What the user fills in to price the bill of materials. Keys are the BOM line keys (see `export/bom.ts`). */
+export const CostsSchema = z.object({
+  currency: z.string().min(1).default('USD'),
+  unitCosts: z.record(z.string(), z.number().nonnegative()).default({}),
+});
+
 export const ProjectSchema = z.object({
   id,
   name: z.string(),
@@ -226,6 +232,7 @@ export const ProjectSchema = z.object({
   materials: z.record(z.string(), MaterialOverrideSchema),
   settings: SettingsSchema,
   views: z.array(SavedViewSchema).default([]),
+  costs: CostsSchema.default({ currency: 'USD', unitCosts: {} }),
   createdAt: z.string(),
   updatedAt: z.string(),
   schemaVersion: z.number().int(),

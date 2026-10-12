@@ -6,6 +6,8 @@ interface UiState {
   leftTab: LeftTab;
   projectsOpen: boolean;
   setProjectsOpen: (o: boolean) => void;
+  exportOpen: boolean;
+  setExportOpen: (o: boolean) => void;
   wizardOpen: boolean;
   setWizardOpen: (o: boolean) => void;
   leftDrawerOpen: boolean;
@@ -20,6 +22,8 @@ export const useUiStore = create<UiState>((set) => ({
   leftTab: 'library',
   projectsOpen: false,
   setProjectsOpen: (projectsOpen) => set({ projectsOpen }),
+  exportOpen: false,
+  setExportOpen: (exportOpen) => set({ exportOpen }),
   wizardOpen: false,
   setWizardOpen: (wizardOpen) => set({ wizardOpen }),
   leftDrawerOpen: false,

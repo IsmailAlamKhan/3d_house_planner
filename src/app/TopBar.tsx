@@ -89,7 +89,11 @@ export function TopBar() {
             </button>
           ))}
         </div>
-        <button className={iconBtn} disabled>
+        <button
+          className={iconBtn}
+          onClick={() => useUiStore.getState().setExportOpen(true)}
+          aria-label={t('topbar.export')}
+        >
           <Download size={18} />
           <span className="hidden sm:inline">{t('topbar.export')}</span>
         </button>

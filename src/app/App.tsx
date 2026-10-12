@@ -10,6 +10,7 @@ import { useUiStore } from '../ui/uiStore';
 import { LeftSidebar } from './LeftSidebar';
 import { Toaster } from './Toaster';
 import { useManipulationShortcuts } from './useManipulationShortcuts';
+import { ExportDialog } from '../export/ExportDialog';
 import { ShellWizard } from '../wizard/ShellWizard';
 import { ProjectsDialog } from './ProjectsDialog';
 import { useUndoRedoShortcuts } from './useShortcuts';
@@ -63,6 +64,7 @@ export function App() {
       <StatusBar />
       <ProjectsDialog />
       <ShellWizard />
+      <ExportDialog />
       <Toaster />
       <Drawer
         side="left"

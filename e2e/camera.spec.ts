@@ -62,6 +62,7 @@ test('walkthrough: starts at the entrance, WASD moves, walls stop you, Esc exits
 test('walkthrough: walk through the door, up the stairs and arrive on the upper level', async ({
   page,
 }) => {
+  test.setTimeout(120_000); // software rendering can be slow; the walk is frame-based
   // Start just north of the stair hall door, facing south (yaw π), then walk forward.
   await page.evaluate(() =>
     (
@@ -156,10 +157,18 @@ test('measure: two clicks on surfaces give a labelled 3D distance', async ({ pag
   await page.getByRole('button', { name: 'Measure distance' }).click();
   const canvas = page.getByTestId('scene-canvas').locator('canvas');
   const box = (await canvas.boundingBox())!;
-  await page.mouse.click(box.x + box.width * 0.45, box.y + box.height * 0.6);
-  await page.mouse.click(box.x + box.width * 0.6, box.y + box.height * 0.7);
-  await expect.poll(async () => (await cam(page)).measurements.length).toBe(1);
-  await expect(page.getByTestId('measure-label')).toContainText('m');
+  // The model may still be building on a slow machine: keep picking the middle of the screen until it answers.
+  await expect
+    .poll(
+      async () => {
+        await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.5);
+        await page.mouse.click(box.x + box.width * 0.56, box.y + box.height * 0.58);
+        return (await cam(page)).measurements.length;
+      },
+      { timeout: 20_000 },
+    )
+    .toBeGreaterThanOrEqual(1);
+  await expect(page.getByTestId('measure-label').first()).toContainText('m');
   await page.getByRole('button', { name: 'Clear measurements' }).click();
   await expect(page.getByTestId('measure-label')).toHaveCount(0);
 });

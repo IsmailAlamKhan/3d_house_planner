@@ -8,3 +8,4 @@ export * from './walls';
 export * from './plan';
 export * from './paint';
 export * from './views';
+export * from './costs';

@@ -8,6 +8,7 @@ import {
   MeshBasicMaterial,
 } from 'three';
 import { useModel } from '../../model/store';
+import { useExportFlags } from '../../export/flags';
 import { setSectionPlanes } from '../clipping';
 import { flatMulti } from '../generators/common';
 import { useCamera } from './cameraStore';
@@ -77,9 +78,10 @@ function SectionHandle() {
   const v = useCamera((s) => s.section.vertical);
   const setSection = useCamera((s) => s.setSection);
   const project = useModel((s) => s.project);
+  const presentation = useExportFlags((s) => s.presentation);
   const [handle, setHandle] = useState<Mesh | null>(null);
   const m = modelBox(project);
-  if (!v.on) return null;
+  if (!v.on || presentation) return null;
   const alongX = v.axis === 'x';
   const width = alongX ? m.depth : m.width;
   const position: [number, number, number] = alongX

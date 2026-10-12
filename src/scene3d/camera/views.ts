@@ -34,33 +34,64 @@ export function fitDistance(w: number, h: number, aspect: number): number {
   return Math.max(h / 2 / t, w / aspect / 2 / t);
 }
 
+const DIRECTIONS: Record<Preset, Vec3> = {
+  // Unit vectors from the building towards the camera.
+  front: [0, 0, 1],
+  back: [0, 0, -1],
+  left: [-1, 0, 0],
+  right: [1, 0, 0],
+  iso: [
+    Math.cos((35 * Math.PI) / 180) * Math.SQRT1_2,
+    Math.sin((35 * Math.PI) / 180),
+    Math.cos((35 * Math.PI) / 180) * Math.SQRT1_2,
+  ],
+};
+
+/**
+ * Camera pose looking at the middle of the building from direction `dir`, as close as possible while every corner of
+ * the building's bounding box still fits the view (perspective-correct, for any window aspect ratio).
+ */
+export function fitPose(project: Project, dir: Vec3, aspect: number, margin = 1.08): CamPose {
+  const m = modelBox(project);
+  const target: Vec3 = [m.cx, m.top / 2, m.cz];
+  const len = Math.hypot(...dir) || 1;
+  const d0: Vec3 = [dir[0] / len, dir[1] / len, dir[2] / len];
+  const f: Vec3 = [-d0[0], -d0[1], -d0[2]]; // viewing direction
+  // right = f × up, up' = right × f
+  const rx = f[1] * 0 - f[2] * 1;
+  const ry = f[2] * 0 - f[0] * 0;
+  const rz = f[0] * 1 - f[1] * 0;
+  const rl = Math.hypot(rx, ry, rz) || 1;
+  const right: Vec3 = [rx / rl, ry / rl, rz / rl];
+  const up: Vec3 = [
+    right[1] * f[2] - right[2] * f[1],
+    right[2] * f[0] - right[0] * f[2],
+    right[0] * f[1] - right[1] * f[0],
+  ];
+  const t = Math.tan((FOV * Math.PI) / 360);
+  let dist = 2;
+  for (const sx of [-1, 1])
+    for (const sy of [-1, 1])
+      for (const sz of [-1, 1]) {
+        const rel: Vec3 = [(sx * m.width) / 2, (sy * m.top) / 2, (sz * m.depth) / 2];
+        const xr = Math.abs(rel[0] * right[0] + rel[1] * right[1] + rel[2] * right[2]);
+        const yu = Math.abs(rel[0] * up[0] + rel[1] * up[1] + rel[2] * up[2]);
+        const zf = rel[0] * f[0] + rel[1] * f[1] + rel[2] * f[2];
+        dist = Math.max(dist, xr / (aspect * t) - zf, yu / t - zf);
+      }
+  dist *= margin;
+  return {
+    target,
+    position: [target[0] + d0[0] * dist, target[1] + d0[1] * dist, target[2] + d0[2] * dist],
+  };
+}
+
 /**
  * Camera pose for a named view. Plan (x, y) is world (x, z): "front" looks at the building from the bottom of the
  * plan (toward −z), "back" from the top, "left" from the −x side and "right" from the +x side.
  */
 export function presetPose(project: Project, preset: Preset, aspect = 1.6): CamPose {
-  const m = modelBox(project);
-  const target: Vec3 = [m.cx, m.top / 2, m.cz];
-  if (preset === 'iso') {
-    const span = Math.max(m.width, m.depth, 4);
-    const d = fitDistance(span * 1.25, m.top * 1.6, aspect) * 0.9;
-    // 35° above the horizon, 45° around.
-    const h = d * Math.sin((35 * Math.PI) / 180);
-    const r = d * Math.cos((35 * Math.PI) / 180);
-    return {
-      target,
-      position: [m.cx + r * Math.SQRT1_2, target[1] + h, m.cz + r * Math.SQRT1_2],
-    };
-  }
-  const along = preset === 'front' || preset === 'back' ? m.width : m.depth;
-  const depth = preset === 'front' || preset === 'back' ? m.depth : m.width;
-  const d = fitDistance(along * 1.1, m.top * 1.2, aspect) + depth / 2;
-  const sign = preset === 'front' || preset === 'right' ? 1 : -1;
-  const position: Vec3 =
-    preset === 'front' || preset === 'back'
-      ? [m.cx, target[1], m.cz + sign * d]
-      : [m.cx + sign * d, target[1], m.cz];
-  return { position, target };
+  return fitPose(project, DIRECTIONS[preset], aspect);
 }
 
 /** Orthographic plan view from above, with the zoom (pixels per metre) that fits the footprint in the viewport. */

@@ -7,7 +7,7 @@ import { focusTarget, poseForFocus } from './focus';
 import { roomFocus } from './isolation';
 import { distance3, measurementLabel } from './measure';
 import { fromMap, minimapFrame, toMap } from './minimapFrame';
-import { PRESETS, fitDistance, modelBox, presetPose, smoothstep, topPose } from './views';
+import { FOV, PRESETS, fitDistance, modelBox, presetPose, smoothstep, topPose } from './views';
 
 const project = createSampleProject();
 
@@ -30,6 +30,37 @@ describe('preset views', () => {
     expect(presetPose(project, 'left').position[0]).toBeLessThan(m.cx);
     expect(presetPose(project, 'right').position[0]).toBeGreaterThan(m.cx);
     expect(presetPose(project, 'iso').position[1]).toBeGreaterThan(m.top / 2);
+  });
+
+  it('every preset keeps all eight corners of the building in view at any window shape', () => {
+    const m = modelBox(project);
+    const t = Math.tan((FOV * Math.PI) / 360);
+    for (const aspect of [0.6, 1, 1.6, 2.4])
+      for (const p of PRESETS) {
+        const { position, target } = presetPose(project, p, aspect);
+        const f = [target[0] - position[0], target[1] - position[1], target[2] - position[2]];
+        const fl = Math.hypot(...f);
+        f.forEach((_, i) => (f[i] = f[i]! / fl));
+        const right = [-f[2]!, 0, f[0]!];
+        const rl = Math.hypot(...right);
+        right.forEach((_, i) => (right[i] = right[i]! / rl));
+        const up = [
+          right[1]! * f[2]! - right[2]! * f[1]!,
+          right[2]! * f[0]! - right[0]! * f[2]!,
+          right[0]! * f[1]! - right[1]! * f[0]!,
+        ];
+        for (const x of [m.cx - m.width / 2, m.cx + m.width / 2])
+          for (const y of [0, m.top])
+            for (const z of [m.cz - m.depth / 2, m.cz + m.depth / 2]) {
+              const rel = [x - position[0], y - position[1], z - position[2]];
+              const depth = rel[0]! * f[0]! + rel[1]! * f[1]! + rel[2]! * f[2]!;
+              const px = (rel[0]! * right[0]! + rel[1]! * right[1]! + rel[2]! * right[2]!) / depth;
+              const py = (rel[0]! * up[0]! + rel[1]! * up[1]! + rel[2]! * up[2]!) / depth;
+              expect(depth).toBeGreaterThan(0);
+              expect(Math.abs(px)).toBeLessThanOrEqual(aspect * t + 1e-6);
+              expect(Math.abs(py)).toBeLessThanOrEqual(t + 1e-6);
+            }
+      }
   });
 
   it('a wider window pulls the camera in closer', () => {

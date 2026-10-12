@@ -15,6 +15,7 @@ import { polygonBounds } from '../geometry/polygon';
 import { useModel } from '../model/store';
 import { interiorLightsOn, moonAt, skyFor, sunAt, sunVisible, timeOf } from './lighting';
 import { QUALITY, type Quality } from './quality';
+import { useExportFlags } from '../export/flags';
 import { useSceneStore } from './sceneStore';
 
 /** Sun (or moon), soft sky light, local environment reflections and the sky dome. */
@@ -24,6 +25,7 @@ export function SceneLights({ quality }: { quality: Quality }) {
   const compass = useModel((s) => s.project.settings.compass);
   const footprint = useModel((s) => s.project.shell.footprint);
   const get = useThree((s) => s.get);
+  const transparent = useExportFlags((s) => s.transparent);
 
   const sun = useMemo(
     () => (sunVisible(lighting) ? sunAt(timeOf(lighting), compass) : moonAt(compass)),
@@ -74,7 +76,7 @@ export function SceneLights({ quality }: { quality: Quality }) {
   const dist = radius * 3;
   return (
     <>
-      <SkyDome top={sky.top} horizon={sky.horizon} ground={sky.ground} />
+      {!transparent && <SkyDome top={sky.top} horizon={sky.horizon} ground={sky.ground} />}
       <hemisphereLight args={[sky.top, sky.ground, sky.ambient]} />
       <object3D ref={targetRef} position={[center.x, 0, center.z]} />
       <directionalLight
