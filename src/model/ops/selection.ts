@@ -1,3 +1,4 @@
+import { isItemInBounds } from '../integrity';
 import type { EntityType, Project, Selection } from '../types';
 import { ModelError, clone, newId } from './common';
 import { deleteWall } from './walls';
@@ -73,7 +74,15 @@ export function duplicate(p: Project, sel: Selection): string[] {
       case 'item': {
         const src = p.items.find((i) => i.id === id);
         if (!src) continue;
-        p.items.push({ ...clone(src), id: nid, position: shift(src.position) });
+        // Nudge diagonally, trying every direction until the copy stays inside the apartment.
+        const spot =
+          [
+            shift(src.position),
+            { x: src.position.x - 0.5, y: src.position.y + 0.5 },
+            { x: src.position.x + 0.5, y: src.position.y - 0.5 },
+            { x: src.position.x - 0.5, y: src.position.y - 0.5 },
+          ].find((q) => isItemInBounds(p, src.levelId, q)) ?? shift(src.position);
+        p.items.push({ ...clone(src), id: nid, position: spot });
         break;
       }
       case 'roof': {

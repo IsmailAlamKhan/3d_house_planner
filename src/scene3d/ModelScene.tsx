@@ -3,8 +3,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { EdgesGeometry, Plane, Vector3 } from 'three';
 import { useModel } from '../model/store';
 import type { MaterialOverride } from '../model/types';
-import type { Part } from './generators/common';
+import { type AnyPart, type ObjectPart, type Part, isObjectPart } from './generators/common';
+import { prepareObject } from './objectView';
 import { getMaterial } from './materials3d';
+import { TransformControls } from '@react-three/drei';
+import { moveItemTo } from '../catalog/actions';
+import { useCatalogDrag } from '../catalog/dragStore';
 import { selectFrom3d } from './select';
 import { DEFAULT_CUT_HEIGHT, type LevelScene, SceneBuilder } from './sceneModel';
 import { useSceneStore } from './sceneStore';
@@ -48,6 +52,7 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
   const translucent = part.materials.includes('glass');
   const onClick = part.entity
     ? (e: ThreeEvent<MouseEvent>) => {
+        if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
         e.stopPropagation();
         selectFrom3d(part.entity, e.nativeEvent.shiftKey);
       }
@@ -60,6 +65,7 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
         castShadow={!translucent && part.layer !== 'floor'}
         receiveShadow={!translucent}
         onClick={onClick}
+        userData={{ entity: part.entity }}
       />
       {edges && (
         <lineSegments geometry={edges} renderOrder={10}>
@@ -67,6 +73,66 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
         </lineSegments>
       )}
     </>
+  );
+}
+
+function ObjectView({
+  part,
+  clip,
+  selected,
+  gizmo,
+}: {
+  part: ObjectPart;
+  clip: Plane | undefined;
+  selected: boolean;
+  /** Show the move / rotate handle (a single selected piece of furniture). */
+  gizmo: boolean;
+}) {
+  const mode = useSceneStore((s) => s.gizmoMode);
+  // Bumped after a handle drag so the object snaps back to whatever the model says.
+  const [nonce, setNonce] = useState(0);
+  const object = useMemo(() => {
+    void nonce;
+    return prepareObject(part.object, {
+      highlight: selected,
+      clip: part.clipToCut ? clip : undefined,
+    });
+  }, [part, selected, clip, nonce]);
+  const commit = () => {
+    const id = part.entity?.id;
+    if (id) {
+      const rotation = ((-object.rotation.y % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      moveItemTo(
+        id,
+        { x: object.position.x, y: object.position.z },
+        { rotation, snapWalls: mode === 'translate' },
+      );
+    }
+    setNonce((n) => n + 1);
+  };
+  return (
+    <group
+      userData={{ entity: part.entity }}
+      onClick={(e: ThreeEvent<MouseEvent>) => {
+        if (useCatalogDrag.getState().armedId) return; // a library item is waiting to be placed here
+        e.stopPropagation();
+        selectFrom3d(part.entity, e.nativeEvent.shiftKey);
+      }}
+    >
+      <primitive object={object} />
+      {gizmo && (
+        <TransformControls
+          object={object}
+          mode={mode}
+          showX={mode === 'translate'}
+          showY={mode === 'rotate'}
+          showZ={mode === 'translate'}
+          translationSnap={0.05}
+          rotationSnap={Math.PI / 12}
+          onMouseUp={commit}
+        />
+      )}
+    </group>
   );
 }
 
@@ -101,16 +167,32 @@ export function ModelScene() {
           <group key={level.id} position={[0, level.elevation, 0]}>
             {parts
               .filter((p) => !(dollhouse && (p.layer === 'ceiling' || p.layer === 'roof')))
-              .map((p) => (
-                <PartMesh
-                  key={p.id}
-                  part={p}
-                  overrides={overrides}
-                  ghost={wallMode === 'transparent'}
-                  clip={clips.get(level.id)}
-                  selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
-                />
-              ))}
+              .map((p: AnyPart) =>
+                isObjectPart(p) ? (
+                  <ObjectView
+                    key={p.id}
+                    part={p}
+                    clip={clips.get(level.id)}
+                    selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
+                    gizmo={
+                      !!p.entity &&
+                      p.entity.type === 'item' &&
+                      selection.type === 'item' &&
+                      selection.ids.length === 1 &&
+                      selection.ids[0] === p.entity.id
+                    }
+                  />
+                ) : (
+                  <PartMesh
+                    key={p.id}
+                    part={p}
+                    overrides={overrides}
+                    ghost={wallMode === 'transparent'}
+                    clip={clips.get(level.id)}
+                    selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
+                  />
+                ),
+              )}
           </group>
         ))}
     </>

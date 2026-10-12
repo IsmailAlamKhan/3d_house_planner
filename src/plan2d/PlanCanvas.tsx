@@ -10,6 +10,10 @@ import { useDraft } from './draftStore';
 import { fitToShell, interaction as inter, planSvgRef, typedEndpoint } from './interaction';
 import { ColumnsLayer, DimensionLabel, Grid, RoomsLayer, ShellLayer } from './layers';
 import { PlanToolbar } from './PlanToolbar';
+import { ItemSymbol, OpeningSymbol } from './symbols';
+import { carriedId, useCatalogDrag } from '../catalog/dragStore';
+import { getEntry, itemSize } from '../catalog';
+import { rotateHandlePos } from './hit';
 import { usePlanStore } from './planStore';
 
 const WALL_FILL = { exterior: '#334155', interior: '#475569', partition: '#64748b' } as const;
@@ -23,8 +27,22 @@ export function PlanCanvas() {
   const activeLevelId = useModel((s) => s.activeLevelId);
   const selection = useModel((s) => s.selection);
   const tool = useModel((s) => s.tool);
-  const { view, size, showGhosts, showAllDimensions, roomMode, toast, snapResult } = usePlanStore();
-  const { chain, typed, roomPts, measure, drag, preview, hover, spaceDown, panning } = useDraft();
+  const { view, size, showGhosts, showAllDimensions, roomMode, snapResult } = usePlanStore();
+  const {
+    chain,
+    typed,
+    roomPts,
+    measure,
+    drag,
+    preview,
+    hover,
+    spaceDown,
+    panning,
+    itemPreview,
+    openingPreview,
+  } = useDraft();
+  const carried = useCatalogDrag(carriedId);
+  const catalogHover = useCatalogDrag((s) => s.hover);
 
   // Track size, fit once per project.
   const fittedFor = useRef<string | null>(null);
@@ -150,6 +168,140 @@ export function PlanCanvas() {
   const levelWallIds = new Set(walls.map((w) => w.id));
   const openings = project.openings.filter((o) => levelWallIds.has(o.wallId));
   const wallById = new Map(walls.map((w) => [w.id, w]));
+  const items = project.items.filter((i) => i.levelId === activeLevelId);
+
+  // Rotate handle for a single selected item (follows the item while it is being dragged/rotated).
+  const selItem =
+    selection.type === 'item' && selection.ids.length === 1
+      ? items.find((i) => i.id === selection.ids[0])
+      : undefined;
+  const selEntry = selItem ? getEntry(selItem.catalogId) : undefined;
+  const rotateItem =
+    selItem && selEntry
+      ? (() => {
+          const pose = itemPreview?.id === selItem.id ? itemPreview : selItem;
+          const size = itemSize(selEntry, selItem.scale);
+          return {
+            pose: { position: pose.position, rotation: pose.rotation },
+            handle: rotateHandlePos(
+              {
+                id: selItem.id,
+                position: pose.position,
+                rotation: pose.rotation,
+                w: size.w,
+                d: size.d,
+              },
+              px,
+            ),
+          };
+        })()
+      : null;
+
+  // Ghost of the library item being carried: green when it can go here, red when it can't.
+  const hoverEntry = carried ? getEntry(carried) : undefined;
+  let ghost: React.ReactNode = null;
+  let ghostMessage: string | null = null;
+  if (hoverEntry && catalogHover) {
+    const ev = catalogHover.evaluation;
+    if (!ev.ok) {
+      ghostMessage = ev.message;
+      const sz = hoverEntry.defaultSize;
+      ghost = (
+        <g
+          transform={`translate(${catalogHover.point.x} ${catalogHover.point.y})`}
+          pointerEvents="none"
+          opacity={0.8}
+        >
+          <rect
+            x={-sz.w / 2}
+            y={-Math.max(sz.d, 0.15) / 2}
+            width={sz.w}
+            height={Math.max(sz.d, 0.15)}
+            fill="#dc2626"
+            fillOpacity={0.2}
+            stroke="#dc2626"
+            strokeWidth={2}
+            vectorEffect="non-scaling-stroke"
+          />
+        </g>
+      );
+    } else if (ev.kind === 'wall') {
+      const p = ev.placement;
+      const w = wallById.get(p.wallId);
+      if (w) {
+        const o = {
+          id: 'ghost',
+          wallId: p.wallId,
+          kind: hoverEntry.openingKind ?? 'door',
+          catalogId: hoverEntry.catalogId,
+          offset: p.offset,
+          width: p.width,
+          height: p.height,
+          sillHeight: p.sillHeight,
+          flip: false,
+          swing: 'left' as const,
+          props: {},
+        };
+        const len = Math.hypot(w.end.x - w.start.x, w.end.y - w.start.y);
+        const ux = (w.end.x - w.start.x) / len;
+        const uy = (w.end.y - w.start.y) / len;
+        const at = (d: number) => ({ x: w.start.x + ux * d, y: w.start.y + uy * d });
+        const off = w.thickness / 2 + 16 * px;
+        ghost = (
+          <g pointerEvents="none">
+            <OpeningSymbol
+              opening={o}
+              wall={w}
+              footprint={project.shell.footprint}
+              tint="#16a34a"
+            />
+            <DimensionLabel
+              a={at(0)}
+              b={at(p.offset - p.width / 2)}
+              offset={off}
+              view={view}
+              units={units}
+              color="#15803d"
+            />
+            <DimensionLabel
+              a={at(p.offset + p.width / 2)}
+              b={at(len)}
+              offset={off}
+              view={view}
+              units={units}
+              color="#15803d"
+            />
+          </g>
+        );
+        if (p.nudged) ghostMessage = null;
+      }
+    } else {
+      const p = ev.placement;
+      const synthetic = {
+        id: 'ghost',
+        levelId: activeLevelId,
+        catalogId: hoverEntry.catalogId,
+        position: p.position,
+        elevation: p.elevation,
+        rotation: p.rotation,
+        scale: { x: 1, y: 1, z: 1 },
+        props: {},
+      };
+      ghost = (
+        <g pointerEvents="none">
+          <ItemSymbol item={synthetic} tint={p.warnings.length ? '#f59e0b' : '#16a34a'} />
+        </g>
+      );
+      if (p.warnings.length) ghostMessage = p.warnings.join(' ');
+    }
+  }
+  const dragMessage =
+    ghostMessage ??
+    (itemPreview && itemPreview.messages.length
+      ? itemPreview.messages.join(' ')
+      : openingPreview?.ok === false
+        ? (openingPreview.message ?? null)
+        : null);
 
   const cursor = panning
     ? 'grabbing'
@@ -177,6 +329,9 @@ export function PlanCanvas() {
         onPointerCancel={(e) => inter.onPointerUp(e.nativeEvent)}
         onPointerLeave={inter.onPointerLeave}
         onDoubleClick={inter.onDoubleClick}
+        onDragOver={(e) => inter.onDragOver(e.nativeEvent)}
+        onDragLeave={inter.onDragLeave}
+        onDrop={(e) => inter.onDrop(e.nativeEvent)}
         onContextMenu={(e) => e.preventDefault()}
       >
         <g transform={`translate(${view.tx} ${view.ty}) scale(${view.scale})`}>
@@ -232,42 +387,75 @@ export function PlanCanvas() {
 
           {openings.map((o) => {
             const w = wallById.get(o.wallId)!;
-            const len = Math.hypot(w.end.x - w.start.x, w.end.y - w.start.y);
-            const ux = (w.end.x - w.start.x) / len;
-            const uy = (w.end.y - w.start.y) / len;
-            const c = { x: w.start.x + ux * o.offset, y: w.start.y + uy * o.offset };
-            const ang = (Math.atan2(uy, ux) * 180) / Math.PI;
-            const th = w.thickness + 0.02;
+            const isSel = selection.type === 'opening' && selectedIds.has(o.id);
+            const pv = openingPreview?.id === o.id ? openingPreview : null;
+            const host = pv ? (wallById.get(pv.wallId) ?? w) : w;
             return (
-              <g
+              <OpeningSymbol
                 key={o.id}
-                transform={`translate(${c.x} ${c.y}) rotate(${ang})`}
-                pointerEvents="none"
-              >
-                <rect
-                  x={-o.width / 2}
-                  y={-th / 2}
-                  width={o.width}
-                  height={th}
-                  fill={o.kind === 'window' ? '#bae6fd' : '#ffffff'}
-                  stroke="#0f172a"
-                  strokeWidth={1}
-                  vectorEffect="non-scaling-stroke"
-                />
-                {o.kind === 'window' && (
-                  <line
-                    x1={-o.width / 2}
-                    x2={o.width / 2}
-                    y1={0}
-                    y2={0}
-                    stroke="#0369a1"
-                    strokeWidth={1}
-                    vectorEffect="non-scaling-stroke"
-                  />
-                )}
-              </g>
+                opening={o}
+                wall={host}
+                footprint={project.shell.footprint}
+                override={pv ? { offset: pv.offset } : undefined}
+                tint={pv && !pv.ok ? '#dc2626' : isSel ? '#0ea5e9' : undefined}
+              />
             );
           })}
+
+          {items.map((it) => {
+            const pv = itemPreview?.id === it.id ? itemPreview : null;
+            const isSel = selection.type === 'item' && selectedIds.has(it.id);
+            return (
+              <ItemSymbol
+                key={it.id}
+                item={it}
+                override={pv ?? undefined}
+                tint={
+                  pv
+                    ? pv.ok
+                      ? pv.messages.length
+                        ? '#f59e0b'
+                        : '#16a34a'
+                      : '#dc2626'
+                    : isSel
+                      ? '#0ea5e9'
+                      : undefined
+                }
+              />
+            );
+          })}
+
+          {rotateItem && (
+            <g pointerEvents="none">
+              <line
+                x1={rotateItem.pose.position.x}
+                y1={rotateItem.pose.position.y}
+                x2={rotateItem.handle.x}
+                y2={rotateItem.handle.y}
+                stroke="#0284c7"
+                strokeWidth={1.5}
+                vectorEffect="non-scaling-stroke"
+              />
+              <circle
+                cx={rotateItem.handle.x}
+                cy={rotateItem.handle.y}
+                r={7 * px}
+                fill="#fff"
+                stroke="#0284c7"
+                strokeWidth={2}
+                vectorEffect="non-scaling-stroke"
+              />
+              <path
+                d={`M ${rotateItem.handle.x - 3 * px},${rotateItem.handle.y} a ${3 * px},${3 * px} 0 1 1 ${3 * px},${3 * px}`}
+                fill="none"
+                stroke="#0284c7"
+                strokeWidth={1.5}
+                vectorEffect="non-scaling-stroke"
+              />
+            </g>
+          )}
+
+          {ghost}
 
           <ColumnsLayer
             columns={columns}
@@ -437,12 +625,12 @@ export function PlanCanvas() {
             : t('hud.lengthHint')}
         </div>
       )}
-      {toast && (
+      {dragMessage && (
         <div
           role="status"
-          className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-md bg-red-600 px-3 py-1.5 text-sm text-white shadow"
+          className="pointer-events-none absolute left-1/2 top-14 max-w-sm -translate-x-1/2 rounded-md bg-slate-800/90 px-3 py-1.5 text-center text-sm text-white shadow"
         >
-          {toast}
+          {dragMessage}
         </div>
       )}
     </div>

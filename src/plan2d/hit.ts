@@ -4,12 +4,34 @@ import type { Column, EntityType, Room, Selection, Wall } from '../model/types';
 
 export type Hit =
   | { type: 'handle'; wallId: string; end: 'start' | 'end' }
-  | { type: Exclude<EntityType, 'opening'>; id: string };
+  | { type: 'rotate'; itemId: string }
+  | { type: EntityType; id: string };
+
+/** An item reduced to what hit-testing needs. */
+export interface ItemBox {
+  id: string;
+  position: Vec2;
+  rotation: number;
+  w: number;
+  d: number;
+}
+
+/** A door/window reduced to what hit-testing needs. */
+export interface OpeningBox {
+  id: string;
+  center: Vec2;
+  /** Wall direction (radians). */
+  angle: number;
+  width: number;
+  thickness: number;
+}
 
 export interface HitScene {
   walls: Wall[];
   rooms: Room[];
   columns: Column[];
+  items?: ItemBox[];
+  openings?: OpeningBox[];
   selection: Selection;
   /** Pixel → meter conversion (1 / view scale). */
   px: number;
@@ -17,6 +39,15 @@ export interface HitScene {
 
 const HANDLE_PX = 10;
 const WALL_PAD_PX = 5;
+
+/** Where the rotate handle of a selected item sits: in front of it, beyond its edge. */
+export function rotateHandlePos(it: ItemBox, px: number): Vec2 {
+  const reach = it.d / 2 + 22 * px;
+  return {
+    x: it.position.x - Math.sin(it.rotation) * reach,
+    y: it.position.y + Math.cos(it.rotation) * reach,
+  };
+}
 
 export function hitTest(p: Vec2, s: HitScene): Hit | null {
   if (s.selection.type === 'wall') {
@@ -26,6 +57,33 @@ export function hitTest(p: Vec2, s: HitScene): Hit | null {
       if (dist(p, w.start) <= HANDLE_PX * s.px) return { type: 'handle', wallId: id, end: 'start' };
       if (dist(p, w.end) <= HANDLE_PX * s.px) return { type: 'handle', wallId: id, end: 'end' };
     }
+  }
+  if (s.selection.type === 'item' && s.selection.ids.length === 1) {
+    const it = s.items?.find((i) => i.id === s.selection.ids[0]);
+    if (it) {
+      const h = rotateHandlePos(it, s.px);
+      if (dist(p, h) <= HANDLE_PX * s.px) return { type: 'rotate', itemId: it.id };
+    }
+  }
+  const inItem = (s.items ?? [])
+    .filter((it) => {
+      const lx =
+        Math.cos(-it.rotation) * (p.x - it.position.x) -
+        Math.sin(-it.rotation) * (p.y - it.position.y);
+      const ly =
+        Math.sin(-it.rotation) * (p.x - it.position.x) +
+        Math.cos(-it.rotation) * (p.y - it.position.y);
+      return Math.abs(lx) <= it.w / 2 + 2 * s.px && Math.abs(ly) <= it.d / 2 + 2 * s.px;
+    })
+    .sort((a, b) => a.w * a.d - b.w * b.d);
+  if (inItem[0]) return { type: 'item', id: inItem[0].id };
+  for (const o of s.openings ?? []) {
+    const dx = p.x - o.center.x;
+    const dy = p.y - o.center.y;
+    const u = dx * Math.cos(o.angle) + dy * Math.sin(o.angle);
+    const v = -dx * Math.sin(o.angle) + dy * Math.cos(o.angle);
+    if (Math.abs(u) <= o.width / 2 && Math.abs(v) <= o.thickness / 2 + 3 * s.px)
+      return { type: 'opening', id: o.id };
   }
   for (const c of s.columns) {
     const hw = c.size.w / 2 + 2 * s.px;

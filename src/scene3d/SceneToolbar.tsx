@@ -1,4 +1,4 @@
-import { DoorOpen, Home, Maximize } from 'lucide-react';
+import { DoorOpen, Home, Maximize, Move3d, Rotate3d } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useT } from '../i18n';
 import type { WallMode } from './sceneModel';
@@ -57,7 +57,8 @@ function Segmented<T extends string>({
 
 export function SceneToolbar() {
   const t = useT();
-  const { levelFilter, dollhouse, wallMode, doorsOpen, setPref, resetCamera } = useSceneStore();
+  const { levelFilter, dollhouse, wallMode, doorsOpen, gizmoMode, setPref, resetCamera } =
+    useSceneStore();
   return (
     <div className="pointer-events-none absolute left-2 top-2 flex max-w-[calc(100%-1rem)] flex-wrap items-center gap-1">
       <div
@@ -97,6 +98,20 @@ export function SceneToolbar() {
           onClick={() => setPref('doorsOpen', !doorsOpen)}
         >
           <DoorOpen size={18} />
+        </Toggle>
+        <Toggle
+          active={gizmoMode === 'translate'}
+          label={t('view3d.gizmoMove')}
+          onClick={() => setPref('gizmoMode', 'translate')}
+        >
+          <Move3d size={18} />
+        </Toggle>
+        <Toggle
+          active={gizmoMode === 'rotate'}
+          label={t('view3d.gizmoRotate')}
+          onClick={() => setPref('gizmoMode', 'rotate')}
+        >
+          <Rotate3d size={18} />
         </Toggle>
         <Toggle active={false} label={t('view3d.resetCamera')} onClick={resetCamera}>
           <Maximize size={18} />

@@ -25,6 +25,11 @@ export function t(key: TranslationKey): string {
   return dictionaries[current]?.[key] ?? en[key];
 }
 
+/** Translates a key and fills `{name}` placeholders. */
+export function tf(key: TranslationKey, vars: Record<string, string | number>): string {
+  return t(key).replace(/\{(\w+)\}/g, (m, k: string) => (k in vars ? String(vars[k]) : m));
+}
+
 /** React hook: re-renders when the language changes and returns `t`. */
 export function useT(): typeof t {
   useSyncExternalStore(

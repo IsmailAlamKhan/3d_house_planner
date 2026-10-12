@@ -1,105 +1,55 @@
-import { BoxGeometry, type BufferGeometry } from 'three';
-import { dist } from '../../geometry/vec';
+import { Group } from 'three';
+import { entryForOpening, withDefaults } from '../../catalog';
+import { type Vec2, dist } from '../../geometry/vec';
 import type { Opening, Wall } from '../../model/types';
-import { type Part, mergeAll } from './common';
-import { wallMatrix } from './walls';
-
-const FRAME = 0.05;
-
-const box = (w: number, h: number, d: number, x: number, y: number, z = 0): BoxGeometry => {
-  const g = new BoxGeometry(w, h, d);
-  g.translate(x, y, z);
-  return g;
-};
+import type { ObjectPart } from './common';
+import { insideSign } from './walls';
 
 export interface OpeningBuildInput {
   opening: Opening;
   wall: Wall;
   /** Door leaves are drawn ajar when true, closed otherwise. */
   doorsOpen: boolean;
+  /** Shell footprint — tells bay windows which side is outdoors. */
+  footprint: Vec2[];
 }
 
-/** Frame (+ leaf for doors, glass for windows) for one opening, in level-local coordinates. */
-export function generateOpeningParts({ opening: o, wall, doorsOpen }: OpeningBuildInput): Part[] {
+/**
+ * Frame, leaf / sash and glass for one door or window, from the catalog model for its style.
+ * The object is placed on the wall (origin = centre of the opening at sill height).
+ */
+export function generateOpeningParts({
+  opening: o,
+  wall,
+  doorsOpen,
+  footprint,
+}: OpeningBuildInput): ObjectPart[] {
   if (o.kind === 'archway') return [];
-  const t = wall.thickness + 0.02;
-  const cx = o.offset;
-  const u0 = cx - o.width / 2;
-  const u1 = cx + o.width / 2;
-  const v0 = o.sillHeight;
-  const v1 = Math.min(o.sillHeight + o.height, 1e9);
-  const h = v1 - v0;
-  const matrix = wallMatrix(wall);
-  const entity = { type: 'opening' as const, id: o.id };
-  const parts: Part[] = [];
-
-  // Frame: two jambs + head (+ sill for windows).
-  const frame: BufferGeometry[] = [
-    box(FRAME, h, t, u0 + FRAME / 2, v0 + h / 2),
-    box(FRAME, h, t, u1 - FRAME / 2, v0 + h / 2),
-    box(o.width, FRAME, t, cx, v1 - FRAME / 2),
+  const entry = entryForOpening(o.catalogId, o.kind);
+  const model = entry.build3D(
+    withDefaults(entry, o.props),
+    { w: o.width, d: wall.thickness, h: o.height },
+    {
+      swing: o.swing,
+      flip: o.flip,
+      open: doorsOpen,
+      outward: insideSign(wall, footprint) === 1 ? -1 : 1,
+    },
+  );
+  const len = dist(wall.start, wall.end);
+  const ux = (wall.end.x - wall.start.x) / len;
+  const uy = (wall.end.y - wall.start.y) / len;
+  const holder = new Group();
+  holder.position.set(wall.start.x + ux * o.offset, o.sillHeight, wall.start.y + uy * o.offset);
+  holder.rotation.y = -Math.atan2(uy, ux);
+  holder.add(model);
+  return [
+    {
+      id: `opening:${o.id}`,
+      layer: 'frame',
+      entity: { type: 'opening', id: o.id },
+      object: holder,
+      clipToCut: true,
+    },
   ];
-  if (o.kind === 'window') frame.push(box(o.width + 0.06, FRAME, t + 0.06, cx, v0 + FRAME / 2));
-  const frameGeo = mergeAll(frame);
-  if (frameGeo) {
-    frameGeo.applyMatrix4(matrix);
-    parts.push({
-      id: `frame:${o.id}`,
-      layer: 'frame',
-      entity,
-      geometry: frameGeo,
-      materials: ['frame'],
-      clipToCut: true,
-    });
-  }
-
-  if (o.kind === 'window') {
-    const glass = box(o.width - FRAME * 2, h - FRAME * 2, 0.012, cx, v0 + h / 2);
-    glass.applyMatrix4(matrix);
-    parts.push({
-      id: `glass:${o.id}`,
-      layer: 'frame',
-      entity,
-      geometry: glass,
-      materials: ['glass'],
-      clipToCut: true,
-    });
-    // A thin mullion down the middle makes wide windows read as casements.
-    if (o.width > 1.0) {
-      const m = box(0.03, h - FRAME * 2, 0.03, cx, v0 + h / 2);
-      m.applyMatrix4(matrix);
-      parts.push({
-        id: `mullion:${o.id}`,
-        layer: 'frame',
-        entity,
-        geometry: m,
-        materials: ['frame'],
-        clipToCut: true,
-      });
-    }
-  } else {
-    // Door leaf hinged on one jamb; `swing` picks the side, `flip` mirrors it, ajar by 18° when doors are open.
-    const leafW = o.width - FRAME * 2;
-    const leafH = h - FRAME;
-    const hingeAtStart = (o.swing === 'right') === o.flip;
-    const hingeU = hingeAtStart ? u0 + FRAME : u1 - FRAME;
-    const leaf = box(leafW, leafH, 0.04, hingeAtStart ? leafW / 2 : -leafW / 2, leafH / 2);
-    if (doorsOpen && o.swing !== 'none') {
-      const angle = ((hingeAtStart ? -1 : 1) * 18 * Math.PI) / 180;
-      leaf.rotateY(angle);
-    }
-    leaf.translate(hingeU, v0, 0);
-    leaf.applyMatrix4(matrix);
-    parts.push({
-      id: `leaf:${o.id}`,
-      layer: 'frame',
-      entity,
-      geometry: leaf,
-      materials: ['leaf'],
-      clipToCut: true,
-    });
-  }
-  return parts;
 }
-
-export const wallLength = (w: Wall): number => dist(w.start, w.end);

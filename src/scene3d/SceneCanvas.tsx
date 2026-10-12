@@ -6,6 +6,8 @@ import { polygonBounds } from '../geometry/polygon';
 import { useModel } from '../model/store';
 import { validateStair } from './generators/stairs';
 import { ModelScene } from './ModelScene';
+import { DropTarget } from './DropTarget';
+import { carriedId, useCatalogDrag } from '../catalog/dragStore';
 import { SceneToolbar } from './SceneToolbar';
 import { selectFrom3d } from './select';
 import { useSceneStore } from './sceneStore';
@@ -56,6 +58,28 @@ function StairWarnings() {
   );
 }
 
+/** Why the carried library item can't go where the pointer is (or a clearance warning), over the 3D view. */
+function CarryMessage() {
+  const carried = useCatalogDrag(carriedId);
+  const hover = useCatalogDrag((s) => s.hover);
+  if (!carried || !hover) return null;
+  const ev = hover.evaluation;
+  const msg = !ev.ok
+    ? ev.message
+    : ev.kind === 'item' && ev.placement.warnings.length
+      ? ev.placement.warnings.join(' ')
+      : null;
+  if (!msg) return null;
+  return (
+    <div
+      role="status"
+      className="pointer-events-none absolute left-1/2 top-14 max-w-sm -translate-x-1/2 rounded-md bg-slate-800/90 px-3 py-1.5 text-center text-sm text-white shadow"
+    >
+      {msg}
+    </div>
+  );
+}
+
 /** 3D viewport: the live model generated from the project, with orbit controls and click-to-select. */
 export function SceneCanvas() {
   return (
@@ -64,7 +88,9 @@ export function SceneCanvas() {
         shadows
         camera={{ position: [15, 14, 20], fov: 45, near: 0.1, far: 500 }}
         gl={{ localClippingEnabled: true, antialias: true }}
-        onPointerMissed={(e) => selectFrom3d(undefined, e.shiftKey)}
+        onPointerMissed={(e) => {
+          if (!useCatalogDrag.getState().armedId) selectFrom3d(undefined, e.shiftKey);
+        }}
       >
         <color attach="background" args={['#dbe4ee']} />
         <hemisphereLight args={['#ffffff', '#8b95a1', 0.7]} />
@@ -92,11 +118,13 @@ export function SceneCanvas() {
           infiniteGrid
         />
         <ModelScene />
+        <DropTarget />
         <OrbitControls makeDefault maxPolarAngle={Math.PI * 0.495} />
         <CameraRig />
       </Canvas>
       <SceneToolbar />
       <StairWarnings />
+      <CarryMessage />
     </div>
   );
 }

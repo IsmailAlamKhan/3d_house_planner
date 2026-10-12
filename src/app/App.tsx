@@ -8,6 +8,8 @@ import { SceneCanvas } from '../scene3d/SceneCanvas';
 import { Drawer } from '../ui/Drawer';
 import { useUiStore } from '../ui/uiStore';
 import { LeftSidebar } from './LeftSidebar';
+import { Toaster } from './Toaster';
+import { useManipulationShortcuts } from './useManipulationShortcuts';
 import { ProjectsDialog } from './ProjectsDialog';
 import { useUndoRedoShortcuts } from './useShortcuts';
 import { RightSidebar } from './RightSidebar';
@@ -19,6 +21,7 @@ export function App() {
   const viewMode = useModel((s) => s.viewMode);
   const { leftDrawerOpen, rightDrawerOpen, setLeftDrawerOpen, setRightDrawerOpen } = useUiStore();
   useUndoRedoShortcuts();
+  useManipulationShortcuts();
   useEffect(() => {
     let stop: (() => void) | undefined;
     let cancelled = false;
@@ -58,6 +61,7 @@ export function App() {
       </div>
       <StatusBar />
       <ProjectsDialog />
+      <Toaster />
       <Drawer
         side="left"
         open={leftDrawerOpen}

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { WallMode } from './sceneModel';
 
 export type LevelFilter = 'all' | 'below';
+export type GizmoMode = 'translate' | 'rotate';
 
 const KEY = 'duplex-designer:scene-prefs';
 
@@ -11,9 +12,17 @@ interface Prefs {
   dollhouse: boolean;
   wallMode: WallMode;
   doorsOpen: boolean;
+  /** What the on-canvas handle does for a selected piece of furniture. */
+  gizmoMode: GizmoMode;
 }
 
-const defaults: Prefs = { levelFilter: 'all', dollhouse: false, wallMode: 'up', doorsOpen: true };
+const defaults: Prefs = {
+  levelFilter: 'all',
+  dollhouse: false,
+  wallMode: 'up',
+  doorsOpen: true,
+  gizmoMode: 'translate',
+};
 
 function load(): Prefs {
   try {
@@ -36,9 +45,12 @@ export const useSceneStore = create<SceneState>((set, get) => ({
   cameraResetKey: 0,
   setPref: (key, value) => {
     set({ [key]: value } as Pick<Prefs, typeof key>);
-    const { levelFilter, dollhouse, wallMode, doorsOpen } = get();
+    const { levelFilter, dollhouse, wallMode, doorsOpen, gizmoMode } = get();
     try {
-      localStorage.setItem(KEY, JSON.stringify({ levelFilter, dollhouse, wallMode, doorsOpen }));
+      localStorage.setItem(
+        KEY,
+        JSON.stringify({ levelFilter, dollhouse, wallMode, doorsOpen, gizmoMode }),
+      );
     } catch {
       // Preferences are a convenience only.
     }

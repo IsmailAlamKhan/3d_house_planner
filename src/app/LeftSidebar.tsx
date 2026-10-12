@@ -1,5 +1,6 @@
 import { Bot, Layers, Shapes } from 'lucide-react';
 import { useT } from '../i18n';
+import { LibraryPanel } from '../catalog/LibraryPanel';
 import { LevelsPanel } from './LevelsPanel';
 import { useUiStore, type LeftTab } from '../ui/uiStore';
 
@@ -36,8 +37,17 @@ export function LeftSidebar() {
           </button>
         ))}
       </div>
-      <div role="tabpanel" className="flex-1 overflow-y-auto p-3 text-sm text-slate-500">
-        {leftTab === 'levels' ? <LevelsPanel /> : t('sidebar.empty')}
+      <div
+        role="tabpanel"
+        className={`min-h-0 flex-1 p-3 text-sm text-slate-500 ${leftTab === 'library' ? 'overflow-hidden' : 'overflow-y-auto'}`}
+      >
+        {leftTab === 'levels' ? (
+          <LevelsPanel />
+        ) : leftTab === 'library' ? (
+          <LibraryPanel />
+        ) : (
+          t('sidebar.empty')
+        )}
       </div>
     </div>
   );

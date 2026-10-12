@@ -72,6 +72,8 @@ export const OpeningSchema = z.object({
   sillHeight: z.number().nonnegative(),
   flip: z.boolean(),
   swing: z.enum(SWINGS),
+  /** Catalog style options (e.g. frame color). */
+  props: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).default({}),
 });
 
 export const RoomSchema = z.object({

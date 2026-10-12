@@ -1,8 +1,8 @@
-import { type Part, disposeParts } from './generators/common';
+import { type AnyPart, disposeParts } from './generators/common';
 
 interface Entry {
   deps: unknown[];
-  parts: Part[];
+  parts: AnyPart[];
 }
 
 const sameDeps = (a: unknown[], b: unknown[]): boolean =>
@@ -24,7 +24,7 @@ export class PartCache {
     this.touched.clear();
   }
 
-  get(key: string, deps: unknown[], build: () => Part[]): Part[] {
+  get(key: string, deps: unknown[], build: () => AnyPart[]): AnyPart[] {
     this.touched.add(key);
     const hit = this.entries.get(key);
     if (hit && sameDeps(hit.deps, deps)) return hit.parts;

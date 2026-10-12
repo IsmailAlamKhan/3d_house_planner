@@ -1,12 +1,20 @@
 import { produce } from 'immer';
-import { Box3, type BufferGeometry, Vector3 } from 'three';
+import {
+  Box3,
+  type BufferGeometry,
+  Mesh,
+  type MeshStandardMaterial,
+  type Object3D,
+  Vector3,
+} from 'three';
+import { getEntry, openingStyles } from '../../catalog';
 import { describe, expect, it } from 'vitest';
 import { computeWallPolygons } from '../../geometry/walls';
 import { createSampleProject } from '../../model/sample';
 import * as ops from '../../model/ops';
 import type { Wall } from '../../model/types';
 import { SceneBuilder } from '../sceneModel';
-import { subtractPolygons, unionPolygons } from './common';
+import { type Part, subtractPolygons, unionPolygons } from './common';
 import {
   generateColumn,
   generateFlatRoof,
@@ -14,6 +22,7 @@ import {
   generateRoomFloor,
   generateSlab,
 } from './floors';
+import { generateItemPart } from './items';
 import { generateOpeningParts } from './openings';
 import { generateStair, layoutStair, stairVoidPlan, validateStair } from './stairs';
 import { slabVoids } from './voids';
@@ -71,6 +80,7 @@ const opening = (over = {}) => ({
   sillHeight: 0,
   flip: false,
   swing: 'left' as const,
+  props: {},
   ...over,
 });
 const fp = [
@@ -190,29 +200,104 @@ describe('walls', () => {
   });
 });
 
-describe('opening trim', () => {
+describe('opening trim (catalog models placed on the wall)', () => {
   const w = wall();
-  it('windows get a frame and a glass pane, doors a frame and a leaf, archways nothing', () => {
-    const win = generateOpeningParts({
-      opening: opening({ kind: 'window', sillHeight: 0.9, height: 1.2, width: 1.2 }),
-      wall: w,
-      doorsOpen: false,
-    });
-    expect(win.map((p) => p.materials[0])).toEqual(expect.arrayContaining(['frame', 'glass']));
-    const door = generateOpeningParts({ opening: opening(), wall: w, doorsOpen: false });
-    expect(door.map((p) => p.materials[0])).toEqual(['frame', 'leaf']);
-    expect(
-      generateOpeningParts({ opening: opening({ kind: 'archway' }), wall: w, doorsOpen: false }),
-    ).toHaveLength(0);
+  const input = (o: object, doorsOpen = false) => ({
+    opening: opening(o),
+    wall: w,
+    doorsOpen,
+    footprint: fp,
   });
+  const materialColors = (obj: Object3D) => {
+    const colors = new Set<string>();
+    obj.traverse((m) => {
+      if (m instanceof Mesh)
+        colors.add(`#${(m.material as MeshStandardMaterial).color.getHexString()}`);
+    });
+    return colors;
+  };
+
+  it('windows get a frame and a glass pane, doors a frame and a leaf, archways nothing', () => {
+    const win = generateOpeningParts(
+      input({
+        kind: 'window',
+        catalogId: 'window-casement',
+        sillHeight: 0.9,
+        height: 1.2,
+        width: 1.2,
+      }),
+    );
+    expect(win).toHaveLength(1);
+    expect(materialColors(win[0]!.object)).toContain('#a5d8ff');
+    const door = generateOpeningParts(input({ catalogId: 'door-single' }));
+    expect(materialColors(door[0]!.object)).toContain('#b9814e'); // the leaf
+    expect(generateOpeningParts(input({ kind: 'archway', catalogId: 'archway' }))).toHaveLength(0);
+  });
+
+  it('places the model on the wall at its offset and sill height', () => {
+    const win = generateOpeningParts(
+      input({
+        kind: 'window',
+        catalogId: 'window-casement',
+        sillHeight: 0.9,
+        height: 1.2,
+        width: 1.2,
+        offset: 3,
+      }),
+    );
+    const b = new Box3().setFromObject(win[0]!.object);
+    expect((b.min.x + b.max.x) / 2).toBeCloseTo(3, 1);
+    expect(b.min.y).toBeGreaterThanOrEqual(0.9 - 0.01);
+    expect(b.max.y).toBeCloseTo(0.9 + 1.2, 1);
+    expect(win[0]!.entity).toEqual({ type: 'opening', id: 'o' });
+  });
+
   it('swings a door leaf open when asked', () => {
-    const closed = bounds(
-      generateOpeningParts({ opening: opening(), wall: w, doorsOpen: false })[1]!.geometry,
-    );
-    const ajar = bounds(
-      generateOpeningParts({ opening: opening(), wall: w, doorsOpen: true })[1]!.geometry,
-    );
+    const closed = new Box3().setFromObject(generateOpeningParts(input({}, false))[0]!.object);
+    const ajar = new Box3().setFromObject(generateOpeningParts(input({}, true))[0]!.object);
     expect(ajar.max.z - ajar.min.z).toBeGreaterThan(closed.max.z - closed.min.z + 0.1);
+  });
+
+  it('every wall style builds for the matching kind', () => {
+    for (const style of openingStyles('window')) {
+      const parts = generateOpeningParts(
+        input({
+          kind: 'window',
+          catalogId: style.catalogId,
+          sillHeight: style.sill ?? 0.9,
+          height: 1.2,
+        }),
+      );
+      expect(parts).toHaveLength(1);
+    }
+    for (const style of openingStyles('door'))
+      expect(generateOpeningParts(input({ catalogId: style.catalogId }))).toHaveLength(
+        style.openingKind === 'archway' ? 0 : 1,
+      );
+  });
+
+  it('unknown catalog ids fall back to the default style for their kind', () => {
+    expect(generateOpeningParts(input({ catalogId: 'does-not-exist' }))).toHaveLength(1);
+  });
+});
+
+describe('items', () => {
+  it('positions an item on its level with plan rotation mapped to −Y rotation', () => {
+    const p = createSampleProject();
+    const item = p.items.find((i) => i.catalogId === 'wardrobe')!;
+    const part = generateItemPart(item)!;
+    expect(part.object.position.x).toBeCloseTo(item.position.x);
+    expect(part.object.position.z).toBeCloseTo(item.position.y);
+    expect(part.object.rotation.y).toBeCloseTo(-item.rotation);
+    expect(part.entity).toEqual({ type: 'item', id: item.id });
+    expect(generateItemPart({ ...item, catalogId: 'nope' })).toBeNull();
+  });
+  it('scales the model through the item scale', () => {
+    const p = createSampleProject();
+    const item = { ...p.items[0]!, scale: { x: 2, y: 1, z: 1 } };
+    const entry = getEntry(item.catalogId)!;
+    const b = new Box3().setFromObject(generateItemPart(item)!.object);
+    expect(b.max.x - b.min.x).toBeGreaterThan(entry.defaultSize.w * 1.5);
   });
 });
 
@@ -456,7 +541,7 @@ describe('SceneBuilder', () => {
     const b = new SceneBuilder();
     const p = createSampleProject();
     const lvl = b.build(p, { ...opts, wallMode: 'cut' });
-    const wallPart = lvl[0]!.parts.find((x) => x.layer === 'wall')!;
+    const wallPart = lvl[0]!.parts.find((x) => x.layer === 'wall') as Part;
     expect(bounds(wallPart.geometry).max.y).toBeCloseTo(1.2);
     const before = b.cache.size;
     b.build(

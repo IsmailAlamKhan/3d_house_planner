@@ -60,6 +60,42 @@ describe('hit testing', () => {
   });
 });
 
+describe('hit testing furniture, doors and the rotate handle', () => {
+  const scene = {
+    walls: [w('a', 0, 0, 4, 0)],
+    rooms: [],
+    columns: [],
+    items: [
+      { id: 'big', position: { x: 2, y: 2 }, rotation: 0, w: 2, d: 1 },
+      { id: 'small', position: { x: 2, y: 2 }, rotation: 0, w: 0.5, d: 0.5 },
+      { id: 'turned', position: { x: 6, y: 2 }, rotation: Math.PI / 2, w: 2, d: 0.5 },
+    ],
+    openings: [{ id: 'door', center: { x: 1, y: 0 }, angle: 0, width: 0.9, thickness: 0.2 }],
+    selection: { type: null, ids: [] },
+    px: 0.02,
+  };
+  it('prefers the smaller item where they overlap, and respects rotation', () => {
+    expect(hitTest({ x: 2, y: 2 }, scene)).toEqual({ type: 'item', id: 'small' });
+    expect(hitTest({ x: 2.8, y: 2 }, scene)).toEqual({ type: 'item', id: 'big' });
+    // The rotated item is 2 m tall (plan y) and 0.5 m wide.
+    expect(hitTest({ x: 6, y: 2.9 }, scene)).toEqual({ type: 'item', id: 'turned' });
+    expect(hitTest({ x: 6.9, y: 2 }, scene)).toBeNull();
+  });
+  it('hits doors/windows before the wall they are in', () => {
+    expect(hitTest({ x: 1, y: 0.05 }, scene)).toEqual({ type: 'opening', id: 'door' });
+    expect(hitTest({ x: 3, y: 0.05 }, scene)).toEqual({ type: 'wall', id: 'a' });
+  });
+  it('offers a rotate handle in front of the selected item', () => {
+    const sel = { type: 'item' as const, ids: ['big'] };
+    // Item faces +y: the handle sits beyond its front edge (centre y 2 + 0.5 depth + 22 px).
+    expect(hitTest({ x: 2, y: 2 + 0.5 + 22 * 0.02 }, { ...scene, selection: sel })).toEqual({
+      type: 'rotate',
+      itemId: 'big',
+    });
+    expect(hitTest({ x: 2, y: 2 + 0.5 + 22 * 0.02 }, scene)).toBeNull();
+  });
+});
+
 describe('moves', () => {
   const walls = [w('a', 0, 0, 4, 0), w('b', 4, 0, 4, 3), w('c', 10, 10, 12, 10)];
   it('moves selected walls and drags connected corners along', () => {

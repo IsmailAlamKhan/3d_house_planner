@@ -1,4 +1,12 @@
-import { BufferGeometry, ExtrudeGeometry, Path, Shape, ShapeGeometry } from 'three';
+import {
+  BufferGeometry,
+  ExtrudeGeometry,
+  type Object3D,
+  Path,
+  Shape,
+  ShapeGeometry,
+  Mesh,
+} from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import polygonClipping, {
   type MultiPolygon,
@@ -9,7 +17,8 @@ import polygonClipping, {
 import type { Vec2 } from '../../geometry/vec';
 import type { EntityType } from '../../model/types';
 
-export type Layer = 'wall' | 'frame' | 'slab' | 'floor' | 'ceiling' | 'column' | 'stair' | 'roof';
+export type Layer =
+  'wall' | 'frame' | 'slab' | 'floor' | 'ceiling' | 'column' | 'stair' | 'roof' | 'item';
 
 /**
  * One renderable piece of the model. Geometry is in LEVEL-LOCAL coordinates:
@@ -27,7 +36,26 @@ export interface Part {
   clipToCut?: boolean;
 }
 
-export const disposeParts = (parts: Part[]): void => parts.forEach((p) => p.geometry.dispose());
+/** A renderable piece made of a ready-built three.js object (catalog furniture, doors and windows). */
+export interface ObjectPart {
+  id: string;
+  layer: Layer;
+  entity?: { type: EntityType; id: string };
+  /** Positioned in level-local coordinates. Materials are shared and must not be mutated. */
+  object: Object3D;
+  clipToCut?: boolean;
+}
+
+export type AnyPart = Part | ObjectPart;
+
+export const isObjectPart = (p: AnyPart): p is ObjectPart => 'object' in p;
+
+export function disposeParts(parts: AnyPart[]): void {
+  for (const p of parts) {
+    if (isObjectPart(p)) p.object.traverse((o) => o instanceof Mesh && o.geometry.dispose());
+    else p.geometry.dispose();
+  }
+}
 
 export const toRing = (pts: Vec2[]): Ring => pts.map((p) => [p.x, p.y] as Pair);
 

@@ -8,7 +8,8 @@ import {
   generateRoomFloor,
   generateSlab,
 } from './generators/floors';
-import type { Part } from './generators/common';
+import type { AnyPart } from './generators/common';
+import { generateItemPart } from './generators/items';
 import { generateOpeningParts } from './generators/openings';
 import { generateStair } from './generators/stairs';
 import { levelAbove, slabVoids } from './generators/voids';
@@ -27,7 +28,7 @@ export const DEFAULT_CUT_HEIGHT = 1.2;
 
 export interface LevelScene {
   level: Level;
-  parts: Part[];
+  parts: AnyPart[];
 }
 
 /** Turns the project into renderable parts, level by level, reusing cached geometry for unchanged entities. */
@@ -42,7 +43,7 @@ export class SceneBuilder {
     const result: LevelScene[] = [];
 
     for (const level of levels) {
-      const parts: Part[] = [];
+      const parts: AnyPart[] = [];
       const voids = slabVoids(project, level);
       const voidsKey = JSON.stringify(voids);
       const above = levelAbove(project, level);
@@ -80,8 +81,8 @@ export class SceneBuilder {
         );
         for (const o of openings) {
           parts.push(
-            ...c.get(`opening:${o.id}`, [o, wall, opts.doorsOpen], () =>
-              generateOpeningParts({ opening: o, wall, doorsOpen: opts.doorsOpen }),
+            ...c.get(`opening:${o.id}`, [o, wall, opts.doorsOpen, footprint], () =>
+              generateOpeningParts({ opening: o, wall, doorsOpen: opts.doorsOpen, footprint }),
             ),
           );
         }
@@ -115,6 +116,15 @@ export class SceneBuilder {
         if (!to) continue;
         parts.push(
           ...c.get(`stair:${stair.id}`, [stair, level, to], () => generateStair(stair, level, to)),
+        );
+      }
+
+      for (const item of project.items.filter((i) => i.levelId === level.id)) {
+        parts.push(
+          ...c.get(`item:${item.id}`, [item], () => {
+            const p = generateItemPart(item);
+            return p ? [p] : [];
+          }),
         );
       }
 

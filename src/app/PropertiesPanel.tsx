@@ -1,12 +1,13 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { polygonArea } from '../geometry/polygon';
 import { type TranslationKey, useT } from '../i18n';
-import { ModelError } from '../model/ops';
+import { entryForOpening, getEntry } from '../catalog';
 import { updateRoom, updateWall } from '../model/ops';
 import { ROOM_TYPES, WALL_TYPES } from '../model/schemas';
-import { edit, useModel } from '../model/store';
+import { useModel } from '../model/store';
 import type { Room, Wall } from '../model/types';
-import { usePlanStore } from '../plan2d/planStore';
+import { ItemProps, OpeningProps } from './CatalogProps';
+import { CommitField, Row, SelectField, shared, useEditor } from './fields';
 import {
   formatArea,
   formatLength,
@@ -34,104 +35,6 @@ const FLOOR_MATERIALS = [
   'floor-concrete',
   'floor-carpet-grey',
 ];
-
-const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
-
-/** The value shared by every item, or `undefined` when they differ. */
-function shared<T, V>(items: T[], pick: (t: T) => V): V | undefined {
-  const first = pick(items[0]!);
-  return items.every((i) => pick(i) === first) ? first : undefined;
-}
-
-function Row({ name, children }: { name: string; children: ReactNode }) {
-  return (
-    <label className="flex items-center justify-between gap-2 py-1 text-sm">
-      <span className="text-slate-600">{name}</span>
-      {children}
-    </label>
-  );
-}
-
-const inputCls =
-  'w-32 rounded border border-slate-300 bg-white px-2 py-1 text-sm focus:border-sky-400 focus:outline-none';
-
-function SelectField({
-  name,
-  value,
-  options,
-  onChange,
-  mixed,
-}: {
-  name: string;
-  value: string | undefined;
-  options: string[];
-  onChange: (v: string) => void;
-  mixed: string;
-}) {
-  return (
-    <Row name={name}>
-      <select className={inputCls} value={value ?? ''} onChange={(e) => onChange(e.target.value)}>
-        {value === undefined && (
-          <option value="" disabled>
-            {mixed}
-          </option>
-        )}
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {label(o)}
-          </option>
-        ))}
-      </select>
-    </Row>
-  );
-}
-
-/** Numeric/text field that commits on blur or Enter. `key` re-mounts it when the stored value changes. */
-function CommitField({
-  name,
-  value,
-  placeholder,
-  onCommit,
-  suffix,
-}: {
-  name: string;
-  value: string;
-  placeholder?: string;
-  onCommit: (v: string) => void;
-  suffix?: string;
-}) {
-  return (
-    <Row name={name}>
-      <span className="flex items-center gap-1">
-        <input
-          key={value}
-          className={inputCls}
-          defaultValue={value}
-          placeholder={placeholder}
-          onBlur={(e) => e.currentTarget.value !== value && onCommit(e.currentTarget.value)}
-          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-        />
-        {suffix && <span className="text-xs text-slate-500">{suffix}</span>}
-      </span>
-    </Row>
-  );
-}
-
-function useEditor() {
-  const setToast = usePlanStore((s) => s.setToast);
-  const [error, setError] = useState<string | null>(null);
-  const run = (fn: Parameters<typeof edit>[0]) => {
-    try {
-      edit(fn);
-      setError(null);
-    } catch (e) {
-      const msg = e instanceof ModelError ? e.message : 'Could not apply that change.';
-      setError(msg);
-      setToast(null);
-    }
-  };
-  return { run, error };
-}
 
 function WallProps({ walls }: { walls: Wall[] }) {
   const t = useT();
@@ -266,6 +169,23 @@ export function PropertiesPanel() {
     if (rooms.length) {
       title = (count > 1 ? t('props.rooms') : t('props.room')) + suffix;
       body = <RoomProps key={rooms.map((r) => r.id).join()} rooms={rooms} />;
+    }
+  } else if (selection.type === 'item') {
+    const items = project.items.filter((i) => selection.ids.includes(i.id));
+    if (items.length) {
+      const entry = items.length === 1 ? getEntry(items[0]!.catalogId) : undefined;
+      title = entry ? t(entry.nameKey as TranslationKey) : `${t('props.item')}${suffix}`;
+      body = <ItemProps key={items.map((i) => i.id).join()} items={items} />;
+    }
+  } else if (selection.type === 'opening') {
+    const openings = project.openings.filter((o) => selection.ids.includes(o.id));
+    if (openings.length) {
+      const entry =
+        openings.length === 1
+          ? entryForOpening(openings[0]!.catalogId, openings[0]!.kind)
+          : undefined;
+      title = entry ? t(entry.nameKey as TranslationKey) : `${t('props.opening')}${suffix}`;
+      body = <OpeningProps key={openings.map((o) => o.id).join()} openings={openings} />;
     }
   } else if (selection.type === 'column') {
     title = t('props.column');

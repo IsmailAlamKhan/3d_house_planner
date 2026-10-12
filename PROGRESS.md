@@ -29,3 +29,12 @@ Limitations: room area uses centerlines (not clear inside area); islands inside 
 - [x] Generator tests for every entity type (bounds, volumes via divergence theorem, hole counts) and cache/selection tests
 Summary: The sample duplex renders in 3D with both slabs, a headroom-based stair void, stairs, openings and trim. Edits in 2D rebuild only affected entities (test: changing one wall rebuilds < 10 cache entries).
 Limitations: doubleHeight rooms open the slab above but their walls are not extended; stair void starts where headroom < 2 m (steps before that sit under the slab); selection highlight is a tint + 1px edge outline (drei Outlines rendered artefacts on non-smooth geometry); no textures yet.
+
+## Prompt 5 — Drag-and-Drop Component Library — DONE
+- [x] Typed catalog with 49 procedural entries (doors, windows, living, dining, bedroom, kitchen, bathroom, other), 3D builders + 2D symbols
+- [x] Library panel (tabs, search, cached thumbnails), drag & drop into 2D and 3D, tap-to-place alternative
+- [x] Wall snapping with corner distances, refusals with clear messages, back-to-wall + 15° rotation snapping, clearance warnings
+- [x] Move/rotate in 2D (drag, rotate handle) and 3D (TransformControls); R, Ctrl+D, arrows, Delete
+- [x] Properties for furniture (size, rotation, elevation, colours/variants) and doors/windows (style, size, sill, swing, mirror, offset, frame colours)
+Summary: Doors and windows are catalog-styled openings that cut real holes in 3D walls; furniture is catalog items scaled from default sizes. Placement rules are pure and unit-tested; Playwright covers drag from library to 2D and 3D, tap-to-place, move/slide drags, keyboard manipulation and refusals.
+Limitations: dining chairs and similar sets are one item (not separable); bay windows project outward but do not extend the wall; gizmo in 3D works on furniture only (doors/windows are moved in 2D or with arrow keys); no collision blocking (warnings only).

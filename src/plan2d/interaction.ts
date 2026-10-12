@@ -8,7 +8,20 @@ import { NO_SELECTION, edit, useModel } from '../model/store';
 import type { Selection } from '../model/types';
 import { parseLength } from '../ui/units';
 import { useDraft } from './draftStore';
-import { boxSelect, hitTest } from './hit';
+import { carriedId, useCatalogDrag } from '../catalog/dragStore';
+import {
+  deleteSelectedCatalog,
+  evaluateOpeningMove,
+  freePoint,
+  moveItemTo,
+  placeCatalogEntry,
+  slideOpening,
+  updateCatalogHover,
+} from '../catalog/actions';
+import { getEntry, itemSize } from '../catalog';
+import { placeExistingItem, snapAngle } from '../catalog/placement';
+import { boxSelect, hitTest, type ItemBox, type OpeningBox } from './hit';
+import { openingFrame } from './symbols';
 import { computeEndpointMove, computeWallMove, wallsOnRoomOutline } from './moves';
 import { usePlanStore } from './planStore';
 import { fitBounds, panBy, toWorld, zoomAt } from './view';
@@ -48,11 +61,35 @@ function tryEdit<T>(
 
 function levelData() {
   const { project, activeLevelId } = useModel.getState();
+  const walls = project.walls.filter((w) => w.levelId === activeLevelId);
+  const wallIds = new Set(walls.map((w) => w.id));
+  const items: ItemBox[] = [];
+  for (const it of project.items) {
+    if (it.levelId !== activeLevelId) continue;
+    const entry = getEntry(it.catalogId);
+    const size = entry ? itemSize(entry, it.scale) : { w: 0.5, d: 0.5, h: 0.5 };
+    items.push({ id: it.id, position: it.position, rotation: it.rotation, w: size.w, d: size.d });
+  }
+  const openings: OpeningBox[] = [];
+  for (const o of project.openings) {
+    if (!wallIds.has(o.wallId)) continue;
+    const wall = walls.find((w) => w.id === o.wallId)!;
+    const f = openingFrame(o, wall);
+    openings.push({
+      id: o.id,
+      center: f.center,
+      angle: (f.angle * Math.PI) / 180,
+      width: o.width,
+      thickness: wall.thickness,
+    });
+  }
   return {
     project,
-    walls: project.walls.filter((w) => w.levelId === activeLevelId),
+    walls,
     rooms: project.rooms.filter((r) => r.levelId === activeLevelId),
     columns: project.columns.filter((c) => c.levelId === activeLevelId),
+    items,
+    openings,
   };
 }
 
@@ -99,6 +136,10 @@ function commitRoom(polygon: Vec2[]): void {
 export function deleteSelected(): void {
   const { selection } = useModel.getState();
   if (!selection.type) return;
+  if (selection.type === 'item' || selection.type === 'opening') {
+    if (ensureEditable()) deleteSelectedCatalog();
+    return;
+  }
   if (selection.type === 'column')
     return toast('Structural columns are fixed and cannot be deleted.');
   tryEdit((p) => {
@@ -132,6 +173,15 @@ function typedEndpoint(): Vec2 | null {
 }
 export { typedEndpoint };
 
+function ensureEditable(): boolean {
+  const level = activeLevel();
+  if (level?.locked) {
+    toast(`"${level.name}" is locked. Unlock it in the Levels panel to edit.`);
+    return false;
+  }
+  return !!level;
+}
+
 export function createInteraction(getSvg: () => SVGSVGElement | null) {
   const pointers = new Map<number, { x: number; y: number }>();
   let lastPan: { x: number; y: number } | null = null;
@@ -149,8 +199,16 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
   function startSelectPress(w: Vec2, raw: PointerEvent): void {
     const { selection, setSelection } = useModel.getState();
     const { view } = usePlanStore.getState();
-    const { walls, rooms, columns } = levelData();
-    const hit = hitTest(w, { walls, rooms, columns, selection, px: 1 / view.scale });
+    const { walls, rooms, columns, items, openings } = levelData();
+    const hit = hitTest(w, {
+      walls,
+      rooms,
+      columns,
+      items,
+      openings,
+      selection,
+      px: 1 / view.scale,
+    });
     const shift = raw.shiftKey;
     const draft = useDraft.getState();
     if (!hit) {
@@ -169,6 +227,10 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       });
       return;
     }
+    if (hit.type === 'rotate') {
+      useDraft.setState({ drag: { kind: 'rotate', id: hit.itemId } });
+      return;
+    }
     const inSel = selection.type === hit.type && selection.ids.includes(hit.id);
     if (shift) {
       if (selection.type === hit.type) {
@@ -182,6 +244,17 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       return;
     }
     if (!inSel) setSelection(sel(hit.type, [hit.id]));
+    if (hit.type === 'item') {
+      const it = items.find((x) => x.id === hit.id)!;
+      useDraft.setState({
+        drag: { kind: 'item', id: hit.id, startRaw: w, grab: sub(w, it.position), moved: false },
+      });
+      return;
+    }
+    if (hit.type === 'opening') {
+      useDraft.setState({ drag: { kind: 'opening', id: hit.id, startRaw: w, moved: false } });
+      return;
+    }
     if (hit.type === 'wall' || hit.type === 'room') {
       const cur = useModel.getState().selection;
       const ids = cur.type === 'wall' ? cur.ids : cur.type === 'room' ? cur.ids : [hit.id];
@@ -238,6 +311,14 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     if (e.button !== 0) return;
     const { tool } = useModel.getState();
     const w = world(e);
+
+    // A library item picked by tap/click: this press is its destination.
+    const armed = useCatalogDrag.getState().armedId;
+    if (armed) {
+      placeCatalogEntry(armed, freePoint(w), { snapWalls: !e.altKey });
+      useCatalogDrag.getState().setArmed(null);
+      return;
+    }
 
     if (tool === 'select') return startSelectPress(w, e);
 
@@ -315,6 +396,75 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
             : undefined;
 
     const drag = draft.drag;
+    if (drag?.kind === 'item') {
+      const px = Math.hypot(sPos.x - toScreenX(drag.startRaw), sPos.y - toScreenY(drag.startRaw));
+      if (!drag.moved && px < DRAG_START_PX) return;
+      const { project } = levelData();
+      const item = project.items.find((i) => i.id === drag.id);
+      if (!item) return;
+      const raw = freePoint(sub(w, drag.grab));
+      const r = placeExistingItem(project, item, raw, { snapWalls: !e.altKey });
+      useDraft.setState({
+        drag: { ...drag, moved: true },
+        itemPreview: r.ok
+          ? {
+              id: drag.id,
+              raw,
+              position: r.position,
+              rotation: r.rotation,
+              ok: true,
+              messages: r.warnings,
+            }
+          : {
+              id: drag.id,
+              raw,
+              position: raw,
+              rotation: item.rotation,
+              ok: false,
+              messages: [r.message],
+            },
+      });
+      return ps.setCursor(raw, null);
+    }
+    if (drag?.kind === 'opening') {
+      const px = Math.hypot(sPos.x - toScreenX(drag.startRaw), sPos.y - toScreenY(drag.startRaw));
+      if (!drag.moved && px < DRAG_START_PX) return;
+      const { project } = levelData();
+      const o = project.openings.find((x) => x.id === drag.id);
+      if (!o) return;
+      const r = evaluateOpeningMove(project, useModel.getState().activeLevelId, o, w);
+      useDraft.setState({
+        drag: { ...drag, moved: true },
+        openingPreview: r.ok
+          ? { id: drag.id, raw: w, wallId: r.wallId, offset: r.offset, ok: true }
+          : {
+              id: drag.id,
+              raw: w,
+              wallId: o.wallId,
+              offset: o.offset,
+              ok: false,
+              message: r.message,
+            },
+      });
+      return ps.setCursor(w, null);
+    }
+    if (drag?.kind === 'rotate') {
+      const { project } = levelData();
+      const item = project.items.find((i) => i.id === drag.id);
+      if (!item) return;
+      const rot = snapAngle(Math.atan2(-(w.x - item.position.x), w.y - item.position.y));
+      useDraft.setState({
+        itemPreview: {
+          id: drag.id,
+          raw: item.position,
+          position: item.position,
+          rotation: rot,
+          ok: true,
+          messages: [],
+        },
+      });
+      return ps.setCursor(w, null);
+    }
     if (drag?.kind === 'box') {
       useDraft.setState({ drag: { ...drag, b: w } });
       return ps.setCursor(w, null);
@@ -345,6 +495,8 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       return ps.setCursor(s.point, s);
     }
 
+    const carried = carriedId(useCatalogDrag.getState());
+    if (carried) updateCatalogHover(w, e.altKey);
     const s = snapAt(w, { anchor });
     useDraft.setState({ hover: { point: s.point, raw: w, snap: s } });
     ps.setCursor(s.point, tool === 'select' ? null : s);
@@ -366,7 +518,35 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     const draft = useDraft.getState();
     const drag = draft.drag;
     if (!drag) return;
-    useDraft.setState({ drag: null, preview: [] });
+    useDraft.setState({ drag: null, preview: [], itemPreview: null, openingPreview: null });
+    if (drag.kind === 'item') {
+      const pv = draft.itemPreview;
+      if (drag.moved && pv) {
+        if (pv.ok) {
+          if (!ensureEditable() || !moveItemTo(drag.id, pv.raw, { snapWalls: !e.altKey })) return;
+        } else toast(pv.messages[0] ?? '');
+      } else if (!e.shiftKey && useModel.getState().selection.ids.length > 1) {
+        useModel.getState().setSelection(sel('item', [drag.id]));
+      }
+      return;
+    }
+    if (drag.kind === 'opening') {
+      const pv = draft.openingPreview;
+      if (drag.moved && pv) {
+        if (pv.ok) {
+          if (ensureEditable()) slideOpening(drag.id, pv.raw);
+        } else toast(pv.message ?? '');
+      }
+      return;
+    }
+    if (drag.kind === 'rotate') {
+      const pv = draft.itemPreview;
+      if (pv && ensureEditable())
+        tryEdit((p) =>
+          ops.rotateItem(p, drag.id, pv.rotation < 0 ? pv.rotation + Math.PI * 2 : pv.rotation),
+        );
+      return;
+    }
     if (drag.kind === 'box') {
       const min = { x: Math.min(drag.a.x, drag.b.x), y: Math.min(drag.a.y, drag.b.y) };
       const max = { x: Math.max(drag.a.x, drag.b.x), y: Math.max(drag.a.y, drag.b.y) };
@@ -450,6 +630,7 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       }
     }
     if (e.key === 'Escape') {
+      if (useCatalogDrag.getState().armedId) return useCatalogDrag.getState().setArmed(null);
       if (tool === 'wall' && draft.chain.length) return finishWallChain();
       if (drawing || draft.measure) return draft.reset();
       if (store.selection.type) return store.setSelection(NO_SELECTION);
@@ -457,13 +638,16 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       return;
     }
     if (e.key === 'Enter' && tool === 'room' && draft.roomPts.length) return finishPolygonRoom();
-    if ((e.key === 'Delete' || e.key === 'Backspace') && tool === 'select') {
+    const catalogSel = store.selection.type === 'item' || store.selection.type === 'opening';
+    // Furniture / door / window keys (R rotate, Delete, arrows, Ctrl+D) are handled app-wide.
+    if ((e.key === 'Delete' || e.key === 'Backspace') && tool === 'select' && !catalogSel) {
       e.preventDefault();
       return deleteSelected();
     }
     if (drawing) return;
     const k = e.key.toLowerCase();
     const tools = { v: 'select', w: 'wall', r: 'room', m: 'measure' } as const;
+    if (k === 'r' && store.selection.type === 'item') return;
     if (k in tools) store.setTool(tools[k as keyof typeof tools]);
   }
 
@@ -471,7 +655,37 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     if (e.code === 'Space') useDraft.setState({ spaceDown: false });
   }
 
+  const MIME = 'application/x-duplex-catalog';
+
+  function onDragOver(e: DragEvent) {
+    if (!useCatalogDrag.getState().dragId && !e.dataTransfer?.types.includes(MIME)) return;
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+    const w = world(e);
+    updateCatalogHover(w, e.altKey);
+    usePlanStore.getState().setCursor(w, null);
+  }
+
+  function onDragLeave() {
+    useCatalogDrag.getState().setHover(null);
+  }
+
+  function onDrop(e: DragEvent) {
+    const id = e.dataTransfer?.getData(MIME) || useCatalogDrag.getState().dragId;
+    useCatalogDrag.getState().setDrag(null);
+    useCatalogDrag.getState().setHover(null);
+    if (!id) return;
+    e.preventDefault();
+    const entry = getEntry(id);
+    if (!entry) return;
+    const w = world(e);
+    placeCatalogEntry(id, entry.placement === 'wall' ? w : freePoint(w), { snapWalls: !e.altKey });
+  }
+
   return {
+    onDragOver,
+    onDragLeave,
+    onDrop,
     onPointerDown,
     onPointerMove,
     onPointerUp,

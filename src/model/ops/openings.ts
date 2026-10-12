@@ -9,7 +9,7 @@ const DEFAULTS: Record<
   Pick<Opening, 'width' | 'height' | 'sillHeight' | 'swing' | 'catalogId'>
 > = {
   door: { width: 0.9, height: 2.1, sillHeight: 0, swing: 'left', catalogId: 'door-single' },
-  window: { width: 1.2, height: 1.2, sillHeight: 0.9, swing: 'none', catalogId: 'window-double' },
+  window: { width: 1.2, height: 1.2, sillHeight: 0.9, swing: 'none', catalogId: 'window-casement' },
   archway: { width: 1.2, height: 2.1, sillHeight: 0, swing: 'none', catalogId: 'archway' },
 };
 
@@ -40,6 +40,7 @@ export function addOpening(p: Project, input: NewOpening): string {
     sillHeight: input.sillHeight ?? d.sillHeight,
     flip: input.flip ?? false,
     swing: input.swing ?? d.swing,
+    props: { ...(input.props ?? {}) },
   };
   validate(p, opening);
   p.openings.push(opening);
