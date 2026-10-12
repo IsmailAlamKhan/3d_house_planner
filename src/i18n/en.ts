@@ -279,7 +279,7 @@ export const en = {
   'ai.set.offline': 'Built-in offline generator only (no model)',
   'ai.set.model': 'Model',
   'ai.set.modelHint':
-    'Default qwen3:14b. Faster: qwen3:8b. Any Ollama model that can follow a JSON schema works.',
+    'Default qwen3:14b (about 9 GB — fits a 16 GB graphics card). Faster: qwen3:8b. Alternative: gemma3:12b. Larger and slower: mistral-small (24B), which may spill into system RAM. A model must fit in video memory to be fast.',
   'ai.set.baseUrl': 'Server address',
   'ai.set.test': 'Test connection',
   'ai.set.testing': 'Checking…',
@@ -724,6 +724,8 @@ export const en = {
   'pwa.updateReady': 'A new version is ready.',
   'pwa.update': 'Update',
   'pwa.dismiss': 'Dismiss',
+  'ai.waiting': 'Waiting for AI… ({n} ahead of you)',
+  'ai.thinking': 'Thinking… {s} s',
   'levels.add': 'Add level',
   'levels.rename': 'Rename level',
   'levels.show': 'Show level',

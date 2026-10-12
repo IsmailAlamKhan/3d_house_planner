@@ -227,7 +227,13 @@ export function AiPanel() {
       {ai.busy ? (
         <div className="flex items-center gap-2 rounded-md bg-sky-50 p-2" role="status">
           <span className="h-3 w-3 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
-          <span className="flex-1 text-sm">{t('ai.working').replace('{s}', String(elapsed))}</span>
+          <span className="flex-1 text-sm" data-testid="ai-progress">
+            {ai.progress?.phase === 'queued'
+              ? t('ai.waiting').replace('{n}', String(ai.progress.ahead))
+              : ai.progress?.phase === 'thinking'
+                ? t('ai.thinking').replace('{s}', String(elapsed))
+                : t('ai.working').replace('{s}', String(elapsed))}
+          </span>
           <button
             onClick={ai.cancel}
             className="rounded border border-slate-300 bg-white px-2 py-0.5 text-xs hover:bg-slate-50"

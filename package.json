@@ -17,7 +17,10 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "test:coverage": "VITE_COVERAGE=1 vitest run --coverage"
+    "test:coverage": "VITE_COVERAGE=1 vitest run --coverage",
+    "server": "tsx server/index.ts",
+    "start": "npm run build && tsx server/index.ts",
+    "ai:eval": "tsx scripts/ai-eval.ts"
   },
   "dependencies": {
     "@fontsource/noto-sans-bengali": "^5.3.0",
@@ -63,6 +66,7 @@
     "postcss": "^8.5.29",
     "prettier": "^3.9.10",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",

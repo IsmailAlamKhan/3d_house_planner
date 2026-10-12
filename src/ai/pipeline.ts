@@ -15,6 +15,7 @@ import {
 import {
   type AiSettings,
   type LLMMessage,
+  type AiProgress,
   type LLMProvider,
   ProviderError,
   ProviderUnreachable,
@@ -90,8 +91,15 @@ async function askValidated<T>(
   signal: AbortSignal | undefined,
   temperature: number,
   check?: (value: T) => string[],
+  onProgress?: (p: AiProgress) => void,
 ): Promise<T> {
-  const first = await provider.generate({ messages, schema: jsonSchema, temperature, signal });
+  const first = await provider.generate({
+    messages,
+    schema: jsonSchema,
+    temperature,
+    signal,
+    onProgress,
+  });
   const a = validate(schema, first);
   const firstProblems = a.ok ? (check?.(a.value) ?? []) : a.errors;
   if (a.ok && !firstProblems.length) return a.value;
@@ -105,6 +113,7 @@ async function askValidated<T>(
     schema: jsonSchema,
     temperature: Math.min(temperature, 0.2),
     signal,
+    onProgress,
   });
   const b = validate(schema, second);
   if (b.ok) {
@@ -134,6 +143,7 @@ export interface GenerateOptions {
   variation?: number;
   /** For tests. */
   provider?: LLMProvider | null;
+  onProgress?: (p: AiProgress) => void;
 }
 
 const TEMPS = [0.2, 0.7, 0.9];
@@ -168,6 +178,7 @@ export async function generateIntent(brief: string, opts: GenerateOptions): Prom
       opts.signal,
       TEMPS[Math.min(variation, TEMPS.length - 1)]!,
       (i) => briefProblems(brief, i),
+      opts.onProgress,
     );
     return { intent, source: provider.id, notes: [] };
   } catch (e) {
@@ -195,6 +206,7 @@ export interface EditOptions {
   activeLevelId: string;
   signal?: AbortSignal;
   provider?: LLMProvider | null;
+  onProgress?: (p: AiProgress) => void;
 }
 
 /** Command → EditOperations. Without a reachable model a small rule-based reader handles the common commands. */
@@ -228,6 +240,8 @@ export async function interpretEdit(command: string, opts: EditOptions): Promise
       jsonSchemaOf(EditResponseSchema),
       opts.signal,
       0.2,
+      undefined,
+      opts.onProgress,
     );
     return { operations: r.operations, summary: r.summary, source: provider.id, notes: [] };
   } catch (e) {

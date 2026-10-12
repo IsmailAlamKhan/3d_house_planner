@@ -114,3 +114,13 @@ Limitations: no right-to-left or other languages; comparison shows two designs (
 - [x] CI/deploy: `.github/workflows/ci.yml` (lint, typecheck, coverage tests, build, e2e, GitHub Pages deploy with `BASE_PATH=/<repo>/`, verified), `netlify.toml`; README and final architecture/Mermaid diagram
 Gap: the Rust toolchain is not configured on this machine, so `npm run tauri:build` was not run; the config is committed and follows the Tauri 2 schema. Instancing of repeated catalog items was not added: the measured build/edit times did not call for it.
 Limitation: on static hosting there is no `/api/ai` proxy, so the offline generator is used there.
+
+## Prompt 13 — Free Local AI & Self-Hosting on a Windows PC — DONE
+- [x] App server (`server/`, plain Node `http`, run with `tsx`): serves `dist/` with SPA fallback, `/api/ai` (allow-listed `/api/chat` + `/api/tags`, 1 MB, 180 s, one generation at a time with a queue), `/api/health` (app + Ollama reachability + installed models), `.env` config (`PORT`, `HOST`, `OLLAMA_URL`, `OLLAMA_MODEL`, `APP_PASSWORD` with a session-cookie login and guess throttling). Ollama stays on 127.0.0.1; only the app server listens on the LAN. Default provider is local Ollama through `/api/ai`; there is no paid-API dependency.
+- [x] Windows: `scripts/windows/setup.ps1` / `start.ps1`, `docs/HOSTING_WINDOWS.md` (Task Scheduler and NSSM auto-start, Private-network firewall rule, Tailscale for remote access, no port-forwarding, model table and VRAM guidance); the model is a setting (`OLLAMA_MODEL`, AI settings hint updated in English and Bengali)
+- [x] Slow local generation UX: streamed from Ollama (NDJSON through the proxy), "Waiting for AI… (n ahead of you)" while queued, "Thinking… N s" with Cancel; only the final validated answer is applied; 3 variations run one after another and each appears when ready
+- [x] `npm run ai:eval`: 15 briefs in `src/ai/fixtures/briefs.ts`, run against the configured model
+Results on this Mac with `qwen3:14b` (Ollama 15 briefs):
+  - baseline prompt: schema-valid 15/15 = 100 %, solver 15/15 = 100 %, repair round needed 11/15, followed bedroom/level counts 4/15, 40.5 s average
+  - tuned prompt (exactly 2 levels, honour counts, vague briefs still get a full design): schema-valid 15/15 = 100 %, solver 15/15 = 100 %, repair needed 3/15, followed the brief 12/15, 73 s average (the machine was busy; first-token latency varies)
+Not verified here: the PowerShell scripts were written but not run (no Windows machine); the server itself is covered by unit tests (static files, SPA fallback, health, proxy allow-list, streaming + queue, password flow).

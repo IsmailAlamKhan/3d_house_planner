@@ -29,6 +29,8 @@ interface Envelope {
   path: string;
   method?: 'GET' | 'POST';
   body?: unknown;
+  /** Ollama chat only: answer as newline-delimited JSON events (queue position, progress, final data). */
+  stream?: boolean;
 }
 
 const PRIVATE_HOST =
@@ -81,9 +83,12 @@ export function createAiProxy(options: AiProxyOptions = {}) {
   const timeoutMs = options.timeoutMs ?? 180_000;
   // One generation at a time (queued FIFO); cheap listing calls skip the queue.
   let tail: Promise<unknown> = Promise.resolve();
+  /** Jobs running or waiting (so a newcomer knows how many are ahead of it). */
+  let pending = 0;
   const enqueue = <T>(job: () => Promise<T>): Promise<T> => {
+    pending++;
     const run = tail.then(job, job);
-    tail = run.catch(() => undefined);
+    tail = run.catch(() => undefined).finally(() => void pending--);
     return run;
   };
 
@@ -144,6 +149,75 @@ export function createAiProxy(options: AiProxyOptions = {}) {
         res.off('close', onClose);
       }
     };
+    // Streaming (Ollama chat): tell the browser where it is in the queue, then relay the model's tokens as they come.
+    if (env.stream && env.target === 'ollama' && env.path === '/api/chat') {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/x-ndjson');
+      res.setHeader('Cache-Control', 'no-store');
+      const line = (o: unknown) => !res.writableEnded && res.write(JSON.stringify(o) + '\n');
+      if (pending > 0) line({ type: 'queued', ahead: pending });
+      const callStream = async () => {
+        const ctl = new AbortController();
+        const timer = setTimeout(() => ctl.abort(), timeoutMs);
+        const onClose = () => ctl.abort();
+        res.on('close', onClose);
+        try {
+          line({ type: 'start' });
+          const upstream = await fetch(base + env.path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...(env.body as object), stream: true }),
+            signal: ctl.signal,
+          });
+          if (!upstream.ok || !upstream.body) {
+            const text = await upstream.text().catch(() => '');
+            let error = `AI server error ${upstream.status}`;
+            try {
+              error = (JSON.parse(text) as { error?: string }).error ?? error;
+            } catch {
+              // keep the generic message
+            }
+            line({ type: 'error', status: upstream.status, error });
+            return;
+          }
+          const reader = upstream.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            let nl: number;
+            while ((nl = buffer.indexOf('\n')) >= 0) {
+              const raw = buffer.slice(0, nl).trim();
+              buffer = buffer.slice(nl + 1);
+              if (!raw) continue;
+              try {
+                line({ type: 'data', payload: JSON.parse(raw) });
+              } catch {
+                // a partial or odd line from the model server is skipped
+              }
+            }
+          }
+          line({ type: 'end' });
+        } catch (e) {
+          const aborted = (e as { name?: string }).name === 'AbortError';
+          line({
+            type: 'error',
+            status: aborted ? 504 : 502,
+            error: aborted
+              ? 'The model took too long to answer.'
+              : 'Could not reach the language model.',
+          });
+        } finally {
+          clearTimeout(timer);
+          res.off('close', onClose);
+          if (!res.writableEnded) res.end();
+        }
+      };
+      await enqueue(callStream);
+      return;
+    }
     await (env.path === '/api/chat' || env.path === '/chat/completions' ? enqueue(call) : call());
   };
 }

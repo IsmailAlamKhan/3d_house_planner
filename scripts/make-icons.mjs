@@ -17,7 +17,10 @@ for (const [file, size, maskable] of jobs) {
     ? `<div style="width:${size}px;height:${size}px;background:#0369a1;display:flex;align-items:center;justify-content:center"><div style="width:${size * 0.8}px;height:${size * 0.8}px">${svg}</div></div>`
     : `<div style="width:${size}px;height:${size}px">${svg}</div>`;
   await page.setContent(`<style>html,body{margin:0}svg{width:100%;height:100%}</style>${inner}`);
-  writeFileSync(`public/icons/${file}`, await page.screenshot({ type: 'png', omitBackground: true }));
+  writeFileSync(
+    `public/icons/${file}`,
+    await page.screenshot({ type: 'png', omitBackground: true }),
+  );
   await page.close();
 }
 await browser.close();

@@ -6,3 +6,5 @@ test-results
 *.local
 *.tsbuildinfo
 public/viewer
+.env
+ai-eval-results.json

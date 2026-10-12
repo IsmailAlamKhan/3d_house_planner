@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './fonts.css';
 import './index.css';
 import { App } from './app/App';
+import { applyServerDefaults } from './ai/serverDefaults';
 import { ErrorBoundary } from './app/ErrorBoundary';
 import { initPwa } from './pwa/pwaStore';
 import { initPrefs } from './prefs/prefsStore';
@@ -21,6 +22,7 @@ import { useCamera } from './scene3d/camera/cameraStore';
 
 initPrefs();
 void initPwa();
+void applyServerDefaults();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

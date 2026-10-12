@@ -793,6 +793,8 @@ export const bn: Translations = {
   'pwa.updateReady': 'নতুন সংস্করণ প্রস্তুত।',
   'pwa.update': 'আপডেট করুন',
   'pwa.dismiss': 'বন্ধ করুন',
+  'ai.waiting': 'এআই-এর জন্য অপেক্ষা… (আপনার আগে {n}টি)',
+  'ai.thinking': 'ভাবছে… {s} সেকেন্ড',
   'levels.add': 'তলা যোগ করুন',
   'levels.rename': 'তলার নাম বদলান',
   'levels.show': 'তলা দেখান',

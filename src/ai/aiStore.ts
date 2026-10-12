@@ -1,3 +1,4 @@
+import type { AiProgress } from './provider';
 import { produce } from 'immer';
 import { create } from 'zustand';
 import { t } from '../i18n';
@@ -44,6 +45,8 @@ interface AiState {
   furnish: boolean;
   busy: boolean;
   startedAt: number | null;
+  /** Where the running request is: waiting its turn on the server, or the model is writing. */
+  progress: AiProgress | null;
   /** Message shown after the last successful apply. */
   done: string | null;
   error: string | null;
@@ -95,6 +98,7 @@ export const useAi = create<AiState>((set, get) => ({
   furnish: true,
   busy: false,
   startedAt: null,
+  progress: null,
   done: null,
   error: null,
   candidates: [],
@@ -133,6 +137,7 @@ export const useAi = create<AiState>((set, get) => ({
           settings,
           shell,
           signal: controller.signal,
+          onProgress: (p) => set({ progress: p }),
           variation: i,
           provider: useModelAgain ? undefined : null,
         });
@@ -152,7 +157,7 @@ export const useAi = create<AiState>((set, get) => ({
     } catch (e) {
       if (!controller.signal.aborted) set({ error: message(e) });
     } finally {
-      set({ busy: false, startedAt: null, controller: null });
+      set({ busy: false, startedAt: null, controller: null, progress: null });
     }
   },
 
@@ -177,6 +182,7 @@ export const useAi = create<AiState>((set, get) => ({
         selection,
         activeLevelId,
         signal: controller.signal,
+        onProgress: (p) => set({ progress: p }),
       });
       let changes: string[] = [];
       let error: string | undefined;
@@ -201,7 +207,7 @@ export const useAi = create<AiState>((set, get) => ({
     } catch (e) {
       if (!controller.signal.aborted) set({ error: message(e) });
     } finally {
-      set({ busy: false, startedAt: null, controller: null });
+      set({ busy: false, startedAt: null, controller: null, progress: null });
     }
   },
 

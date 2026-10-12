@@ -135,6 +135,9 @@ Rules:
 - "exteriorWall": "required" for living spaces and bedrooms (they need windows), "none" for bathrooms and utility.
 - "style": floor one of light-wood, dark-wood, herringbone, tile-grey, tile-white, concrete, marble; walls one of white, cream, grey, sage, blue, terracotta, charcoal.
 - Never include more than 8 rooms per level.
+- ALWAYS give exactly 2 levels ("Ground floor" then "Upper floor") unless the brief says single-storey. Living areas go on the ground floor, bedrooms upstairs.
+- Honour counts in the brief: "3 bedrooms" means three separate rooms with type "bedroom" (master + two others), "4 baths" four bathrooms. If a brief gives no count, choose 2-3 bedrooms.
+- A vague brief ("cozy", "as many as fit") still needs a complete design: living, kitchen, at least one bedroom and one bathroom.
 
 Example brief: "2 bedroom duplex with open kitchen"
 ${JSON.stringify(GEN_EXAMPLE_1)}
