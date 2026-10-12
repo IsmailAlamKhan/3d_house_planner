@@ -1,17 +1,35 @@
+import { useEffect } from 'react';
 import { useT } from '../i18n';
+import { useModel } from '../model/store';
+import { startAutosave } from '../persistence/autosave';
+import { bootstrapProject } from '../persistence/bootstrap';
 import { PlanCanvas } from '../plan2d/PlanCanvas';
 import { SceneCanvas } from '../scene3d/SceneCanvas';
 import { Drawer } from '../ui/Drawer';
 import { useUiStore } from '../ui/uiStore';
 import { LeftSidebar } from './LeftSidebar';
+import { ProjectsDialog } from './ProjectsDialog';
+import { useUndoRedoShortcuts } from './useShortcuts';
 import { RightSidebar } from './RightSidebar';
 import { StatusBar } from './StatusBar';
 import { TopBar } from './TopBar';
 
 export function App() {
   const t = useT();
-  const { viewMode, leftDrawerOpen, rightDrawerOpen, setLeftDrawerOpen, setRightDrawerOpen } =
-    useUiStore();
+  const viewMode = useModel((s) => s.viewMode);
+  const { leftDrawerOpen, rightDrawerOpen, setLeftDrawerOpen, setRightDrawerOpen } = useUiStore();
+  useUndoRedoShortcuts();
+  useEffect(() => {
+    let stop: (() => void) | undefined;
+    let cancelled = false;
+    void bootstrapProject().then(() => {
+      if (!cancelled) stop = startAutosave(useModel);
+    });
+    return () => {
+      cancelled = true;
+      stop?.();
+    };
+  }, []);
   const show2d = viewMode !== '3d';
   const show3d = viewMode !== '2d';
 
@@ -39,6 +57,7 @@ export function App() {
         </aside>
       </div>
       <StatusBar />
+      <ProjectsDialog />
       <Drawer
         side="left"
         open={leftDrawerOpen}

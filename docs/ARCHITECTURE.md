@@ -36,3 +36,16 @@ right Properties panel · bottom status bar. Below the `lg` breakpoint sidebars 
 ## Adding modules
 New features add a folder-scoped module that reads the project via selectors and mutates via store actions; add i18n
 keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
+
+## Data model & store (prompt 2)
+- `model/schemas.ts` (Zod) is the source of truth for types (`model/types.ts` infers them). `SCHEMA_VERSION` = 1; `migrate.ts` upgrades by `schemaVersion` then validates.
+- Coordinates: plan `(x, y)` → world `(x, elevation, y)`. Level `elevation` = top of that level's floor, derived by `recomputeLevels` (below.elevation + below.floorToCeiling + this.slab).
+- Stair: `position` = bottom-center of first step, `rotation` = ascent direction (0 = +x, π/2 = +y).
+- `model/integrity.ts`: pure rules (min wall length, opening fit/overlap, items inside shell footprint).
+- `model/ops/*`: pure functions mutating an immer draft `Project`; they throw `ModelError` on rule violations.
+- `model/store.ts`: `useModel` (project, selection, activeLevelId, tool, viewMode) with immer + zundo (history = `project` only).
+  `apply(fn)` / `edit(fn)` runs ALL ops in `fn` as one undoable step (this is the batch/transaction mechanism; a throw discards the whole edit).
+  `loadProject` replaces the project and clears history. `undo()/redo()` also repair active level/selection.
+- `persistence/`: `storage` (IndexedDB via idb-keyval, memory backend in tests), `repo` (list/save/rename/duplicate/delete), `autosave` (1 s debounce), `bootstrap` (reopen last project).
+- `model/io.ts`: JSON import/export (validated). `model/sample.ts`: sample duplex in a 10 × 12 m shell.
+- UI: `app/LevelsPanel`, `app/ProjectsDialog`, `app/useShortcuts` (Ctrl/Cmd+Z, +Shift+Z, Ctrl+Y). `ui/uiStore` keeps only ephemeral UI state.

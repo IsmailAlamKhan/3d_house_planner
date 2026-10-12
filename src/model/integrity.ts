@@ -1,0 +1,50 @@
+import { dist } from '../geometry/vec';
+import { pointInPolygon } from '../geometry/polygon';
+import type { Opening, Point, Project, Wall } from './types';
+
+/** Smallest wall we allow (m). Anything shorter is treated as zero-length. */
+export const MIN_WALL_LENGTH = 0.05;
+/** Clear distance an opening must keep from either wall end (m). */
+export const OPENING_END_MARGIN = 0.05;
+/** How far outside the shell footprint an item center may sit (m), to allow wall-hugging. */
+export const ITEM_BOUNDS_TOLERANCE = 0.05;
+
+export const wallLength = (w: Pick<Wall, 'start' | 'end'>): number => dist(w.start, w.end);
+
+export const isWallLengthValid = (start: Point, end: Point): boolean =>
+  dist(start, end) >= MIN_WALL_LENGTH;
+
+export function openingFitsWall(wallLen: number, offset: number, width: number): boolean {
+  const half = width / 2;
+  return (
+    offset - half >= OPENING_END_MARGIN - 1e-9 &&
+    offset + half <= wallLen - OPENING_END_MARGIN + 1e-9
+  );
+}
+
+type Span = Pick<Opening, 'offset' | 'width'>;
+
+export const openingsOverlap = (a: Span, b: Span): boolean =>
+  Math.abs(a.offset - b.offset) < (a.width + b.width) / 2 - 1e-9;
+
+/** Returns the first opening on `wallId` that overlaps `candidate` (ignoring `candidate.id`), if any. */
+export function findOverlappingOpening(
+  openings: Opening[],
+  wallId: string,
+  candidate: Span & { id?: string },
+): Opening | undefined {
+  return openings.find(
+    (o) => o.wallId === wallId && o.id !== candidate.id && openingsOverlap(o, candidate),
+  );
+}
+
+/** An item belongs to an existing level and its center lies within the shell footprint. */
+export function isItemInBounds(project: Project, levelId: string, position: Point): boolean {
+  if (!project.levels.some((l) => l.id === levelId)) return false;
+  return pointInPolygon(position, project.shell.footprint, ITEM_BOUNDS_TOLERANCE);
+}
+
+export function wallHeight(project: Project, wall: Wall): number {
+  const level = project.levels.find((l) => l.id === wall.levelId);
+  return wall.height ?? level?.floorToCeiling ?? 2.7;
+}

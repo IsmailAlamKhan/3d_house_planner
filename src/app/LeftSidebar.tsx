@@ -1,5 +1,6 @@
 import { Bot, Layers, Shapes } from 'lucide-react';
 import { useT } from '../i18n';
+import { LevelsPanel } from './LevelsPanel';
 import { useUiStore, type LeftTab } from '../ui/uiStore';
 
 const tabs: {
@@ -36,7 +37,7 @@ export function LeftSidebar() {
         ))}
       </div>
       <div role="tabpanel" className="flex-1 overflow-y-auto p-3 text-sm text-slate-500">
-        {t('sidebar.empty')}
+        {leftTab === 'levels' ? <LevelsPanel /> : t('sidebar.empty')}
       </div>
     </div>
   );
