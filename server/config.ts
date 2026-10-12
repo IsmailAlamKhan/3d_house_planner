@@ -10,6 +10,8 @@ export interface ServerConfig {
   password: string | null;
   /** Folder with the production build. */
   distDir: string;
+  /** Where the SQLite database (shared projects) lives. */
+  dataDir: string;
 }
 
 /** Parses `KEY=value` lines (comments with #, optional quotes) — a tiny .env reader so no extra package is needed. */
@@ -45,5 +47,6 @@ export function loadConfig(
     model: get('OLLAMA_MODEL') || 'qwen3:14b',
     password: get('APP_PASSWORD') ? String(get('APP_PASSWORD')) : null,
     distDir,
+    dataDir: get('DATA_DIR') || 'data',
   };
 }

@@ -1,10 +1,12 @@
 import { useT } from '../i18n';
+import { useSync } from '../persistence/syncStore';
 import { useModel } from '../model/store';
 import { GRID_SIZES, usePlanStore } from '../plan2d/planStore';
 import { formatLength } from '../ui/units';
 
 export function StatusBar() {
   const t = useT();
+  const sync = useSync((s) => s.status);
   const units = useModel((s) => s.project.units);
   const apply = useModel((s) => s.apply);
   const { snapEnabled, gridSize, cursor, setPref } = usePlanStore();
@@ -38,6 +40,16 @@ export function StatusBar() {
           ))}
         </select>
       </label>
+      {sync !== 'local' && (
+        <span
+          data-testid="sync-status"
+          data-status={sync}
+          role="status"
+          className={sync === 'offline' ? 'text-amber-700' : ''}
+        >
+          {t(`sync.${sync}` as 'sync.synced')}
+        </span>
+      )}
       <span className="ml-auto tabular-nums">
         {t('status.cursor')}:{' '}
         {cursor ? `${formatLength(cursor.x, units)}, ${formatLength(cursor.y, units)}` : '—'}

@@ -78,6 +78,19 @@ forwards only to `localhost` addresses (an allow-list in `server/aiProxy.ts`). Y
 computer. (On static hosting such as GitHub Pages the `/api/ai` proxy does not exist, so the offline generator is used;
 to use a model from a hosted copy, run the app locally.)
 
+## Run everything with Docker (recommended for a home server)
+
+```bash
+cp .env.example .env     # optional: PORT, OLLAMA_MODEL, APP_PASSWORD
+docker compose up -d     # app + Ollama (NVIDIA GPU) + one-time model download
+```
+
+Open `http://localhost:8080` (or the PC's address from a phone on the same Wi-Fi). Projects are stored on the server
+(SQLite, last 20 versions each) and shared between devices; browsers keep an offline copy and sync when the server is
+back; simultaneous edits raise a conflict dialog instead of overwriting. Ollama is not published to the network. Already
+running Ollama on Windows? `docker compose -f docker-compose.yml -f docker-compose.host-ollama.yml up -d`. Backups:
+`scripts/backup.sh` / `scripts\backup.ps1`. Full guide: [docs/HOSTING_WINDOWS.md](docs/HOSTING_WINDOWS.md).
+
 ## Installing and offline use
 
 The production build registers a service worker that caches the app shell, every lazily loaded screen, the fonts and

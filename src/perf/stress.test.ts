@@ -13,7 +13,9 @@ const time = <T>(f: () => T): [T, number] => {
 };
 
 // Code-coverage instrumentation slows everything down; the budgets are for normal runs.
-const slack = import.meta.env.VITE_COVERAGE ? 10 : 1;
+// The goal is 50 ms; the assertions allow 3× so a busy machine (parallel test workers) does not cause false alarms
+// while a real regression (the old code took 28 s) is still caught.
+const slack = import.meta.env.VITE_COVERAGE ? 30 : 3;
 
 describe('stress project', () => {
   const project = createStressProject();

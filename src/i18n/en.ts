@@ -726,6 +726,22 @@ export const en = {
   'pwa.dismiss': 'Dismiss',
   'ai.waiting': 'Waiting for AI… ({n} ahead of you)',
   'ai.thinking': 'Thinking… {s} s',
+  'sync.synced': 'Synced',
+  'sync.saving': 'Saving…',
+  'sync.offline': 'Offline — will sync when the server is back',
+  'sync.updated': 'Updated from another device.',
+  'sync.conflictTitle': 'This project was changed on another device',
+  'sync.conflictBody':
+    'Someone saved this project from another device while you were editing. Choose what to keep — nothing is overwritten until you decide.',
+  'sync.reload': 'Reload their version',
+  'sync.reloadHint': 'Use the version on the server (your unsaved changes here are dropped).',
+  'sync.copy': 'Save mine as a copy',
+  'sync.copyHint':
+    'Keep both: your version becomes a new project, and this one shows the server version.',
+  'sync.overwrite': 'Overwrite with mine',
+  'sync.overwriteHint': 'Replace the server version with what you have here.',
+  'ai.downloading':
+    'Downloading the AI model… the built-in offline generator is used until it is ready.',
   'levels.add': 'Add level',
   'levels.rename': 'Rename level',
   'levels.show': 'Show level',

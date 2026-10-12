@@ -54,6 +54,7 @@ const config = (over: object = {}) => ({
   model: 'qwen3:14b',
   password: null,
   distDir: dist(),
+  dataDir: ':memory:',
   ...over,
 });
 

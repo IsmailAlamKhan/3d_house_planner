@@ -1,0 +1,18 @@
+# For people who run Ollama directly on Windows instead of in a container:
+#   docker compose -f docker-compose.yml -f docker-compose.host-ollama.yml up -d
+# Drops the ollama and ollama-init services and points the app at the Ollama on the host.
+# Keep Ollama bound to 127.0.0.1 on Windows (the default): Docker Desktop's host.docker.internal reaches it.
+
+services:
+  app:
+    environment:
+      OLLAMA_URL: http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on: !reset []
+
+  ollama: !reset null
+  ollama-init: !reset null
+
+volumes:
+  ollama-data: !reset null

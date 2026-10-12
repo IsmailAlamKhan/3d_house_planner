@@ -17,6 +17,8 @@ export function startAutosave(
   store: Pick<StoreApi<ModelState>, 'getState' | 'subscribe'>,
   backend?: StorageBackend,
   delayMs = 1000,
+  /** Called after each save has been written locally (the app uses it to sync with the server). */
+  onSaved?: () => void | Promise<void>,
 ): () => void {
   let timer: ReturnType<typeof setTimeout> | undefined;
   const flush = () => {
@@ -25,6 +27,7 @@ export function startAutosave(
     setLastProjectId(project.id);
     saveProject(project, backend)
       .then(() => saveSnapshot(project, backend))
+      .then(() => onSaved?.())
       .then(() => {
         if (store.getState().project === project) unsaved = false;
       })

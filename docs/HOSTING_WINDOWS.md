@@ -1,14 +1,126 @@
 # Hosting Duplex Designer on a Windows PC
 
 One PC (for example Ryzen 7 7700, RTX 4060 Ti 16 GB, 64 GB RAM) runs everything for free: the web app, a small
-server, and a local AI model through **Ollama**. Everybody at home uses it from a phone, tablet or laptop on the same
-Wi-Fi. No account, no subscription, no cloud.
+server that stores your projects, and a local AI model through **Ollama**. Everybody at home uses it from a phone,
+tablet or laptop on the same Wi-Fi. No account, no subscription, no cloud.
+
+**Docker is the recommended way** (below). The native PowerShell way is described afterwards ("Option B").
 
 ```
-phone / laptop ──Wi-Fi──▶  app server :8080  ──▶  Ollama 127.0.0.1:11434 (this PC only)
+phone / laptop ──Wi-Fi──▶  app :8080  ──▶  ollama (internal network only, GPU)
+                              │
+                              └── SQLite in the app-data volume (shared projects, last 20 versions each)
 ```
 
-Only the app server is reachable from the network. Ollama stays bound to `127.0.0.1`.
+Only the app port is reachable from the network. Ollama has no published port.
+
+## Option A — Docker (recommended)
+
+### Prerequisites (once)
+
+1. **Docker Desktop** with the **WSL2 backend** — https://www.docker.com/products/docker-desktop/
+2. A **current NVIDIA driver** for Windows (GeForce/Studio driver from nvidia.com). GPU support for WSL2 comes with the
+   driver — do **not** install a separate CUDA driver inside WSL.
+3. In Docker Desktop: *Settings → General → Start Docker Desktop when you sign in* (so everything comes back after a
+   reboot; the containers use `restart: unless-stopped`).
+4. Give WSL2 enough memory so a model that does not fit completely in video memory can spill into system RAM. Create
+   `%UserProfile%\.wslconfig`:
+
+   ```ini
+   [wsl2]
+   memory=24GB
+   swap=8GB
+   ```
+
+   then run `wsl --shutdown` and restart Docker Desktop. (At least 16 GB; 24 GB is comfortable with 64 GB of RAM.)
+
+### Check that Docker can use the GPU
+
+```powershell
+docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
+```
+
+You should see your RTX 4060 Ti. If not, update the NVIDIA driver and restart Docker Desktop.
+
+### Start
+
+```powershell
+git clone <this repository> ; cd <folder>
+copy .env.example .env          # optional: change PORT, OLLAMA_MODEL, set APP_PASSWORD
+docker compose up -d
+```
+
+That starts the app, Ollama (with the GPU) and a one-time job that downloads the model (several GB, once). The app is
+usable right away: until the model has arrived the AI tab says *"Downloading the AI model…"* and the built-in offline
+generator is used. Watch progress with `docker compose logs -f ollama-init`.
+
+Open `http://localhost:8080` on the PC, or the PC's address on your phone (`ipconfig` → IPv4, e.g.
+`http://192.168.1.23:8080`).
+
+### Check that generation runs on the GPU
+
+Start an AI generation in the app, and while it runs:
+
+```powershell
+docker compose exec ollama ollama ps
+```
+
+The `PROCESSOR` column should say **100% GPU**. (If it shows a CPU/GPU split the model does not fit in video
+memory: choose a smaller model, see *Choosing a model*.) Health check: `http://localhost:8080/api/health`.
+
+### Projects are shared between devices
+
+Projects are stored on the server (SQLite in the `app-data` volume). A design made on a phone appears on the laptop
+within about 10 seconds. Each browser keeps an offline copy: edits made while the Wi-Fi is down sync when the server is
+reachable again. If two devices edit the **same** project at once, the second save shows *"This project was changed on
+another device"* and lets you reload theirs, save yours as a copy, or overwrite — nothing is lost silently. Each
+project keeps its last 20 versions on the server.
+
+Data survives `docker compose down` and `docker compose up -d` (named volumes `app-data` and `ollama-data`). Only
+`docker compose down -v` deletes them.
+
+### Updating
+
+```powershell
+git pull
+docker compose build
+docker compose up -d
+```
+
+### Native Ollama instead of the container
+
+If you prefer Ollama installed directly on Windows (Option B's Ollama), keep only the app in Docker:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.host-ollama.yml up -d
+```
+
+The app then reaches Ollama through `http://host.docker.internal:11434`.
+
+### Backups
+
+`scripts\backup.ps1` (Windows) or `scripts/backup.sh` copies the database out of the volume into
+`backups\app-<timestamp>.db` using SQLite's online backup — safe while the app is running, never a raw file copy.
+`scripts\restore.ps1 <file>` puts a backup back (while the app runs).
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\backup.ps1
+powershell -ExecutionPolicy Bypass -File scripts\restore.ps1 backups\app-20260101-120000.db
+```
+
+Weekly backup with **Task Scheduler**: *Create Task…* → *Triggers*: *Weekly*, Sunday 03:00 → *Actions*: *Start a
+program* `powershell.exe`, arguments
+`-ExecutionPolicy Bypass -File "C:\path\to\project\scripts\backup.ps1"`, *Start in* `C:\path\to\project`. Copy the
+`backups` folder to another disk or cloud drive now and then.
+
+### Firewall and remote access
+
+Allow inbound TCP on the app port for **Private** networks only; never Public; never open 11434 (it is not published
+at all in Docker). For use away from home use **Tailscale**; **do not port-forward** the router. See the sections below.
+
+---
+
+## Option B — native (PowerShell scripts, no Docker)
 
 ## 1. Install the prerequisites (once)
 

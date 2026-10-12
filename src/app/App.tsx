@@ -2,6 +2,8 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
 import { startAutosave } from '../persistence/autosave';
+import { pushOpenProject, startSync } from '../persistence/syncStore';
+import { SyncConflictDialog } from './SyncConflictDialog';
 import { bootstrapProject } from '../persistence/bootstrap';
 import { PlanCanvas } from '../plan2d/PlanCanvas';
 import { SceneCanvas } from '../scene3d/SceneCanvas';
@@ -44,15 +46,18 @@ export function App() {
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let stop: (() => void) | undefined;
+    let stopSync: Promise<() => void> | undefined;
     let cancelled = false;
     void bootstrapProject().then(() => {
       if (cancelled) return;
-      stop = startAutosave(useModel);
+      stop = startAutosave(useModel, undefined, 1000, pushOpenProject);
+      stopSync = startSync().then((s) => s);
       setReady(true);
     });
     return () => {
       cancelled = true;
       stop?.();
+      void stopSync?.then((s) => s());
     };
   }, []);
   const show2d = viewMode !== '3d';
@@ -97,6 +102,7 @@ export function App() {
       <ShortcutsDialog />
       <TourOverlay />
       <PwaBanner />
+      <SyncConflictDialog />
       <Toaster />
       <Drawer
         side="left"

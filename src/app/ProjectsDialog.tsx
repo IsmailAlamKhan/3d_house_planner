@@ -14,6 +14,7 @@ import {
   type ProjectSummary,
 } from '../persistence/repo';
 import { isTauri, pickTextFile } from '../platform';
+import { syncClient } from '../persistence/syncStore';
 import { Modal } from '../ui/Modal';
 import { HistoryPanel } from './HistoryPanel';
 import { useUiStore } from '../ui/uiStore';
@@ -184,6 +185,7 @@ export function ProjectsDialog() {
                 onClick={async () => {
                   if (!window.confirm(t('projects.confirmDelete'))) return;
                   await deleteProject(p.id);
+                  void syncClient()?.remove(p.id);
                   await refresh();
                 }}
               >

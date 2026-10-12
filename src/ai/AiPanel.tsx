@@ -123,12 +123,40 @@ function CandidateCard({ c, index }: { c: Candidate; index: number }) {
 }
 
 /** Left-sidebar tab: describe a home (or a change) in plain language. */
+/** True while the server's Ollama is up but the configured model is still being downloaded (docker compose `ollama-init`). */
+function useModelDownloading(): boolean {
+  const [downloading, setDownloading] = useState(false);
+  useEffect(() => {
+    let stop = false;
+    const check = async () => {
+      try {
+        const h = (await (
+          await fetch('/api/health', { signal: AbortSignal.timeout(3000) })
+        ).json()) as {
+          ollama?: { reachable?: boolean; modelInstalled?: boolean };
+        };
+        if (!stop) setDownloading(!!h.ollama?.reachable && h.ollama.modelInstalled === false);
+      } catch {
+        if (!stop) setDownloading(false);
+      }
+    };
+    void check();
+    const id = setInterval(() => void check(), 15_000);
+    return () => {
+      stop = true;
+      clearInterval(id);
+    };
+  }, []);
+  return downloading;
+}
+
 export function AiPanel() {
   const t = useT();
   const ai = useAi();
   const settings = useAiSettings();
   const [showSettings, setShowSettings] = useState(false);
   const elapsed = useElapsed(ai.startedAt);
+  const downloading = useModelDownloading();
   const hasWalls = useModel((s) => s.project.walls.length > 0);
   const generate = ai.mode === 'generate';
   const examples = generate ? GENERATE_EXAMPLES : EDIT_EXAMPLES;
@@ -222,6 +250,16 @@ export function AiPanel() {
           />
           {t('ai.furnish')}
         </label>
+      )}
+
+      {downloading && (
+        <p
+          role="status"
+          data-testid="ai-downloading"
+          className="rounded bg-sky-50 p-2 text-xs text-sky-800"
+        >
+          {t('ai.downloading')}
+        </p>
       )}
 
       {ai.busy ? (

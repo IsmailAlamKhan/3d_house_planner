@@ -3,6 +3,8 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { createAiProxy } from './aiProxy';
+import { handleProjects } from './projectsApi';
+import { ProjectStore } from './store';
 import type { ServerConfig } from './config';
 
 const MIME: Record<string, string> = {
@@ -72,6 +74,7 @@ ${error ? '<p role="alert">That password is not right.</p>' : ''}
 
 export interface AppHandle {
   server: Server;
+  store: ProjectStore;
   /** Active sessions (exposed for tests). */
   sessions: Map<string, number>;
 }
@@ -83,6 +86,9 @@ export interface AppHandle {
  */
 export function createApp(config: ServerConfig): AppHandle {
   const ai = createAiProxy({ ollamaUrl: config.ollamaUrl });
+  const store = new ProjectStore(
+    config.dataDir === ':memory:' ? ':memory:' : join(config.dataDir, 'app.db'),
+  );
   const sessions = new Map<string, number>();
   const attempts = new Map<string, { n: number; since: number }>();
   const root = resolve(config.distDir);
@@ -210,6 +216,7 @@ export function createApp(config: ServerConfig): AppHandle {
       }
 
       if (path === '/api/ai') return ai(req, res);
+      if (await handleProjects(store, req, res, path)) return;
       if (path.startsWith('/api/')) return json(res, 404, { error: 'Unknown API route' });
       if (req.method !== 'GET' && req.method !== 'HEAD') {
         res.statusCode = 405;
@@ -222,5 +229,6 @@ export function createApp(config: ServerConfig): AppHandle {
       else res.end();
     });
   });
-  return { server, sessions };
+  server.on('close', () => store.close());
+  return { server, store, sessions };
 }

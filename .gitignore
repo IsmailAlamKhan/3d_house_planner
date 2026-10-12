@@ -8,3 +8,6 @@ test-results
 public/viewer
 .env
 ai-eval-results.json
+server-dist
+data
+backups
