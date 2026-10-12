@@ -104,3 +104,13 @@ Limitations: exporting while in walk or top mode temporarily switches to orbit a
 Summary: Unit tests (Bengali completeness/placeholders/digits, contrast, options, notes) and Playwright (tour, language, theme, palette, shortcuts, dialogs, notes, options + compare, phone) are green.
 Deviations: the plan canvas and 3D view keep their light look in dark theme; default level/room names created by the AI/templates are data (English) — only wizard-created names follow the language; the viewer snapshot is English only.
 Limitations: no right-to-left or other languages; comparison shows two designs (not three); notes have no author/thread.
+
+## Prompt 12 — Hardening, Performance, Offline/PWA, Desktop Packaging & Deployment — DONE
+- [x] Performance: found and fixed a real bottleneck (room matching sampled every room pair: 28.7 s → ~20 ms on a 2-level, ~180-wall, ~300-item stress project, `src/perf/`). Measured: first scene build ~150 ms, edit rebuild 2–4 ms, room detection ~20 ms, checks ~4 ms, solver 3–16 ms — all under the 50 ms budget, so no Web Worker was needed. Export/PDF/AI/wizard/comparison are lazy-loaded (initial JS split).
+- [x] Robustness: last-20 autosave history with Restore, "Recover last autosave" on the crash screen, readable (translated) damaged-file messages, unsaved-work warning on closing the tab
+- [x] PWA (vite-plugin-pwa): app shell, lazy chunks, fonts and the snapshot viewer cached; install prompt, update notice; Playwright proves reload + Export + snapshot export with the network off
+- [x] Desktop: Tauri 2 config (`src-tauri/`), `platform` adapter (browser download/upload vs native dialogs, unit-tested with mocked plugins), `npm run tauri:dev` / `tauri:build`
+- [x] Tests: 402 unit tests, coverage of `model/`, `geometry/`, `ai/` ≈ 94 % lines (80 % enforced); 51 Playwright tests incl. the full journey (wizard → offline AI → edit → place → material → walk → PDF + GLB)
+- [x] CI/deploy: `.github/workflows/ci.yml` (lint, typecheck, coverage tests, build, e2e, GitHub Pages deploy with `BASE_PATH=/<repo>/`, verified), `netlify.toml`; README and final architecture/Mermaid diagram
+Gap: the Rust toolchain is not configured on this machine, so `npm run tauri:build` was not run; the config is committed and follows the Tauri 2 schema. Instancing of repeated catalog items was not added: the measured build/edit times did not call for it.
+Limitation: on static hosting there is no `/api/ai` proxy, so the offline generator is used there.

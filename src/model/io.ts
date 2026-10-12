@@ -1,3 +1,4 @@
+import { saveFile } from '../platform';
 import { ProjectFormatError, migrateProject } from './migrate';
 import type { Project } from './types';
 
@@ -8,16 +9,11 @@ export function importProjectJson(text: string): Project {
   try {
     raw = JSON.parse(text);
   } catch {
-    throw new ProjectFormatError('That file is not valid JSON');
+    throw new ProjectFormatError('That file is not valid JSON', 'err.notJson');
   }
   return migrateProject(raw);
 }
 
 export function downloadTextFile(filename: string, text: string, mime = 'application/json'): void {
-  const url = URL.createObjectURL(new Blob([text], { type: mime }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  void saveFile(filename, text, mime);
 }

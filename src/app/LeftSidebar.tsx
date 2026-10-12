@@ -1,6 +1,6 @@
+import { Suspense, lazy } from 'react';
 import { Bot, Layers, ListChecks, Shapes, StickyNote } from 'lucide-react';
 import { useT } from '../i18n';
-import { AiPanel } from '../ai/AiPanel';
 import { ChecksPanel, useIssueCount } from '../checks/ChecksPanel';
 import { LibraryPanel } from '../catalog/LibraryPanel';
 import { NotesPanel } from '../notes/NotesPanel';
@@ -18,6 +18,8 @@ const tabs: {
   { id: 'checks', label: 'sidebar.checks', icon: ListChecks },
   { id: 'notes', label: 'sidebar.notes', icon: StickyNote },
 ];
+
+const AiPanel = lazy(() => import('../ai/AiPanel').then((m) => ({ default: m.AiPanel })));
 
 export function LeftSidebar() {
   const t = useT();
@@ -67,7 +69,9 @@ export function LeftSidebar() {
         ) : leftTab === 'notes' ? (
           <NotesPanel />
         ) : (
-          <AiPanel />
+          <Suspense fallback={<p role="status">{t('app.loading')}</p>}>
+            <AiPanel />
+          </Suspense>
         )}
       </div>
     </div>

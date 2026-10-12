@@ -14,20 +14,56 @@ Ephemeral UI state (view mode, active tab, drawers) lives in `src/ui/uiStore.ts`
 ## Units
 Lengths are stored in **meters**, angles in **radians**. Conversion to metric/feet-inches happens only in the UI layer.
 
-## Folders
+## Module map (final)
 | Folder | Purpose |
 |---|---|
-| `src/app` | App shell: `App`, `TopBar`, `LeftSidebar`, `RightSidebar`, `StatusBar` |
-| `src/model` | Data model types, zod schemas, store, operations |
-| `src/geometry` | Pure geometry utils (2D math, polygons, wall joins) |
-| `src/plan2d` | 2D floor plan editor (`PlanCanvas`, SVG) |
-| `src/scene3d` | 3D scene generation & rendering (`SceneCanvas`) |
-| `src/catalog` | Drag-and-drop library (doors, windows, furniture) |
-| `src/materials` | Materials & textures |
-| `src/ai` | Prompt-to-model features (Ollama) |
-| `src/export` | Export features |
-| `src/ui` | Shared UI: `Drawer`, `uiStore` |
-| `src/i18n` | Key-based translations: `en.ts` defines keys; `registerLanguage(lang, dict)` adds a language; `useT()` hook |
+| `src/app` | Shell: `App`, `TopBar`, sidebars, panels, dialogs, `ErrorBoundary`, `HistoryPanel` |
+| `src/model` | Zod schemas/types, `store` (zustand + immer + zundo), `ops/*` (every edit), migration, sample project |
+| `src/geometry` | Pure 2D math: polygons, wall joins, room detection (`rooms.ts`), snapping |
+| `src/plan2d` | SVG plan editor: interaction state machine, hit-testing, symbols |
+| `src/scene3d` | Pure generators → `SceneBuilder` (cached parts) → R3F scene; `camera/` (orbit, walk, top, sections, isolation, measure, minimap); `clipping.ts` |
+| `src/catalog` | 49 procedural items with 2D/3D builders, placement rules, library panel |
+| `src/materials` | Material library, procedural textures, picker helpers |
+| `src/ai` | Provider abstraction, schemas, pipeline (validate + repair + fallback), layout solver, offline generator, edit ops |
+| `src/checks` | Constraint rules (stairs, reachability, windows, drains, areas, door swings), area schedule |
+| `src/wizard`, `src/templates` | New-project wizard and the four starter templates |
+| `src/export` | PDF/SVG/DXF/GLB/OBJ/PNG/BOM/snapshot builders and the export dialog |
+| `src/viewer` | Second Vite entry: the read-only snapshot viewer (built to `public/viewer/`) |
+| `src/notes`, `src/options` | Pinned notes; design options and comparison |
+| `src/commands`, `src/onboarding` | Command palette, shortcut sheet; first-run tour |
+| `src/prefs`, `src/i18n`, `src/theme.css` | Language/theme/motion preferences; English + Bengali; colour tokens |
+| `src/persistence` | IndexedDB repo, autosave, 20-version history, bootstrap |
+| `src/pwa`, `src/platform` | Service worker registration/install prompt; browser-vs-Tauri file adapter |
+| `src/perf` | Stress project and performance budgets (tests) |
+| `src/ui` | `Modal`, `Drawer`, `PopoverMenu`, units, `uiStore` |
+| `server/` | `/api/ai` proxy to the user's local model (dev and preview servers) |
+| `src-tauri/` | Optional desktop shell |
+
+## Data flow
+```mermaid
+flowchart LR
+  subgraph Inputs
+    UI2D[2D plan editor] --> OPS
+    LIB[Library drag/drop] --> OPS
+    PROPS[Properties panel] --> OPS
+    WIZ[New-project wizard] --> OPS
+    AI[AI assistant] -->|validated JSON| SOLVER[Layout solver / edit ops] --> OPS
+    CMD[Commands, notes, options] --> OPS
+  end
+  OPS["model/ops (pure, throws ModelError)"] --> STORE[(zustand store: Project JSON + undo history)]
+  STORE -->|selectors| PLAN[2D SVG renderer]
+  STORE --> GEN[scene3d generators + PartCache] --> R3F[R3F scene]
+  STORE --> CHECKS[checks engine] --> UI[Checks panel, pins, toasts]
+  STORE --> EXPORT[export builders: PDF, SVG, DXF, GLB, OBJ, BOM, snapshot]
+  STORE -->|debounced| PERSIST[(IndexedDB: project + last 20 versions)]
+  PERSIST -->|bootstrap, restore| STORE
+  AI <-->|/api/ai, localhost only| OLLAMA[(Ollama / local server)]
+  EXPORT --> FILES[Browser download or Tauri Save dialog]
+  SW[Service worker] -.caches.-> APP[App shell + lazy chunks + viewer]
+```
+
+Rules that keep this tidy: only `model/ops` mutate the project; the AI never writes geometry (the solver does); the
+3D scene and exports only read; transient state (camera, tool, dialogs) lives outside the project and is never undone.
 
 ## Layout
 Top bar (name, undo/redo, 2D/3D/Split, export) · left sidebar (Library/Levels/AI tabs) · center viewport(s) ·

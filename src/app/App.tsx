@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
 import { startAutosave } from '../persistence/autosave';
@@ -12,19 +12,31 @@ import { Toaster } from './Toaster';
 import { useManipulationShortcuts } from './useManipulationShortcuts';
 import { CommandPalette, useGlobalHelpKeys } from '../commands/CommandPalette';
 import { ShortcutsDialog } from '../commands/ShortcutsDialog';
-import { CompareDialog } from '../options/CompareDialog';
-import { ExportDialog } from '../export/ExportDialog';
+import { PwaBanner } from '../pwa/PwaBanner';
 import { TourOverlay } from '../onboarding/TourOverlay';
-import { ShellWizard } from '../wizard/ShellWizard';
 import { ProjectsDialog } from './ProjectsDialog';
 import { useUndoRedoShortcuts } from './useShortcuts';
 import { RightSidebar } from './RightSidebar';
 import { StatusBar } from './StatusBar';
 import { TopBar } from './TopBar';
 
+// Heavy, rarely-needed screens load on demand so the first paint stays fast.
+const ExportDialog = lazy(() =>
+  import('../export/ExportDialog').then((m) => ({ default: m.ExportDialog })),
+);
+const CompareDialog = lazy(() =>
+  import('../options/CompareDialog').then((m) => ({ default: m.CompareDialog })),
+);
+const ShellWizard = lazy(() =>
+  import('../wizard/ShellWizard').then((m) => ({ default: m.ShellWizard })),
+);
+
 export function App() {
   const t = useT();
   const viewMode = useModel((s) => s.viewMode);
+  const wizardOpen = useUiStore((s) => s.wizardOpen);
+  const exportOpen = useUiStore((s) => s.exportOpen);
+  const compareOpen = useUiStore((s) => s.compareOpen);
   const { leftDrawerOpen, rightDrawerOpen, setLeftDrawerOpen, setRightDrawerOpen } = useUiStore();
   useUndoRedoShortcuts();
   useManipulationShortcuts();
@@ -76,12 +88,15 @@ export function App() {
       </div>
       <StatusBar />
       <ProjectsDialog />
-      <ShellWizard />
-      <ExportDialog />
+      <Suspense fallback={null}>
+        {wizardOpen && <ShellWizard />}
+        {exportOpen && <ExportDialog />}
+        {compareOpen && <CompareDialog />}
+      </Suspense>
       <CommandPalette />
       <ShortcutsDialog />
       <TourOverlay />
-      <CompareDialog />
+      <PwaBanner />
       <Toaster />
       <Drawer
         side="left"

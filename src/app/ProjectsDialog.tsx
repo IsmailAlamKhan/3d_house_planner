@@ -13,7 +13,9 @@ import {
   saveProject,
   type ProjectSummary,
 } from '../persistence/repo';
+import { isTauri, pickTextFile } from '../platform';
 import { Modal } from '../ui/Modal';
+import { HistoryPanel } from './HistoryPanel';
 import { useUiStore } from '../ui/uiStore';
 
 const btn = 'inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm hover:bg-slate-100';
@@ -61,10 +63,10 @@ export function ProjectsDialog() {
     useUiStore.getState().setWizardOpen(true);
   };
 
-  const importFile = async (file: File) => {
+  const importText = async (text: string) => {
     try {
       setError(null);
-      let p = importProjectJson(await file.text());
+      let p = importProjectJson(text);
       if ((await listProjects()).some((x) => x.id === p.id)) p = cloneProject(p, p.name);
       await saveProject(useModel.getState().project);
       await saveProject(p);
@@ -94,7 +96,14 @@ export function ProjectsDialog() {
           <button className={btn} onClick={create}>
             <FilePlus size={16} /> {t('projects.new')}
           </button>
-          <button className={btn} onClick={() => fileRef.current?.click()}>
+          <button
+            className={btn}
+            onClick={() => {
+              // The desktop app uses the native Open dialog; the browser uses the hidden file input.
+              if (isTauri()) void pickTextFile().then((f) => f && importText(f.text));
+              else fileRef.current?.click();
+            }}
+          >
             <Upload size={16} /> {t('projects.import')}
           </button>
           <button
@@ -116,7 +125,7 @@ export function ProjectsDialog() {
             data-testid="import-input"
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) void importFile(f);
+              if (f) void f.text().then(importText);
               e.target.value = '';
             }}
           />
@@ -183,6 +192,7 @@ export function ProjectsDialog() {
             </li>
           ))}
         </ul>
+        <HistoryPanel />
       </>
     </Modal>
   );

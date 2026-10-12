@@ -1,13 +1,8 @@
-/** Saves a blob through a temporary link (works for every browser; no server involved). */
+import { saveFile } from '../platform';
+
+/** Saves a blob: a download in the browser, a native Save dialog in the desktop app. */
 export function downloadBlob(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  void saveFile(filename, blob, blob.type || 'application/octet-stream');
 }
 
 export const safeFileName = (name: string, fallback = 'home'): string =>

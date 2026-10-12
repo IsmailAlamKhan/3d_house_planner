@@ -185,9 +185,19 @@ export function matchRooms(
   threshold = 0.3,
 ): RoomMatch {
   const pairs: { d: number; id: string; score: number }[] = [];
+  // Rooms far apart cannot overlap: compare bounding boxes first (the sampling below is the expensive part).
+  const boxes = existing.map((e) => polygonBounds(e.polygon));
+  const touches = (a: ReturnType<typeof polygonBounds>, b: ReturnType<typeof polygonBounds>) =>
+    a.min.x < b.max.x - EPS &&
+    b.min.x < a.max.x - EPS &&
+    a.min.y < b.max.y - EPS &&
+    b.min.y < a.max.y - EPS;
   detected.forEach((poly, d) => {
-    for (const e of existing) {
-      const score = polygonIoU(poly, e.polygon);
+    const box = polygonBounds(poly);
+    for (let k = 0; k < existing.length; k++) {
+      const e = existing[k]!;
+      if (!touches(box, boxes[k]!)) continue;
+      const score = samePolygon(poly, e.polygon) ? 1 : polygonIoU(poly, e.polygon);
       if (score >= threshold) pairs.push({ d, id: e.id, score });
     }
   });
