@@ -81,11 +81,12 @@ export function createSampleProject(): Project {
 
     // Upper floor partitions
     const u1 = wall(L1, 6, 0, 6, 7);
-    const u2 = wall(L1, 0, 7, 7, 7);
+    const u2 = wall(L1, 0, 7, 10, 7);
     wall(L1, 3, 7, 3, 12);
     addOpening(p, { wallId: u1, kind: 'door', offset: 5.5 });
     addOpening(p, { wallId: u2, kind: 'door', offset: 1.5 });
     addOpening(p, { wallId: u2, kind: 'door', offset: 5 });
+    addOpening(p, { wallId: u2, kind: 'door', offset: 8.5 });
 
     const room = (
       levelId: string,

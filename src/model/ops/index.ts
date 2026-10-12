@@ -5,3 +5,4 @@ export * from './openings';
 export * from './rooms';
 export * from './selection';
 export * from './walls';
+export * from './plan';

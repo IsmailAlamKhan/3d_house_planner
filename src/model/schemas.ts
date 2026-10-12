@@ -138,9 +138,8 @@ export const MaterialOverrideSchema = z.object({
   textureScale: positive.optional(),
 });
 
+/** Per-project design defaults. View preferences (snap, grid, ghosts) are UI state, not project data. */
 export const SettingsSchema = z.object({
-  snapEnabled: z.boolean(),
-  gridSize: positive,
   defaultWallThickness: positive,
 });
 

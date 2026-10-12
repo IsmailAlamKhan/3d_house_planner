@@ -1,4 +1,4 @@
-import { Eye, EyeOff, Plus } from 'lucide-react';
+import { Eye, EyeOff, Lock, Plus, Unlock } from 'lucide-react';
 import { useState } from 'react';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
@@ -28,6 +28,13 @@ export function LevelsPanel() {
               className="rounded p-1 text-slate-500 hover:bg-slate-100"
             >
               {l.visible ? <Eye size={16} /> : <EyeOff size={16} />}
+            </button>
+            <button
+              aria-label={l.locked ? t('levels.unlock') : t('levels.lock')}
+              onClick={() => apply((p) => updateLevel(p, l.id, { locked: !l.locked }))}
+              className="rounded p-1 text-slate-500 hover:bg-slate-100"
+            >
+              {l.locked ? <Lock size={16} /> : <Unlock size={16} />}
             </button>
             {editing === l.id ? (
               <input

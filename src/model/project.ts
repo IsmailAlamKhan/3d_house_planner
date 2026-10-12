@@ -33,7 +33,7 @@ export function createEmptyProject(name = 'Untitled home'): Project {
     columns: [],
     roofs: [],
     materials: {},
-    settings: { snapEnabled: true, gridSize: 0.1, defaultWallThickness: 0.15 },
+    settings: { defaultWallThickness: 0.15 },
     createdAt: now,
     updatedAt: now,
     schemaVersion: SCHEMA_VERSION,

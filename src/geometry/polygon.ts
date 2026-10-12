@@ -63,3 +63,22 @@ function distToSegment(p: Vec2, a: Vec2, b: Vec2): number {
     len2 === 0 ? 0 : Math.max(0, Math.min(1, ((p.x - a.x) * abx + (p.y - a.y) * aby) / len2));
   return Math.hypot(p.x - (a.x + abx * t), p.y - (a.y + aby * t));
 }
+
+/** A point inside the polygon suitable for a label: the centroid, or the middle of the widest chord through it. */
+export function labelPoint(poly: Vec2[]): Vec2 {
+  const c = polygonCentroid(poly);
+  if (pointInPolygon(c, poly)) return c;
+  const xs: number[] = [];
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i]!;
+    const b = poly[(i + 1) % poly.length]!;
+    if (a.y > c.y !== b.y > c.y) xs.push(a.x + ((c.y - a.y) / (b.y - a.y)) * (b.x - a.x));
+  }
+  xs.sort((p, q) => p - q);
+  let best = { len: -1, mid: c.x };
+  for (let i = 0; i + 1 < xs.length; i += 2) {
+    const len = xs[i + 1]! - xs[i]!;
+    if (len > best.len) best = { len, mid: (xs[i]! + xs[i + 1]!) / 2 };
+  }
+  return { x: best.mid, y: c.y };
+}

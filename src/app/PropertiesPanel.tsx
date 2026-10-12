@@ -1,0 +1,287 @@
+import { useState, type ReactNode } from 'react';
+import { polygonArea } from '../geometry/polygon';
+import { type TranslationKey, useT } from '../i18n';
+import { ModelError } from '../model/ops';
+import { updateRoom, updateWall } from '../model/ops';
+import { ROOM_TYPES, WALL_TYPES } from '../model/schemas';
+import { edit, useModel } from '../model/store';
+import type { Room, Wall } from '../model/types';
+import { usePlanStore } from '../plan2d/planStore';
+import {
+  formatArea,
+  formatLength,
+  metersToSmall,
+  parseLength,
+  smallToMeters,
+  smallUnitLabel,
+} from '../ui/units';
+
+/** Placeholder material ids until the materials library (prompt 8) provides the real catalog. */
+const WALL_MATERIALS = [
+  'paint-white',
+  'paint-cream',
+  'paint-grey',
+  'brick-red',
+  'concrete',
+  'wood-panel',
+  'tile-white',
+];
+const FLOOR_MATERIALS = [
+  'floor-oak',
+  'floor-walnut',
+  'floor-tile-grey',
+  'floor-tile-white',
+  'floor-concrete',
+  'floor-carpet-grey',
+];
+
+const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
+
+/** The value shared by every item, or `undefined` when they differ. */
+function shared<T, V>(items: T[], pick: (t: T) => V): V | undefined {
+  const first = pick(items[0]!);
+  return items.every((i) => pick(i) === first) ? first : undefined;
+}
+
+function Row({ name, children }: { name: string; children: ReactNode }) {
+  return (
+    <label className="flex items-center justify-between gap-2 py-1 text-sm">
+      <span className="text-slate-600">{name}</span>
+      {children}
+    </label>
+  );
+}
+
+const inputCls =
+  'w-32 rounded border border-slate-300 bg-white px-2 py-1 text-sm focus:border-sky-400 focus:outline-none';
+
+function SelectField({
+  name,
+  value,
+  options,
+  onChange,
+  mixed,
+}: {
+  name: string;
+  value: string | undefined;
+  options: string[];
+  onChange: (v: string) => void;
+  mixed: string;
+}) {
+  return (
+    <Row name={name}>
+      <select className={inputCls} value={value ?? ''} onChange={(e) => onChange(e.target.value)}>
+        {value === undefined && (
+          <option value="" disabled>
+            {mixed}
+          </option>
+        )}
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {label(o)}
+          </option>
+        ))}
+      </select>
+    </Row>
+  );
+}
+
+/** Numeric/text field that commits on blur or Enter. `key` re-mounts it when the stored value changes. */
+function CommitField({
+  name,
+  value,
+  placeholder,
+  onCommit,
+  suffix,
+}: {
+  name: string;
+  value: string;
+  placeholder?: string;
+  onCommit: (v: string) => void;
+  suffix?: string;
+}) {
+  return (
+    <Row name={name}>
+      <span className="flex items-center gap-1">
+        <input
+          key={value}
+          className={inputCls}
+          defaultValue={value}
+          placeholder={placeholder}
+          onBlur={(e) => e.currentTarget.value !== value && onCommit(e.currentTarget.value)}
+          onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+        />
+        {suffix && <span className="text-xs text-slate-500">{suffix}</span>}
+      </span>
+    </Row>
+  );
+}
+
+function useEditor() {
+  const setToast = usePlanStore((s) => s.setToast);
+  const [error, setError] = useState<string | null>(null);
+  const run = (fn: Parameters<typeof edit>[0]) => {
+    try {
+      edit(fn);
+      setError(null);
+    } catch (e) {
+      const msg = e instanceof ModelError ? e.message : 'Could not apply that change.';
+      setError(msg);
+      setToast(null);
+    }
+  };
+  return { run, error };
+}
+
+function WallProps({ walls }: { walls: Wall[] }) {
+  const t = useT();
+  const units = useModel((s) => s.project.units);
+  const { run, error } = useEditor();
+  const ids = walls.map((w) => w.id);
+  const patch = (p: Partial<Wall>) => run((d) => ids.forEach((id) => updateWall(d, id, p)));
+  const mixed = t('props.mixed');
+  const thickness = shared(walls, (w) => w.thickness);
+  const height = shared(walls, (w) => w.height ?? null);
+  const length =
+    walls.length === 1
+      ? Math.hypot(walls[0]!.end.x - walls[0]!.start.x, walls[0]!.end.y - walls[0]!.start.y)
+      : null;
+  return (
+    <div>
+      {length !== null && (
+        <Row name={t('props.length')}>
+          <span className="w-32 px-2 text-sm tabular-nums">{formatLength(length, units)}</span>
+        </Row>
+      )}
+      <CommitField
+        name={t('props.thickness')}
+        value={thickness === undefined ? '' : String(metersToSmall(thickness, units))}
+        placeholder={thickness === undefined ? mixed : undefined}
+        suffix={smallUnitLabel(units)}
+        onCommit={(v) => {
+          const n = Number(v.replace(',', '.'));
+          if (Number.isFinite(n) && n > 0) patch({ thickness: smallToMeters(n, units) });
+        }}
+      />
+      <SelectField
+        name={t('props.type')}
+        value={shared(walls, (w) => w.type)}
+        options={[...WALL_TYPES]}
+        mixed={mixed}
+        onChange={(v) => patch({ type: v as Wall['type'] })}
+      />
+      <CommitField
+        name={t('props.height')}
+        value={height === undefined ? '' : height === null ? '' : formatLength(height, units)}
+        placeholder={height === undefined ? mixed : t('props.heightAuto')}
+        onCommit={(v) => {
+          if (v.trim() === '') return patch({ height: undefined });
+          const m = parseLength(v, units);
+          if (m !== null && m > 0) patch({ height: m });
+        }}
+      />
+      <SelectField
+        name={t('props.insideMaterial')}
+        value={shared(walls, (w) => w.materialInside)}
+        options={WALL_MATERIALS}
+        mixed={mixed}
+        onChange={(v) => patch({ materialInside: v })}
+      />
+      <SelectField
+        name={t('props.outsideMaterial')}
+        value={shared(walls, (w) => w.materialOutside)}
+        options={WALL_MATERIALS}
+        mixed={mixed}
+        onChange={(v) => patch({ materialOutside: v })}
+      />
+      {error && (
+        <p role="alert" className="pt-1 text-xs text-red-600">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function RoomProps({ rooms }: { rooms: Room[] }) {
+  const t = useT();
+  const units = useModel((s) => s.project.units);
+  const { run, error } = useEditor();
+  const ids = rooms.map((r) => r.id);
+  const patch = (p: Partial<Room>) => run((d) => ids.forEach((id) => updateRoom(d, id, p)));
+  const mixed = t('props.mixed');
+  const name = shared(rooms, (r) => r.name);
+  const area = rooms.reduce((a, r) => a + polygonArea(r.polygon), 0);
+  return (
+    <div>
+      <CommitField
+        name={t('props.name')}
+        value={name ?? ''}
+        placeholder={name === undefined ? mixed : undefined}
+        onCommit={(v) => v.trim() && patch({ name: v.trim() })}
+      />
+      <SelectField
+        name={t('props.roomType')}
+        value={shared(rooms, (r) => r.type)}
+        options={[...ROOM_TYPES]}
+        mixed={mixed}
+        onChange={(v) => patch({ type: v as Room['type'] })}
+      />
+      <SelectField
+        name={t('props.floorMaterial')}
+        value={shared(rooms, (r) => r.floorMaterial)}
+        options={FLOOR_MATERIALS}
+        mixed={mixed}
+        onChange={(v) => patch({ floorMaterial: v })}
+      />
+      <Row name={t('props.area')}>
+        <span className="w-32 px-2 text-sm tabular-nums">{formatArea(area, units)}</span>
+      </Row>
+      {error && (
+        <p role="alert" className="pt-1 text-xs text-red-600">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export function PropertiesPanel() {
+  const t = useT();
+  const selection = useModel((s) => s.selection);
+  const project = useModel((s) => s.project);
+  let title: string | null = null;
+  let body: ReactNode = <p className="text-sm text-slate-500">{t('properties.empty')}</p>;
+  const count = selection.ids.length;
+  const suffix = count > 1 ? ` · ${count} ${t('props.selected')}` : '';
+
+  if (selection.type === 'wall') {
+    const walls = project.walls.filter((w) => selection.ids.includes(w.id));
+    if (walls.length) {
+      title = (count > 1 ? t('props.walls') : t('props.wall')) + suffix;
+      body = <WallProps key={walls.map((w) => w.id).join()} walls={walls} />;
+    }
+  } else if (selection.type === 'room') {
+    const rooms = project.rooms.filter((r) => selection.ids.includes(r.id));
+    if (rooms.length) {
+      title = (count > 1 ? t('props.rooms') : t('props.room')) + suffix;
+      body = <RoomProps key={rooms.map((r) => r.id).join()} rooms={rooms} />;
+    }
+  } else if (selection.type === 'column') {
+    title = t('props.column');
+    body = <p className="text-sm text-slate-500">{t('props.columnNote')}</p>;
+  }
+  return (
+    <div className="flex h-full flex-col">
+      <h2 className="border-b border-slate-200 px-3 py-2 text-sm font-semibold">
+        {t('properties.title')}
+      </h2>
+      <div className="flex-1 overflow-y-auto p-3">
+        {title && <h3 className="mb-1 text-sm font-semibold capitalize text-slate-800">{title}</h3>}
+        {body}
+      </div>
+    </div>
+  );
+}
+
+export type { TranslationKey };
