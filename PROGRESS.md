@@ -252,6 +252,13 @@ Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 6
 - `setup.ps1` and the docs said Node 20+; Node 22+ is required. `setup.ps1` now explains the C++ build-tools requirement when `npm install` fails.
 - Desktop packaging (Tauri) was removed from the project on request.
 
+**ComfyUI and the path-traced still (prompts 15–17)**
+- `docker compose up -d` now also builds and starts ComfyUI v0.9.2 and downloads the models (11.1 GB) by itself; `up -d` returns in about 30 s on a first start. Verified: workflow validates against v0.9.2 (18 nodes, 0 problems); a real Enhance from the Docker app ran in 24–30 s; the queue showed "Waiting: 1 job(s) ahead (an AI design is running)"; Ollama is unloaded before a render; after the render VRAM is back to idle and the next design runs 100 % on the GPU.
+- Bugs found and fixed: CRLF line endings broke `download-models.sh` in the container (`.gitattributes` added); ComfyUI v0.9.2 crashed on the old PyTorch 2.5.1 base (now 2.9.0 + pinned `comfy-kitchen`); ComfyUI kept about 11 GB of VRAM after a render (fixed with `--disable-smart-memory`); `docker compose up -d` blocked on the download (ComfyUI now waits for the models itself); downloads use `.part` files.
+- Path-traced still: cutaway ceilings and roofs were rendered as a solid black slab (the tracer ignored the shadow-only material) and the picture had fireflies and grain. Fixed in `src/present/pathTrace.ts` and `src/present/denoise.ts`; measured noise 0.0075 → 0.0040 and speckle pixels 1.4 % → 0.5 % at the same 200 samples (about 44 s).
+- `e2e/lighting.spec.ts` with hardware GL: 4 of 5 pass; `white on white stays readable` misses its threshold narrowly (0.056 against > 0.06). With the default software GL two more tests fail (software rendering). Frame rate 60 fps at Low/Medium/High.
+- Browser-pane caveat: while testing in the in-app browser pane, the "Preparing the pictures" step only progressed while the pane was being interacted with (a background canvas is not composited); a visible browser tab was not tested.
+
 **Flaky only under load:** `export`, `offline` and `polish` e2e tests (and `villa`) failed in the first full run next to other work and passed when re-run alone and in the next full run.
 
 **Still unverified**

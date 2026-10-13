@@ -157,6 +157,8 @@ docker compose logs -f comfyui-init      # watch the first-time model download; 
 - The enhancement always works on the render **without labels**; crisp room labels and the badge "AI-enhanced mood
   image — not to scale" are drawn on top afterwards. Results (with their prompt, seed and settings) are kept in the
   `app-data` volume with the project.
+- **Measured on an RTX 4060 Ti 16 GB** (ComfyUI v0.9.2 in Docker, 28 steps, edge pass on): about **25–30 s per render**, up to about 14 GB of VRAM while it runs and **back to idle (2.4 GB) right after**, so the next AI design gets the whole GPU (NAME    ID    SIZE    PROCESSOR    CONTEXT    UNTIL : 100% GPU). ComfyUI is started with `--disable-smart-memory` for this: without it v0.9.2 kept about 11 GB after a render even when asked to free it. The models are loaded again for every render, which costs a few seconds.
+- The image is built on PyTorch 2.9.0 / CUDA 12.6 (v0.9.2 needs a newer PyTorch than 2.5) with `comfy-kitchen` pinned. A Windows checkout needs no special care: `.gitattributes` keeps the shell scripts and Dockerfiles in LF (a CRLF script fails inside the container with `set: illegal option -`).
 - To stop it and free the disk: `docker compose stop comfyui` (models stay in the volume) or
   `docker volume rm <project>_comfyui-models`.
 
