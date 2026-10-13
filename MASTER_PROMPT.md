@@ -27,6 +27,8 @@ For each prompt file, run this loop:
 - **Tests.** Add unit tests for pure logic (geometry, model operations, AI parsing). Add or extend Playwright smoke tests for major UI flows.
 - **Code quality.** Use TypeScript strict mode, small focused modules, and no `any` without a comment explaining why.
 - **When blocked.** If something truly can't be done (a missing dependency, an impossible requirement), choose the simplest reasonable alternative. Document it in `PROGRESS.md` under "Deviations" and continue. Only stop if continuing would break the project.
+- **Verify on the real machine.** The owner's Windows PC (RTX 4060 Ti 16 GB, Docker Desktop) is the target. Anything that needs a GPU must be verified there with the committed `npm run test:gpu` harness, not only on software GL. Never leave important work in throw-away scripts: commit it.
+- **Reference villa.** `reference/villa-reference.png` is the design the owners want recreated (prompts 18–23). Fidelity to it is judged in the app's "Compare with reference" view.
 - **Scope.** Don't add features from later prompts early, except minimal stubs that a prompt explicitly asks for.
 
 ## Context about the product
