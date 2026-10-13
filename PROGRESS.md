@@ -123,6 +123,7 @@ Limitation: on static hosting there is no `/api/ai` proxy, so the offline genera
 Results on this Mac with `qwen3:14b` (Ollama 15 briefs):
   - baseline prompt: schema-valid 15/15 = 100 %, solver 15/15 = 100 %, repair round needed 11/15, followed bedroom/level counts 4/15, 40.5 s average
   - tuned prompt (exactly 2 levels, honour counts, vague briefs still get a full design): schema-valid 15/15 = 100 %, solver 15/15 = 100 %, repair needed 3/15, followed the brief 12/15, 73 s average (the machine was busy; first-token latency varies)
+  - re-run of the tuned prompt after Prompt 15 (`/tmp/eval2.log`, 05:21): identical — 15/15 schema-valid, 15/15 solver, repair 3/15 (simple-2br, minimal, style-light), brief followed 12/15, 73.2 s average
 Not verified here: the PowerShell scripts were written but not run (no Windows machine); the server itself is covered by unit tests (static files, SPA fallback, health, proxy allow-list, streaming + queue, password flow).
 
 ## Prompt 14 — Dockerize Everything (GPU) + Shared Project Storage — DONE (image build not run locally)
