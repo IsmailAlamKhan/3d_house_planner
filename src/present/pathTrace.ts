@@ -1,4 +1,13 @@
-import { Color, type Camera, type Scene, type WebGLRenderer } from 'three';
+import { Denoiser } from './denoise';
+import {
+  Color,
+  type Camera,
+  type Material,
+  type Mesh,
+  type Scene,
+  type Texture,
+  type WebGLRenderer,
+} from 'three';
 
 export interface PathTraceOptions {
   /** Stop after this many samples per pixel. */
@@ -33,9 +42,13 @@ export async function pathTraceInto(
   const hidden: { visible: boolean; set: (v: boolean) => void }[] = [];
   const before = { background: scene.background, environment: scene.environment };
   let tracer: InstanceType<typeof WebGLPathTracer> | null = null;
+  let denoiser: Denoiser | null = null;
   try {
     scene.traverse((obj) => {
-      if (obj.userData?.sky) {
+      // The sky dome, and the invisible "shadow only" ceilings/roofs of a cutaway (colorWrite off): the tracer does not
+      // know that flag and would draw them as solid black slabs over the rooms.
+      const mat = (obj as Mesh).material as Material | undefined;
+      if (obj.userData?.sky || (mat && !Array.isArray(mat) && mat.colorWrite === false)) {
         const was = obj.visible;
         obj.visible = false;
         hidden.push({ visible: was, set: (v) => (obj.visible = v) });
@@ -50,14 +63,30 @@ export async function pathTraceInto(
     tracer.fadeDuration = 0;
     tracer.tiles.set(2, 2);
     tracer.setScene(scene, camera);
-    while (tracer.samples < o.target) {
-      if (o.signal.aborted) return 'cancelled';
-      tracer.renderSample();
-      o.onProgress(Math.floor(tracer.samples));
+    // The last picture goes through the denoiser (fireflies and grain); the progressive preview stays raw and fast.
+    const t = tracer;
+    const finish = (): void => {
+      const d = (denoiser = new Denoiser());
+      t.renderToCanvasCallback = (target, renderer, quad) => {
+        (quad.material as unknown as { map: Texture | null }).map = d.apply(renderer, target);
+        const auto = renderer.autoClear;
+        renderer.autoClear = false;
+        quad.render(renderer);
+        renderer.autoClear = auto;
+      };
+      t.renderSample();
+      o.onProgress(Math.floor(t.samples));
+    };
+    while (t.samples < o.target) {
+      if (o.signal.aborted) {
+        finish();
+        return 'cancelled';
+      }
+      t.renderSample();
+      o.onProgress(Math.floor(t.samples));
       await frame();
     }
-    tracer.renderSample();
-    o.onProgress(Math.floor(tracer.samples));
+    finish();
     return 'done';
   } finally {
     console.warn = warn;
@@ -66,6 +95,7 @@ export async function pathTraceInto(
     for (const h of hidden) h.set(h.visible);
     // Keep the last image on the canvas until the caller has read it: dispose after a frame.
     const t = tracer;
-    if (t) setTimeout(() => t.dispose(), 0);
+    const d = denoiser as Denoiser | null;
+    if (t) setTimeout(() => (t.dispose(), d?.dispose()), 0);
   }
 }
