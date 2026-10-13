@@ -18,12 +18,20 @@ export function designOf(p: Project): Design {
     columns: p.columns,
     roofs: p.roofs,
     materials: p.materials,
+    zones: p.site.zones,
+    gates: p.site.gates,
   }) as Design;
 }
 
 /** A project showing `design` (everything else — shell, settings, costs, notes — is the project's own). */
 export function withDesign(p: Project, design: Design): Project {
-  return { ...p, ...(plain(design) as Design) };
+  const c = plain(design) as Design;
+  const { zones, gates, ...rest } = c;
+  return {
+    ...p,
+    ...rest,
+    site: { ...p.site, zones: zones ?? p.site.zones, gates: gates ?? p.site.gates },
+  };
 }
 
 function loadDesign(p: Project, d: Design): void {
@@ -37,6 +45,8 @@ function loadDesign(p: Project, d: Design): void {
   p.columns = c.columns;
   p.roofs = c.roofs;
   p.materials = c.materials;
+  if (c.zones) p.site.zones = c.zones;
+  if (c.gates) p.site.gates = c.gates;
 }
 
 const letterOrder = (m: OptionMeta) => (m.letter === null ? -1 : LETTERS.indexOf(m.letter));

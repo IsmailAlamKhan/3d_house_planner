@@ -255,29 +255,6 @@ export const NoteSchema = z.object({
     .optional(),
 });
 
-/** The part of a project that design options swap: everything that is "the plan", not the shell or the settings. */
-export const DesignSchema = z.object({
-  levels: z.array(LevelSchema),
-  walls: z.array(WallSchema),
-  openings: z.array(OpeningSchema),
-  rooms: z.array(RoomSchema),
-  stairs: z.array(StairSchema),
-  items: z.array(ItemSchema),
-  columns: z.array(ColumnSchema),
-  roofs: z.array(RoofSchema),
-  materials: z.record(z.string(), MaterialOverrideSchema),
-});
-
-/** Which design is showing. `letter` null = the original ("Main design"); `name` null = use the default title. */
-export const OptionMetaSchema = z.object({
-  id,
-  letter: z.string().nullable(),
-  name: z.string().nullable(),
-});
-
-/** A design that is not currently showing (the one being edited lives in the project's own fields). */
-export const DesignOptionSchema = OptionMetaSchema.extend({ design: DesignSchema });
-
 /** An outdoor area on the plot (lawn, pool, deck, parking …), drawn like a room but on the ground around the building. */
 export const SiteZoneSchema = z.object({
   id,
@@ -298,6 +275,32 @@ export const GateSchema = z.object({
   direction: num,
   width: positive.default(1.2),
 });
+
+/** The part of a project that design options swap: everything that is "the plan", not the shell or the settings. */
+export const DesignSchema = z.object({
+  levels: z.array(LevelSchema),
+  walls: z.array(WallSchema),
+  openings: z.array(OpeningSchema),
+  rooms: z.array(RoomSchema),
+  stairs: z.array(StairSchema),
+  items: z.array(ItemSchema),
+  columns: z.array(ColumnSchema),
+  roofs: z.array(RoofSchema),
+  materials: z.record(z.string(), MaterialOverrideSchema),
+  /** Outdoor zones and gates belong to the design too (optional: designs saved before this existed leave the site as it is). */
+  zones: z.array(SiteZoneSchema).optional(),
+  gates: z.array(GateSchema).optional(),
+});
+
+/** Which design is showing. `letter` null = the original ("Main design"); `name` null = use the default title. */
+export const OptionMetaSchema = z.object({
+  id,
+  letter: z.string().nullable(),
+  name: z.string().nullable(),
+});
+
+/** A design that is not currently showing (the one being edited lives in the project's own fields). */
+export const DesignOptionSchema = OptionMetaSchema.extend({ design: DesignSchema });
 
 /** The plot the building stands on (villa projects). Empty `plot` = no site (apartments). */
 export const SiteSchema = z.object({

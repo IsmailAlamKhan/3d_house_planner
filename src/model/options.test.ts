@@ -12,7 +12,10 @@ import {
   setNoteResolved,
   switchDesign,
   updateNoteText,
+  addGate,
   addWall,
+  addZone,
+  setPlot,
 } from './ops';
 import { createSampleProject } from './sample';
 import { ProjectSchema } from './schemas';
@@ -79,6 +82,67 @@ describe('design options', () => {
     const parsed = ProjectSchema.parse(old);
     expect(parsed.options).toEqual([]);
     expect(parsed.currentOption).toEqual({ id: 'main', letter: null, name: null });
+  });
+});
+
+describe('design options and the site', () => {
+  const plot = [
+    { x: 0, y: 0 },
+    { x: 30, y: 0 },
+    { x: 30, y: 40 },
+    { x: 0, y: 40 },
+  ];
+  const withSite = produce(base, (d) => {
+    setPlot(d, plot);
+    addZone(d, {
+      name: 'Lawn A',
+      type: 'lawn',
+      polygon: [
+        { x: 1, y: 1 },
+        { x: 8, y: 1 },
+        { x: 8, y: 8 },
+      ],
+    });
+    addGate(d, { kind: 'pedestrian', position: { x: 15, y: 40 }, direction: Math.PI / 2 });
+  });
+
+  it('outdoor zones and gates belong to the design: each option keeps its own', () => {
+    const a = produce(withSite, (d) => void duplicateDesign(d));
+    const b = produce(a, (d) => {
+      d.site.zones = [];
+      addZone(d, {
+        name: 'Pool B',
+        type: 'pool',
+        polygon: [
+          { x: 2, y: 2 },
+          { x: 9, y: 2 },
+          { x: 9, y: 6 },
+        ],
+      });
+      d.site.gates = [];
+    });
+    expect(b.site.zones.map((z) => z.name)).toEqual(['Pool B']);
+    const back = produce(b, (d) => void switchDesign(d, b.options[0]!.id));
+    expect(back.site.zones.map((z) => z.name)).toEqual(['Lawn A']);
+    expect(back.site.gates).toHaveLength(1);
+    const again = produce(back, (d) => void switchDesign(d, back.options[0]!.id));
+    expect(again.site.zones.map((z) => z.name)).toEqual(['Pool B']);
+    expect(again.site.gates).toHaveLength(0);
+    // A design shown for comparison carries its zones too.
+    expect(projectForDesign(b, b.options[0]!.id)!.site.zones.map((z) => z.name)).toEqual([
+      'Lawn A',
+    ]);
+  });
+
+  it('a design saved before zones were part of it leaves the site as it is', () => {
+    const a = produce(withSite, (d) => void duplicateDesign(d));
+    const old = produce(a, (d) => {
+      delete d.options[0]!.design.zones;
+      delete d.options[0]!.design.gates;
+    });
+    const switched = produce(old, (d) => void switchDesign(d, old.options[0]!.id));
+    expect(switched.site.zones.map((z) => z.name)).toEqual(['Lawn A']);
+    expect(ProjectSchema.safeParse(old).success).toBe(true);
   });
 });
 
