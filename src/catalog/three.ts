@@ -1,3 +1,5 @@
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { applySkyMix, capAlbedo } from '../scene3d/skyMix';
 import {
   BoxGeometry,
   CylinderGeometry,
@@ -28,6 +30,8 @@ export function mat(
       opacity,
       depthWrite: opacity >= 1,
     });
+    capAlbedo(m.color);
+    applySkyMix(m);
     materials.set(key, m);
   }
   return m;
@@ -43,6 +47,12 @@ function finish(mesh: Mesh, parent: Object3D, at: V3, opts: { shadow?: boolean }
   return mesh;
 }
 
+/** Bevel radius for a box: about 1.4 cm, less on thin pieces, none on films and rugs. */
+export function bevelOf(size: V3): number {
+  const m = Math.min(size[0], size[1], size[2]);
+  return m < 0.045 ? 0 : Math.min(0.014, m * 0.18);
+}
+
 /** Box of size [w,h,d] whose bottom-center is at `at`. */
 export function box(
   parent: Object3D,
@@ -53,8 +63,12 @@ export function box(
   opacity = 1,
   metal = 0,
 ): Mesh {
+  // Small rounded edges catch the light: without them white furniture melts into white walls and floors.
+  const r = bevelOf(size);
   const mesh = new Mesh(
-    new BoxGeometry(size[0], size[1], size[2]),
+    r > 0
+      ? new RoundedBoxGeometry(size[0], size[1], size[2], 2, r)
+      : new BoxGeometry(size[0], size[1], size[2]),
     mat(color, rough, metal, opacity),
   );
   return finish(mesh, parent, [at[0], at[1] + size[1] / 2, at[2]], { shadow: opacity >= 1 });

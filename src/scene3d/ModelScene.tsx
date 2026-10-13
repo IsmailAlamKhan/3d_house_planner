@@ -20,7 +20,9 @@ import { useCamera } from './camera/cameraStore';
 import { useSceneProject, useSceneReadOnly } from './sceneProject';
 import { useExportFlags } from '../export/flags';
 import { roomFocus } from './camera/isolation';
-import { interiorLightsOn } from './lighting';
+import { lampOn } from './lights';
+import { getEntry } from '../catalog';
+import { DoubleSide, MeshBasicMaterial } from 'three';
 
 /** Builds (and memoizes) the renderable model for the current project and view options. */
 export function useSceneModel(): LevelScene[] & { site: AnyPart[] } {
@@ -35,6 +37,24 @@ export function useSceneModel(): LevelScene[] & { site: AnyPart[] } {
     () => builder.build(project, { wallMode, cutHeight: DEFAULT_CUT_HEIGHT, doorsOpen }),
     [builder, project, wallMode, doorsOpen],
   );
+}
+
+/** Switches one fixture on or off (saved with the project, not an undo step). */
+export function toggleLamp(itemId: string, currentlyOn: boolean): void {
+  useModel.getState().setLights((l) => {
+    l.items[itemId] = !currentlyOn;
+  });
+}
+
+/** Invisible but still blocks light: ceilings, upper slabs and roofs hidden from the camera keep casting shadows. */
+const SHADOW_ONLY = new MeshBasicMaterial({
+  colorWrite: false,
+  depthWrite: false,
+  side: DoubleSide,
+});
+
+function ShadowOnlyMesh({ part }: { part: Part }) {
+  return <mesh geometry={part.geometry} material={SHADOW_ONLY} castShadow raycast={() => null} />;
 }
 
 /** While measuring, a click picks a point on the surface instead of selecting. Returns true when it was used. */
@@ -127,6 +147,7 @@ function ObjectView({
   gizmo,
   lit,
   ghost,
+  outdoor,
 }: {
   part: ObjectPart;
   ghost: boolean;
@@ -134,8 +155,9 @@ function ObjectView({
   selected: boolean;
   /** Show the move / rotate handle (a single selected piece of furniture). */
   gizmo: boolean;
-  /** Interior lights are on: lamp surfaces glow. */
+  /** This light fixture is switched on: its lamp surfaces glow. */
   lit: boolean;
+  outdoor: boolean;
 }) {
   const mode = useSceneStore((s) => s.gizmoMode);
   const readOnly = useSceneReadOnly();
@@ -148,8 +170,9 @@ function ObjectView({
       lit: lit && part.lamp,
       clip: part.clipToCut ? clip : undefined,
       ghost,
+      outdoor,
     });
-  }, [part, selected, clip, nonce, lit, ghost]);
+  }, [part, selected, clip, nonce, lit, ghost, outdoor]);
   const commit = () => {
     const id = part.entity?.id;
     if (id) {
@@ -173,6 +196,10 @@ function ObjectView({
         e.stopPropagation();
         if (useModel.getState().tool === 'eyedropper')
           return paintFrom3d(part, undefined, e.nativeEvent.altKey);
+        // Clicking the glowing part of a light fixture switches it on or off.
+        if (e.object.userData.lamp === true && part.entity) {
+          toggleLamp(part.entity.id, lit);
+        }
         selectFrom3d(part.entity, e.nativeEvent.shiftKey);
       }}
     >
@@ -204,7 +231,13 @@ export function ModelScene() {
   const mode = useCamera((s) => s.mode);
   const isolation = useCamera((s) => s.isolation);
   const xray = useCamera((s) => s.xray);
-  const lightsOn = interiorLightsOn(lighting);
+  // Which light fixtures are switched on (their own switch, room, master, preset).
+  const lampStates = useMemo(() => {
+    const m = new Map<string, boolean>();
+    for (const i of project.items)
+      if (getEntry(i.catalogId)?.lamp) m.set(i.id, lampOn(project, i, lighting));
+    return m;
+  }, [project, lighting]);
   const presentation = useExportFlags((s) => s.presentation);
   // Walking through the home: everything is shown, whatever the 3D view options say.
   const walking = mode === 'walk';
@@ -252,49 +285,61 @@ export function ModelScene() {
           />
         ))}
       </group>
-      {levels
-        .filter(({ level }) => {
+      {levels.map(({ level, parts }) => {
+        const shown = (() => {
           if (!level.visible) return false;
           if (walking) return true;
           if (isolation.kind === 'level') return level.id === isolation.levelId;
           return levelFilter === 'all' || level.index <= activeIndex;
-        })
-        .map(({ level, parts }) => (
+        })();
+        const blocksLight = (p: AnyPart) =>
+          p.layer === 'ceiling' || p.layer === 'roof' || p.layer === 'slab';
+        return (
           <group key={level.id} position={[0, level.elevation, 0]}>
-            {parts
-              .filter((p) => !(dollhouse && (p.layer === 'ceiling' || p.layer === 'roof')))
-              .map((p: AnyPart) =>
-                isObjectPart(p) ? (
-                  <ObjectView
-                    key={p.id}
-                    part={p}
-                    clip={clips.get(level.id)}
-                    lit={lightsOn}
-                    ghost={ghostOf(p, level.id)}
-                    selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
-                    gizmo={
-                      !!p.entity &&
-                      p.entity.type === 'item' &&
-                      selection.type === 'item' &&
-                      selection.ids.length === 1 &&
-                      selection.ids[0] === p.entity.id &&
-                      !walking &&
-                      !presentation
-                    }
-                  />
-                ) : (
-                  <PartMesh
-                    key={p.id}
-                    part={p}
-                    overrides={overrides}
-                    ghost={ghostOf(p, level.id)}
-                    clip={clips.get(level.id)}
-                    selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
-                  />
-                ),
-              )}
+            {parts.map((p: AnyPart) => {
+              if (!shown)
+                return blocksLight(p) && !isObjectPart(p) ? (
+                  <ShadowOnlyMesh key={p.id} part={p} />
+                ) : null;
+              if (dollhouse && (p.layer === 'ceiling' || p.layer === 'roof') && !isObjectPart(p))
+                return <ShadowOnlyMesh key={p.id} part={p} />;
+              return isObjectPart(p) ? (
+                <ObjectView
+                  key={p.id}
+                  part={p}
+                  clip={clips.get(level.id)}
+                  lit={lampStates.get(p.entity?.id ?? '') ?? false}
+                  outdoor={
+                    p.entity?.type === 'item' &&
+                    getEntry(project.items.find((i) => i.id === p.entity!.id)?.catalogId ?? '')
+                      ?.category === 'outdoor'
+                  }
+                  ghost={ghostOf(p, level.id)}
+                  selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
+                  gizmo={
+                    !!p.entity &&
+                    p.entity.type === 'item' &&
+                    selection.type === 'item' &&
+                    selection.ids.length === 1 &&
+                    selection.ids[0] === p.entity.id &&
+                    !walking &&
+                    !presentation
+                  }
+                />
+              ) : (
+                <PartMesh
+                  key={p.id}
+                  part={p}
+                  overrides={overrides}
+                  ghost={ghostOf(p, level.id)}
+                  clip={clips.get(level.id)}
+                  selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
+                />
+              );
+            })}
           </group>
-        ))}
+        );
+      })}
     </>
   );
 }

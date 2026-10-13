@@ -2,6 +2,7 @@ import { DoubleSide, MeshStandardMaterial, type Plane } from 'three';
 import { getTexture, resolveMaterial } from '../materials';
 import type { MaterialOverride } from '../model/types';
 import { registerClippable } from './clipping';
+import { applySkyMix, capAlbedo } from './skyMix';
 
 const cache = new Map<string, MeshStandardMaterial>();
 
@@ -16,12 +17,15 @@ export interface MaterialFlags {
 
 /** Shared three.js material for a material key, cached by key + variant. */
 export function getMaterial(
-  key: string,
+  rawKey: string,
   overrides: Record<string, MaterialOverride>,
   flags: MaterialFlags = {},
 ): MeshStandardMaterial {
+  // `key@out` is the same material for outdoor surfaces (sky light reaches them even under realistic lighting).
+  const outdoor = rawKey.endsWith('@out');
+  const key = outdoor ? rawKey.slice(0, -4) : rawKey;
   const o = overrides[key];
-  const id = `${key}|${o ? JSON.stringify(o) : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? `${flags.clip.constant}` : ''}|${flags.highlight ? 'h' : ''}`;
+  const id = `${rawKey}|${o ? JSON.stringify(o) : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? `${flags.clip.constant}` : ''}|${flags.highlight ? 'h' : ''}`;
   let m = cache.get(id);
   if (!m) {
     const spec = resolveMaterial(key, overrides);
@@ -40,6 +44,8 @@ export function getMaterial(
       emissive: flags.highlight ? '#0ea5e9' : '#000000',
       emissiveIntensity: flags.highlight ? 0.6 : 0,
     });
+    capAlbedo(m.color);
+    applySkyMix(m, outdoor);
     registerClippable(m, flags.clip);
     cache.set(id, m);
   }

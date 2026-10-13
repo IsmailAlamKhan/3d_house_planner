@@ -40,6 +40,7 @@ export function createEmptyProject(name = 'Untitled home'): Project {
     notes: [],
     options: [],
     kind: 'apartment',
+    lights: { master: 'auto', rooms: {}, items: {} },
     site: { plot: [], gates: [], zones: [], setback: 1.5 },
     currentOption: { id: 'main', letter: null, name: null },
     costs: { currency: 'USD', unitCosts: {} },

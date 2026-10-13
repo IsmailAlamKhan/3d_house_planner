@@ -85,8 +85,11 @@ export interface CatalogEntry {
   mountHeight?: number;
   /** Floor items normally snap back-to-wall when dropped near one; set false for free-standing pieces. */
   wallSnap?: boolean;
-  /** Interior lamps emit light in the evening / night looks. `y` is the light height above the item's origin. */
-  lamp?: { y: (size: Size) => number; color: string; intensity: number };
+  /**
+   * A light fixture. `y` is the light height above the item's origin; `lumens` and `kelvin` are the defaults (an item
+   * can override them with its own `lumens` / `kelvin` / `beam` props); `beam` (degrees) makes it a spotlight.
+   */
+  lamp?: { y: (size: Size) => number; lumens: number; kelvin: number; beam?: number };
   /** Resizing limits as multiples of the default size. */
   minScale?: number;
   maxScale?: number;

@@ -177,7 +177,8 @@ describe('walls', () => {
       height: 2.7,
       footprint: shell,
     })!;
-    expect(flipped.materials[0]).toBe('out');
+    // The outside face of an exterior wall is outdoors: it takes sky light (`@out`).
+    expect(flipped.materials[0]).toBe('out@out');
   });
 
   it('mitres corners so walls meet cleanly', () => {
@@ -229,7 +230,8 @@ describe('opening trim (catalog models placed on the wall)', () => {
       }),
     );
     expect(win).toHaveLength(1);
-    expect(materialColors(win[0]!.object)).toContain('#a5d8ff');
+    // Pane colour with the albedo cap applied (no channel above 0.88 linear).
+    expect(materialColors(win[0]!.object)).toContain('#a5d8f1');
     const door = generateOpeningParts(input({ catalogId: 'door-single' }));
     expect(materialColors(door[0]!.object)).toContain('#b9814e'); // the leaf
     expect(generateOpeningParts(input({ kind: 'archway', catalogId: 'archway' }))).toHaveLength(0);
@@ -407,7 +409,7 @@ describe('slabs, floors, ceilings, roofs, columns', () => {
       { x: 4, y: 6 },
     ];
     const parts = generateFlatRoof('r', L1, p.shell.footprint, [sky], []);
-    expect(parts.map((x) => x.materials[0])).toEqual(['roof', 'glass']);
+    expect(parts.map((x) => x.materials[0])).toEqual(['roof@out', 'glass']);
     expect(bounds(parts[0]!.geometry).min.y).toBeCloseTo(L1.floorToCeiling);
     expect(volume(parts[0]!.geometry)).toBeCloseTo((shellArea - 4) * L1.slabThickness, 3);
   });

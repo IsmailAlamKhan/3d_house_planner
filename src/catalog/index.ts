@@ -3,20 +3,52 @@ import { kitchenBathEntries } from './entries/kitchenBath';
 import { outdoorEntries } from './entries/outdoor';
 import { decorEntries } from './entries/decor';
 import { openingEntries } from './entries/openings';
-import type { CatalogCategory, CatalogEntry, Size } from './types';
+import type { CatalogCategory, CatalogEntry, PropSpec, Size } from './types';
 import type { OpeningKind } from '../model/types';
 
 export * from './types';
 export { catalogNames } from './names';
 
 /** Every catalog entry, in the order they appear in the library. */
+/** Light fixtures get adjustable brightness (lumens), colour temperature (kelvin) and, for spotlights, beam angle. */
+function withLampProps(e: CatalogEntry): CatalogEntry {
+  if (!e.lamp) return e;
+  const beam = e.lamp.beam;
+  const extra: PropSpec[] = [
+    { key: 'lumens', label: 'cprop.lumens', kind: 'number', min: 50, max: 5000, step: 50 },
+    { key: 'kelvin', label: 'cprop.kelvin', kind: 'number', min: 2000, max: 6500, step: 100 },
+    ...(beam === undefined
+      ? []
+      : [
+          {
+            key: 'beam',
+            label: 'cprop.beam',
+            kind: 'number',
+            min: 15,
+            max: 120,
+            step: 5,
+          } as PropSpec,
+        ]),
+  ];
+  return {
+    ...e,
+    props: [...e.props, ...extra],
+    defaults: {
+      ...e.defaults,
+      lumens: e.lamp.lumens,
+      kelvin: e.lamp.kelvin,
+      ...(beam === undefined ? {} : { beam }),
+    },
+  };
+}
+
 export const CATALOG: CatalogEntry[] = [
   ...openingEntries(),
   ...furnitureEntries(),
   ...kitchenBathEntries(),
   ...outdoorEntries(),
   ...decorEntries(),
-];
+].map(withLampProps);
 
 const byId = new Map(CATALOG.map((e) => [e.catalogId, e]));
 

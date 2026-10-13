@@ -90,6 +90,50 @@ export async function composePicture(
   );
 }
 
+/** Mean display brightness of a picture (0–1, Rec. 709 weights on the sRGB values). */
+export function meanBrightness(img: {
+  data: ArrayLike<number>;
+  width: number;
+  height: number;
+}): number {
+  let sum = 0;
+  const n = img.width * img.height;
+  for (let i = 0; i < n; i++)
+    sum +=
+      (0.2126 * img.data[i * 4]! + 0.7152 * img.data[i * 4 + 1]! + 0.0722 * img.data[i * 4 + 2]!) /
+      255;
+  return n ? sum / n : 0;
+}
+
+/** Extra exposure (stops) that brings a picture of mean brightness `mean` to about the target, within ±1.5 EV. */
+export function evFor(mean: number, target = 0.42): number {
+  if (mean <= 0.001) return 1.5;
+  // display value ≈ linear^(1/2.2): the change in stops is the change in linear light.
+  return Math.max(-1.5, Math.min(1.5, Math.log2(Math.pow(target / mean, 2.2))));
+}
+
+async function autoEv(userEv: number): Promise<number> {
+  void userEv;
+  const shot = await withScene(() =>
+    captureScene({
+      scale: 1,
+      format: 'png',
+      transparent: false,
+      presentation: true,
+      fx: true,
+      longSide: 320,
+    }),
+  );
+  const bmp = await createImageBitmap(shot.blob);
+  const c = document.createElement('canvas');
+  c.width = bmp.width;
+  c.height = bmp.height;
+  const ctx = c.getContext('2d', { willReadFrequently: true })!;
+  ctx.drawImage(bmp, 0, 0);
+  const img = ctx.getImageData(0, 0, c.width, c.height);
+  return evFor(meanBrightness(img), 0.42);
+}
+
 /** Takes the presentation picture of the 3D view as it is now: effects, labels and the footer included. */
 export async function renderPresentation(o: PresentExportOptions): Promise<PresentExportResult> {
   const present = usePresent.getState();
@@ -97,23 +141,32 @@ export async function renderPresentation(o: PresentExportOptions): Promise<Prese
   const compass = useModel.getState().project.settings.compass;
   const sun = sunVisible(lighting) ? sunAt(timeOf(lighting), compass) : moonAt(compass);
   const sky = skyFor(lighting, sun);
-  const base = await withScene(() =>
-    captureScene({
-      scale: o.scale,
-      format: 'png',
-      transparent: o.transparent,
-      presentation: true,
-      fx: present.active && present.fx && !o.pathTrace,
-      pathTrace: o.pathTrace
-        ? {
-            target: usePresent.getState().pathTrace.target,
-            onProgress: (samples) => usePresent.getState().setPathTrace({ samples }),
-            signal: o.signal ?? new AbortController().signal,
-            background: sky.horizon,
-          }
-        : undefined,
-    }),
-  );
+  const userEv = useSceneStore.getState().exposure;
+  let base: CaptureResult;
+  try {
+    // Auto exposure: measure a quick picture and set the exposure so the render is neither dark nor blown out.
+    if (present.active && present.autoExposure)
+      useSceneStore.getState().setPref('exposure', userEv + (await autoEv(userEv)));
+    base = await withScene(() =>
+      captureScene({
+        scale: o.scale,
+        format: 'png',
+        transparent: o.transparent,
+        presentation: true,
+        fx: present.active && present.fx && !o.pathTrace,
+        pathTrace: o.pathTrace
+          ? {
+              target: usePresent.getState().pathTrace.target,
+              onProgress: (samples) => usePresent.getState().setPathTrace({ samples }),
+              signal: o.signal ?? new AbortController().signal,
+              background: sky.horizon,
+            }
+          : undefined,
+      }),
+    );
+  } finally {
+    useSceneStore.getState().setPref('exposure', userEv);
+  }
   if (base.pathTraced === 'cancelled') {
     return { blob: base.blob, width: base.width, height: base.height, cancelled: true };
   }

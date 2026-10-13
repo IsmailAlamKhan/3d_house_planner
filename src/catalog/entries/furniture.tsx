@@ -681,7 +681,7 @@ function ceilingLight(): CatalogEntry {
     category: 'other',
     size: { w: 0.4, d: 0.4, h: 0.08 },
     placement: 'ceiling',
-    lamp: { y: () => -0.15, color: '#ffe2b0', intensity: 26 },
+    lamp: { y: () => -0.15, lumens: 1800, kelvin: 2700 },
     defaults: { color: '#fff7d6' },
     props: [colorProp('cprop.lightColor')],
     build: (g, p, s) => {
@@ -707,7 +707,7 @@ function pendantLight(): CatalogEntry {
     category: 'other',
     size: { w: 0.45, d: 0.45, h: 0.9 },
     placement: 'ceiling',
-    lamp: { y: () => 0.1, color: '#ffd9a0', intensity: 20 },
+    lamp: { y: () => 0.1, lumens: 1100, kelvin: 2700 },
     defaults: { color: '#f59e0b' },
     props: [colorProp('cprop.shadeColor')],
     build: (g, p, s) => {
@@ -730,7 +730,7 @@ function floorLamp(): CatalogEntry {
     id: 'floor-lamp',
     category: 'other',
     size: { w: 0.4, d: 0.4, h: 1.6 },
-    lamp: { y: (s) => s.h - 0.2, color: '#ffd9a0', intensity: 13 },
+    lamp: { y: (s) => s.h - 0.2, lumens: 800, kelvin: 2700 },
     defaults: { color: '#f3e9d2' },
     props: [colorProp('cprop.shadeColor')],
     build: (g, p, s) => {

@@ -247,3 +247,17 @@ describe('auto-decorate', () => {
     expect(useModel.getState().project.items.length).toBe(before);
   });
 });
+
+describe('auto exposure', () => {
+  it('brings dark pictures up and bright ones down, within ±1.5 EV', async () => {
+    const { evFor, meanBrightness } = await import('./render');
+    expect(evFor(0.42)).toBeCloseTo(0);
+    expect(evFor(0.2)).toBeGreaterThan(0.5);
+    expect(evFor(0.7)).toBeLessThan(-0.5);
+    expect(evFor(0.001)).toBe(1.5);
+    expect(evFor(0.02)).toBe(1.5);
+    expect(evFor(0.99)).toBe(-1.5);
+    const grey = new Uint8ClampedArray(4 * 4).fill(128);
+    expect(meanBrightness({ data: grey, width: 2, height: 2 })).toBeCloseTo(128 / 255, 3);
+  });
+});

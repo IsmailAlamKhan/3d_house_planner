@@ -150,6 +150,15 @@ export function PresentPanel() {
                 <label className="flex items-center gap-2 text-xs">
                   <input
                     type="checkbox"
+                    data-testid="present-auto-exposure"
+                    checked={present.autoExposure}
+                    onChange={(e) => present.patch({ autoExposure: e.target.checked })}
+                  />
+                  {t('present.autoExposure')}
+                </label>
+                <label className="flex items-center gap-2 text-xs">
+                  <input
+                    type="checkbox"
                     checked={fx}
                     onChange={(e) => present.patch({ fx: e.target.checked })}
                   />

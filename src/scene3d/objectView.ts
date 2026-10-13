@@ -1,6 +1,7 @@
 import { type Material, Mesh, type MeshStandardMaterial, type Object3D, type Plane } from 'three';
 
 import { registerClippable } from './clipping';
+import { applySkyMix } from './skyMix';
 
 const variants = new Map<string, Material>();
 
@@ -11,16 +12,20 @@ export interface ObjectFlags {
   clip?: Plane;
   /** Draw faintly (isolation of another room, x-ray). */
   ghost?: boolean;
+  /** Garden furniture and plants: sky light reaches them even under realistic lighting. */
+  outdoor?: boolean;
 }
 
 /** Shared material variant (selection tint, lamp glow and/or clipping plane) so many instances reuse a few materials. */
 function variantOf(base: Material, flags: ObjectFlags, isLamp: boolean): Material {
   const glow = !!flags.lit && isLamp;
-  if (!flags.highlight && !flags.clip && !glow && !flags.ghost) return registerClippable(base);
-  const key = `${base.uuid}|${flags.highlight ? 'h' : ''}|${glow ? 'l' : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? flags.clip.constant : ''}`;
+  if (!flags.highlight && !flags.clip && !glow && !flags.ghost && !flags.outdoor)
+    return registerClippable(base);
+  const key = `${base.uuid}|${flags.outdoor ? 'o' : ''}|${flags.highlight ? 'h' : ''}|${glow ? 'l' : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? flags.clip.constant : ''}`;
   let v = variants.get(key);
   if (!v) {
     const clone = base.clone() as MeshStandardMaterial;
+    applySkyMix(clone, flags.outdoor);
     if (glow && 'emissive' in clone) {
       clone.emissive.copy(clone.color);
       clone.emissiveIntensity = 1.8;

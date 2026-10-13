@@ -99,7 +99,8 @@ export function ExportBridge() {
         let restorePass: (() => void) | null = null;
         try {
           restorePass = o.pass ? applyPass(scene, camera, o.pass) : null;
-          const composer = o.fx && !o.pass ? getComposer() : null;
+          // The pipeline is the picture (tone mapping lives in it), so every colour capture goes through it.
+          const composer = o.pass ? null : getComposer();
           let pathTraced: 'done' | 'cancelled' | undefined;
           let fallback: string | undefined;
           if (o.pathTrace) {

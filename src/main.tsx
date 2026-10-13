@@ -10,6 +10,7 @@ import { initPrefs } from './prefs/prefsStore';
 import { useModel } from './model/store';
 import type { Selection } from './model/types';
 import { useCamera } from './scene3d/camera/cameraStore';
+import { installTestHook } from './debug/testHook';
 
 // Read-only hook so end-to-end tests can inspect the model (never used by the app itself).
 (window as unknown as { __duplex: unknown }).__duplex = {
@@ -20,6 +21,7 @@ import { useCamera } from './scene3d/camera/cameraStore';
     useModel.getState().setSelection({ type, ids }),
 };
 
+installTestHook();
 initPrefs();
 void initPwa();
 void applyServerDefaults();

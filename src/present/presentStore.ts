@@ -8,6 +8,8 @@ interface Persisted {
   look: PresentLook;
   accent: boolean;
   fx: boolean;
+  /** Presentation renders measure their own brightness and set the exposure to suit (the EV slider still applies on top). */
+  autoExposure: boolean;
   labels: LabelStyle;
   /** Rooms whose label is switched off. */
   hiddenLabels: string[];
@@ -17,6 +19,7 @@ const defaults: Persisted = {
   look: 'dusk',
   accent: true,
   fx: true,
+  autoExposure: true,
   labels: DEFAULT_LABEL_STYLE,
   hiddenLabels: [],
 };
@@ -68,6 +71,7 @@ const pick = (s: PresentState): Persisted => ({
   look: s.look,
   accent: s.accent,
   fx: s.fx,
+  autoExposure: s.autoExposure,
   labels: s.labels,
   hiddenLabels: s.hiddenLabels,
 });

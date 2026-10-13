@@ -15,6 +15,8 @@ import { formatLength, parseLength } from '../ui/units';
 import { CommitField, Row, inputCls, shared, useEditor } from './fields';
 import { MaterialPicker } from './MaterialPicker';
 import { NativeColor } from './NativeColor';
+import { lampOn } from '../scene3d/lights';
+import { useSceneStore } from '../scene3d/sceneStore';
 
 type Mixed = string;
 
@@ -110,6 +112,30 @@ function PropField({
 
 const deg = (r: number) => Math.round(((((r * 180) / Math.PI) % 360) + 360) % 360);
 
+/** The on/off switch of a light fixture (saved with the project, not an undo step). */
+function LampSwitch({ item }: { item: Item }) {
+  const t = useT();
+  const project = useModel((s) => s.project);
+  const setLights = useModel((s) => s.setLights);
+  const lighting = useSceneStore((s) => s.lighting);
+  const on = lampOn(project, item, lighting);
+  return (
+    <Row name={t('props.lampOn')}>
+      <input
+        type="checkbox"
+        data-testid="lamp-switch"
+        className="mr-auto h-4 w-4"
+        checked={on}
+        onChange={(e) =>
+          setLights((l) => {
+            l.items[item.id] = e.target.checked;
+          })
+        }
+      />
+    </Row>
+  );
+}
+
 function ItemProps({ items }: { items: Item[] }) {
   const t = useT();
   const units = useModel((s) => s.project.units);
@@ -164,6 +190,7 @@ function ItemProps({ items }: { items: Item[] }) {
           />
         </>
       )}
+      {single && entry?.lamp && <LampSwitch item={single} />}
       <CommitField
         name={t('props.rotation')}
         value={

@@ -209,7 +209,7 @@ const tableLamp = () =>
     category: 'decor',
     size: { w: 0.32, d: 0.32, h: 0.5 },
     wallSnap: false,
-    lamp: { y: (s) => s.h - 0.12, color: '#ffd9a0', intensity: 8 },
+    lamp: { y: (s) => s.h - 0.12, lumens: 450, kelvin: 2700 },
     defaults: { color: '#fff1c9', base: '#8a6a4a' },
     props: [colorProp('cprop.shadeColor'), colorProp('cprop.baseColor', 'base')],
     build: (g, p, s) => {
@@ -425,7 +425,7 @@ const firePit = () =>
     category: 'outdoor',
     size: { w: 1.0, d: 1.0, h: 0.7 },
     wallSnap: false,
-    lamp: { y: (s) => s.h, color: '#ff9a4d', intensity: 12 },
+    lamp: { y: (s) => s.h, lumens: 700, kelvin: 1900 },
     defaults: { color: '#6b6b6b' },
     build: (g, p, s) => {
       cyl(g, s.w / 2, s.w / 2, 0.4, [0, 0, 0], c(p), 0.9, 24);
@@ -610,7 +610,29 @@ const gateVehicle = () =>
     ),
   });
 
+const downlight = () =>
+  entry({
+    id: 'downlight',
+    category: 'living',
+    size: { w: 0.14, d: 0.14, h: 0.06 },
+    placement: 'ceiling',
+    lamp: { y: () => -0.05, lumens: 800, kelvin: 3000, beam: 55 },
+    defaults: { color: '#fff4de' },
+    props: [colorProp('cprop.lightColor')],
+    build: (g, p, s) => {
+      cyl(g, s.w / 2, s.w / 2, s.h, [0, 0, 0], '#e5e7eb', 0.4, 20);
+      cyl(g, s.w * 0.38, s.w * 0.38, 0.01, [0, -0.004, 0], c(p), 0.2, 20).userData.lamp = true;
+    },
+    draw: (p, s) => (
+      <g>
+        <C cx={0} cy={0} r={s.w / 2} fill={c(p)} />
+        <C cx={0} cy={0} r={s.w / 4} fill="#fde68a" />
+      </g>
+    ),
+  });
+
 export const decorEntries = (): CatalogEntry[] => [
+  downlight(),
   plantEntry('plant-small', { w: 0.3, d: 0.3, h: 0.6 }, 'small'),
   plantEntry('plant-medium', { w: 0.5, d: 0.5, h: 1.15 }, 'medium'),
   plantEntry('plant-large', { w: 0.8, d: 0.8, h: 1.9 }, 'large'),

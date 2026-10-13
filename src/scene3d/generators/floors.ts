@@ -74,7 +74,7 @@ export function generateFlatRoof(
       layer: 'roof',
       entity: { type: 'roof', id },
       geometry: geo,
-      materials: ['roof'],
+      materials: ['roof@out'],
     });
   const glass = mergeAll(
     unionPolygons(skylights).map((poly) => {
