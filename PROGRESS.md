@@ -271,3 +271,32 @@ Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 6
 - Native `setup.ps1` pulling `qwen3:14b` (used an installed model instead), the Task Scheduler / NSSM autostart steps, and the firewall rule.
 - Opening the app from a second physical device on the LAN (checked with the PC's own LAN address only).
 - Restart of Docker Desktop mid-download restarts the model download from the start (observed once).
+
+## Handoff: open issues (read this first)
+
+State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Windows 11). Everything below that is marked *done* is committed and tested; the three items marked **OPEN** are not fixed.
+
+**Done and verified (details in "Verified on Windows" above)**
+- Docker stack runs on the GPU; `docker compose up -d` also builds and starts ComfyUI and downloads the models by itself (returns in about 30 s).
+- "Enhance with AI" works end to end from the Docker app (about 25-30 s per render, 75 s with the upscale pass); the GPU hand-over with Ollama works (`--disable-smart-memory`).
+- Crash fix when applying AI designs (polygon-clipping), the `ComfyUI finished but returned no picture` race, Windows line endings (`.gitattributes`), Tauri removed.
+- New feature: the user's own 3D models (.glb) and textures (`/api/assets`, *My items* tab, *Upload a texture...* in material pickers).
+- Villa project "Luxury Villa (reference plan)" (17 rooms, 120 catalogue decorations) exists on the server only, not in the repo. It was made by a throw-away script (not committed) from the reference photo's room list and sizes using `solveLayout` + `applyPlan` + `ops.addItem`.
+- A first denoiser for the path-traced still (`src/present/denoise.ts`: firefly clamp + edge-preserving blur) and hiding the invisible shadow-only ceilings/roofs (`src/present/pathTrace.ts`).
+
+**OPEN 1 - the "High quality still (path tracing)" looks bad (very dark, wrong colours, grain).** An attempted fix was reverted at the owner's request, so none of it is in the code. What was found (all measured on the villa, top-down cutaway, GPU, 200 samples):
+1. `three-gpu-pathtracer` 0.0.27 samples textures with `ClampToEdgeWrapping`, so every repeating texture (floors, walls, decking: UVs in metres) collapses to one edge pixel and gives a random colour that changes between runs. Idea that was in progress: replace each material whose `map.wrapS === RepeatWrapping` by a clone with `map = null` and the texture's average colour while tracing (and restore afterwards).
+2. Meshes whose geometry has several `groups` but ONE material (every box-shaped furniture piece has 6, the slab has 2) get garbage material indices in the library (`updateMaterialIndexAttribute` uses `materials[group.materialIndex]`, `indexOf` gives -1 -> index 255). Dropping `geometry.groups` for meshes with a single (non-array) material while tracing fixed most random colours. Restore them afterwards.
+3. The slab top and the lawn (`site:ground`) are both at y = 0 and the room floor is only 2 mm higher (`generateRoomFloor`, `generateGround`). Lowering the `slab` layer by 0.03 and `site:ground` / `site:surround` by 0.05 while tracing separates them. For this the part meshes need `userData={{ layer, partId }}` in `ModelScene.tsx` (only `entity` is set today).
+4. The traced picture has no exposure and no tone mapping and the cutaway has no roof, so a dusk scene lit by small lamps is nearly black. What worked: a soft sky `DataTexture` (equirect, float) as `scene.environment`, then a final pass that denoises, measures the mean luminance (repeated 2x2 down-sampling, bright lamps capped at 2.0), sets exposure to about 0.3 / mean, applies an ACES-style curve and writes through `#include <colorspace_fragment>`.
+5. **Still wrong after 1-4:** the Foyer and a few small rooms rendered lawn-green. A grey-material, lighting-only render proved the geometry is complete (floors everywhere), so it is a material assignment problem not yet found (suspects: indexed floor geometry mixed with non-indexed geometry in the library's merge; material clones made by the flatten step; `applySkyMix` `onBeforeCompile` materials). Some rooms were also blown out to white by the low sun entering through the open top (consider a softer sun or a higher sky share for the still).
+6. Test harness that made each experiment about a minute: a throw-away Playwright spec with `launchOptions.args = ['--enable-gpu','--ignore-gpu-blocklist','--use-gl=angle','--use-angle=d3d11']` (the default config uses SwiftShader), loading the villa JSON through `window.__duplex.stores.model.getState().loadProject(...)`, then 3D -> `present-button` -> `present-cutaway-top` -> samples input -> `present-still`, saving the download. A noise score (mean absolute deviation from the 4-neighbour mean in flat areas) was used before/after the denoiser: 0.0075 -> 0.0040.
+
+**OPEN 2 - "Enhance with AI" does not look like the reference picture.** It is img2img over the app's own render (SDXL + depth/canny ControlNet, default creativity 0.35, style presets in `src/render/promptBuilder.ts`), so it can only restyle what the render already contains; it cannot add the reference's glass walls, waterfall, neon gaming room, planting or furniture. Ideas: higher creativity (0.55-0.7) and a prompt built from the reference; richer source render (custom models and textures now exist); fix OPEN 1 first because the path-traced still is a better source than the raster render.
+
+**OPEN 3 - the villa is only an approximation of the reference photo** (the catalogue has about 60 simple procedural shapes). The new custom models/textures feature is the intended way to close the gap: the user uploads real `.glb` furniture and textures.
+
+**Other known gaps**
+- `e2e/lighting.spec.ts`: with the default software GL two tests fail (`rooms are dark unless daylight enters...`, `hidden ceilings and roofs still block light...`); on the GPU they pass alone but in a full serial run one of them fails (order dependent). `white on white` was fixed by re-sizing its thresholds (see its comment). The lighting tests overwrite `tests/visual/*.png`; restore them with `git checkout -- tests/visual` after a run.
+- `offline`, `shared`, `export`, `polish`, `villa` e2e tests are flaky only when the whole suite runs under load; they pass alone.
+- Custom models are not embedded in exported project files; the feature needs the app server (hidden on a static site).
