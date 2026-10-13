@@ -13,7 +13,7 @@ services:
       OLLAMA_URL: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:14b}
       APP_PASSWORD: ${APP_PASSWORD:-}
-      # Optional "Enhance render" service (profile "render"); when it is not running the app says how to start it.
+      # AI image enhancement ("Enhance with AI"): ComfyUI below, on the internal network only.
       COMFYUI_URL: http://comfyui:8188
     volumes:
       - app-data:/data
@@ -53,12 +53,12 @@ services:
       OLLAMA_HOST: http://ollama:11434
     entrypoint: ["ollama", "pull", "${OLLAMA_MODEL:-qwen3:14b}"]
 
-  # ── Optional: AI image enhancement (ComfyUI + Stable Diffusion XL + ControlNet) ───────────────────────────────────
-  # Start with:  docker compose --profile render up -d      (about 12 GB of models are downloaded once)
+  # ── AI image enhancement (ComfyUI + Stable Diffusion XL + ControlNet), started by the same "docker compose up -d" ──
+  # The first start downloads about 12 GB of models once (comfyui-init); until then the app says the image service is
+  # still starting and everything else already works. Watch it with:  docker compose logs -f comfyui-init
   # The language model and the image model do not fit on a 16 GB GPU together: the app server runs both kinds of job
   # one at a time and unloads the other model first.
   comfyui:
-    profiles: ["render"]
     build: ./docker/comfyui
     image: duplex-designer-comfyui:local
     restart: unless-stopped
@@ -77,7 +77,6 @@ services:
               capabilities: [gpu]
 
   comfyui-init:
-    profiles: ["render"]
     image: alpine:3.20.3
     restart: "no"
     volumes:

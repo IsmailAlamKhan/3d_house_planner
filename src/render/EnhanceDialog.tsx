@@ -8,7 +8,12 @@ import { beforeUrl, resultUrl } from './api';
 import { composeOver } from './compose';
 import { useEnhance } from './enhanceStore';
 import { randomSeed } from './enhance';
-import { CREATIVITY_RANGE, ENABLE_RENDER_COMMAND, type ResultMeta } from './protocol';
+import {
+  CREATIVITY_RANGE,
+  ENABLE_RENDER_COMMAND,
+  type ResultMeta,
+  WATCH_RENDER_COMMAND,
+} from './protocol';
 import { STYLE_PRESETS } from './promptBuilder';
 
 const btn =
@@ -162,7 +167,7 @@ export function EnhanceDialog() {
                       : t('enhance.notConfigured')}
                 </p>
                 <code className="mt-1 block select-all rounded bg-white px-2 py-1 font-mono">
-                  {ENABLE_RENDER_COMMAND}
+                  {s.health?.configured ? WATCH_RENDER_COMMAND : ENABLE_RENDER_COMMAND}
                 </code>
                 <button className={`${ghost} mt-2`} onClick={() => void s.refreshHealth()}>
                   {t('enhance.recheck')}

@@ -254,7 +254,7 @@ export const en = {
   'enhance.notRunning':
     'The image service is not running. Start it on the computer that hosts the app with:',
   'enhance.notConfigured':
-    'The image service (ComfyUI) is not set up. On the computer that hosts the app (Docker), start it with:',
+    'The image service (ComfyUI) is not set up. The app server was started without it. On the computer that hosts the app (Docker), run:',
   'enhance.recheck': 'Check again',
   'enhance.style': 'Style',
   'enhance.style.modern-luxury': 'Modern Luxury',

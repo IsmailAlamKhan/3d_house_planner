@@ -25,7 +25,7 @@ test('enhance: without the render profile the button is disabled and says how to
   await openEnhance(page);
   await expect(page.getByTestId('enhance-run')).toBeDisabled();
   const note = page.getByTestId('enhance-unavailable');
-  await expect(note).toContainText('docker compose --profile render up -d');
+  await expect(note).toContainText('docker compose up -d');
   // The presentation render itself still works.
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(page.getByTestId('present-export')).toBeEnabled();

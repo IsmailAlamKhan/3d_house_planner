@@ -133,15 +133,18 @@ program* `powershell.exe`, arguments
 `-ExecutionPolicy Bypass -File "C:\path\to\project\scripts\backup.ps1"`, *Start in* `C:\path\to\project`. Copy the
 `backups` folder to another disk or cloud drive now and then.
 
-### Optional: AI image enhancement with ComfyUI ("Enhance render")
+### AI image enhancement with ComfyUI ("Enhance render")
 
 The **Present** panel in the 3D view can turn a presentation render into a photoreal mood image with **Stable Diffusion
-XL + ControlNet** running in **ComfyUI**, on the same GPU as Ollama. It is optional: without it the app works exactly
-as before and the *Enhance* button says how to switch it on.
+XL + ControlNet** running in **ComfyUI**, on the same GPU as Ollama. **It needs no extra setup:** the same
+`docker compose up -d` that starts the app also builds and starts ComfyUI and downloads its models once (about 12 GB,
+20–40 minutes at home-internet speed; the first build of the ComfyUI image takes a few more minutes). Until the models
+have arrived the app works as usual and the *Enhance* button says the image service is still starting.
+
+Where to find it: 3D view → **Present** (clapperboard icon) → *Cutaway* view → scroll down → **Enhance with AI…**.
 
 ```powershell
-docker compose --profile render up -d      # builds ComfyUI, downloads about 12 GB of models once, then starts it
-docker compose --profile render logs -f comfyui-init    # watch the download; it logs the disk used at the end
+docker compose logs -f comfyui-init      # watch the first-time model download; it logs the disk used at the end
 ```
 
 - The `comfyui` service is built from `docker/comfyui/Dockerfile` (CUDA PyTorch base image, ComfyUI pinned to release
@@ -154,7 +157,7 @@ docker compose --profile render logs -f comfyui-init    # watch the download; it
 - The enhancement always works on the render **without labels**; crisp room labels and the badge "AI-enhanced mood
   image — not to scale" are drawn on top afterwards. Results (with their prompt, seed and settings) are kept in the
   `app-data` volume with the project.
-- To stop it and free the disk: `docker compose --profile render down` (models stay in the volume) or
+- To stop it and free the disk: `docker compose stop comfyui` (models stay in the volume) or
   `docker volume rm <project>_comfyui-models`.
 
 **Model and software licenses** (personal use is fine; you are responsible for checking them for any other use):

@@ -92,4 +92,6 @@ export interface RenderHealth {
 }
 
 /** The command that starts the optional image service. */
-export const ENABLE_RENDER_COMMAND = 'docker compose --profile render up -d';
+export const ENABLE_RENDER_COMMAND = 'docker compose up -d';
+/** Shown while the image service is still starting (the first start downloads the models). */
+export const WATCH_RENDER_COMMAND = 'docker compose logs -f comfyui-init';
