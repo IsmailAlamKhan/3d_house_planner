@@ -9,6 +9,8 @@ import { autoDecorate } from './decorate';
 import type { LabelFont, LabelMode } from './labels';
 import { usePresent } from './presentStore';
 import { renderPresentation, exportPresentation } from './render';
+import { EnhanceDialog } from '../render/EnhanceDialog';
+import { useEnhance } from '../render/enhanceStore';
 
 const chip = (on: boolean) =>
   `rounded px-2 py-1 text-xs ${on ? 'bg-sky-700 font-semibold text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`;
@@ -335,6 +337,13 @@ export function PresentPanel() {
                   </p>
                 )}
               </div>
+              <button
+                className={`${chip(false)} w-full`}
+                data-testid="present-enhance"
+                onClick={() => useEnhance.getState().setOpen(true)}
+              >
+                {t('enhance.open')}
+              </button>
               <div className="flex gap-1">
                 <button className={`${chip(false)} flex-1`} onClick={reframe}>
                   {t('present.reframe')}
@@ -347,6 +356,7 @@ export function PresentPanel() {
           )}
         </div>
       )}
+      <EnhanceDialog />
     </div>
   );
 }

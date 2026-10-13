@@ -55,6 +55,7 @@ jobs:
         run: |
           docker compose config -q
           docker compose -f docker-compose.yml -f docker-compose.host-ollama.yml config -q
+          docker compose --profile render config -q
       - name: Smoke test (health, projects API, conflict, backup/restore)
         run: ./scripts/docker-smoke.sh duplex-designer:ci
 

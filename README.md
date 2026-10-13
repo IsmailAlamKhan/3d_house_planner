@@ -47,6 +47,7 @@ First run of the end-to-end tests: `npx playwright install chromium`.
 - **Checks** — headroom on stairs, unreachable rooms, missing windows, drains, minimum areas, door swings; click a
   problem to see it. Area schedule included.
 - **Present** — one click to a magazine-style render: cutaway top-down or 3/4 views at dusk with warm lights, plants and decor, crisp room labels (name and size), auto-decorate, PNG export at 1×–4×, and an optional path-traced high-quality still.
+- **Enhance with AI** (optional) — turn a presentation render into a photoreal mood image with Stable Diffusion XL + ControlNet in a local ComfyUI container (`docker compose --profile render up -d`); labels are re-applied crisply afterwards.
 - **Notes** pinned to the plan, **design options** (Option A/B/C) with a synced side-by-side comparison.
 - **Export** — images (1×/2×/4×), PDF plan set to scale (1:50/1:100), GLB and OBJ, SVG and DXF per level, bill of
   materials with your own unit costs (CSV), and a **read-only snapshot** `.html` that opens offline anywhere.

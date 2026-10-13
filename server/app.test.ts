@@ -51,6 +51,7 @@ const config = (over: object = {}) => ({
   port: 0,
   host: '127.0.0.1',
   ollamaUrl: 'http://127.0.0.1:9',
+  comfyUrl: null,
   model: 'qwen3:14b',
   password: null,
   distDir: dist(),

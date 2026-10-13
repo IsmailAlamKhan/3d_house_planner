@@ -3,6 +3,9 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { createAiProxy } from './aiProxy';
+import { GpuQueue } from './gpuQueue';
+import { ComfyClient } from './render/comfy';
+import { createRenderService, unloadOllama } from './render/renderApi';
 import { handleProjects } from './projectsApi';
 import { ProjectStore } from './store';
 import type { ServerConfig } from './config';
@@ -85,7 +88,15 @@ export interface AppHandle {
  * Ollama itself stays on 127.0.0.1; only this server listens on the LAN.
  */
 export function createApp(config: ServerConfig): AppHandle {
-  const ai = createAiProxy({ ollamaUrl: config.ollamaUrl });
+  // One GPU queue for language-model jobs and image-model jobs: they never run together, and each side unloads the
+  // other's model (Ollama before a render, ComfyUI after one) so both fit on a 16 GB card.
+  const comfy = config.comfyUrl ? new ComfyClient(config.comfyUrl) : null;
+  const queue = new GpuQueue({
+    beforeRender: () => unloadOllama(config.ollamaUrl),
+    afterRender: async () => void (await comfy?.free().catch(() => undefined)),
+  });
+  const ai = createAiProxy({ ollamaUrl: config.ollamaUrl, queue });
+  const render = createRenderService({ comfyUrl: config.comfyUrl, dataDir: config.dataDir, queue });
   const store = new ProjectStore(
     config.dataDir === ':memory:' ? ':memory:' : join(config.dataDir, 'app.db'),
   );
@@ -132,7 +143,13 @@ export function createApp(config: ServerConfig): AppHandle {
     } catch {
       // Ollama is not running: the app still works with its offline generator.
     }
-    json(res, 200, { app: 'ok', model: config.model, ollama, authRequired: !!config.password });
+    json(res, 200, {
+      app: 'ok',
+      model: config.model,
+      ollama,
+      render: await render.health(),
+      authRequired: !!config.password,
+    });
   }
 
   function serveStatic(req: IncomingMessage, res: ServerResponse): void {
@@ -216,6 +233,7 @@ export function createApp(config: ServerConfig): AppHandle {
       }
 
       if (path === '/api/ai') return ai(req, res);
+      if (await render.handle(req, res, path)) return;
       if (await handleProjects(store, req, res, path)) return;
       if (path.startsWith('/api/')) return json(res, 404, { error: 'Unknown API route' });
       if (req.method !== 'GET' && req.method !== 'HEAD') {

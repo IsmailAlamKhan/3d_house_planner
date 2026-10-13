@@ -21,7 +21,7 @@
     "server": "tsx server/index.ts",
     "start": "npm run build && tsx server/index.ts",
     "ai:eval": "tsx scripts/ai-eval.ts",
-    "build:server": "esbuild server/index.ts server/cli.ts --bundle --platform=node --format=esm --target=node20 --outdir=server-dist --out-extension:.js=.mjs --external:better-sqlite3 --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\""
+    "build:server": "esbuild server/index.ts server/cli.ts --bundle --platform=node --format=esm --target=node20 --outdir=server-dist --out-extension:.js=.mjs --external:better-sqlite3 --external:bufferutil --external:utf-8-validate --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\""
   },
   "dependencies": {
     "@fontsource/noto-sans-bengali": "^5.3.0",
@@ -46,6 +46,7 @@
     "three-gpu-pathtracer": "0.0.27",
     "three-mesh-bvh": "0.9.16",
     "workbox-window": "^7.4.1",
+    "ws": "8.22.0",
     "xatlas-web": "0.1.0",
     "zod": "^4.6.7",
     "zundo": "^2.3.0",
@@ -62,6 +63,7 @@
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
     "@types/three": "^0.186.0",
+    "@types/ws": "8.18.2",
     "@vitejs/plugin-react": "^6.1.2",
     "@vitest/coverage-v8": "^5.0.4",
     "autoprefixer": "^10.6.1",

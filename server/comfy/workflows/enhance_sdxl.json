@@ -1,0 +1,91 @@
+{
+  "version": 1,
+  "description": "Duplex Designer: SDXL img2img from the presentation render, held to the layout by a depth ControlNet (and optionally a canny ControlNet), with an optional 1.5x second pass. API format; src/../server/render/workflow.ts fills in the parameters.",
+  "prompt": {
+    "1": {
+      "class_type": "CheckpointLoaderSimple",
+      "inputs": { "ckpt_name": "sd_xl_base_1.0.safetensors" }
+    },
+    "2": { "class_type": "LoadImage", "inputs": { "image": "color.png" } },
+    "3": { "class_type": "LoadImage", "inputs": { "image": "depth.png" } },
+    "4": { "class_type": "LoadImage", "inputs": { "image": "edge.png" } },
+    "5": {
+      "class_type": "ControlNetLoader",
+      "inputs": { "control_net_name": "controlnet-depth-sdxl-1.0.fp16.safetensors" }
+    },
+    "6": {
+      "class_type": "ControlNetLoader",
+      "inputs": { "control_net_name": "controlnet-canny-sdxl-1.0.fp16.safetensors" }
+    },
+    "7": { "class_type": "CLIPTextEncode", "inputs": { "text": "", "clip": ["1", 1] } },
+    "8": { "class_type": "CLIPTextEncode", "inputs": { "text": "", "clip": ["1", 1] } },
+    "9": {
+      "class_type": "ControlNetApplyAdvanced",
+      "inputs": {
+        "positive": ["7", 0],
+        "negative": ["8", 0],
+        "control_net": ["5", 0],
+        "image": ["3", 0],
+        "strength": 0.8,
+        "start_percent": 0.0,
+        "end_percent": 1.0,
+        "vae": ["1", 2]
+      }
+    },
+    "10": {
+      "class_type": "ControlNetApplyAdvanced",
+      "inputs": {
+        "positive": ["9", 0],
+        "negative": ["9", 1],
+        "control_net": ["6", 0],
+        "image": ["4", 0],
+        "strength": 0.5,
+        "start_percent": 0.0,
+        "end_percent": 0.8,
+        "vae": ["1", 2]
+      }
+    },
+    "11": { "class_type": "VAEEncode", "inputs": { "pixels": ["2", 0], "vae": ["1", 2] } },
+    "12": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": ["1", 0],
+        "positive": ["10", 0],
+        "negative": ["10", 1],
+        "latent_image": ["11", 0],
+        "seed": 0,
+        "steps": 28,
+        "cfg": 6.5,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "denoise": 0.35
+      }
+    },
+    "13": { "class_type": "VAEDecode", "inputs": { "samples": ["12", 0], "vae": ["1", 2] } },
+    "15": {
+      "class_type": "ImageScaleBy",
+      "inputs": { "image": ["13", 0], "upscale_method": "lanczos", "scale_by": 1.5 }
+    },
+    "16": { "class_type": "VAEEncode", "inputs": { "pixels": ["15", 0], "vae": ["1", 2] } },
+    "17": {
+      "class_type": "KSampler",
+      "inputs": {
+        "model": ["1", 0],
+        "positive": ["10", 0],
+        "negative": ["10", 1],
+        "latent_image": ["16", 0],
+        "seed": 0,
+        "steps": 20,
+        "cfg": 6.0,
+        "sampler_name": "dpmpp_2m",
+        "scheduler": "karras",
+        "denoise": 0.25
+      }
+    },
+    "18": { "class_type": "VAEDecode", "inputs": { "samples": ["17", 0], "vae": ["1", 2] } },
+    "14": {
+      "class_type": "SaveImage",
+      "inputs": { "images": ["13", 0], "filename_prefix": "duplex" }
+    }
+  }
+}

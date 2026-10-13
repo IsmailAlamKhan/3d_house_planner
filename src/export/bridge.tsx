@@ -4,6 +4,7 @@ import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { Vec3 } from '../scene3d/camera/views';
 import { Matrix4 } from 'three';
 import { getComposer } from '../present/fxBridge';
+import { type RenderPass, applyPass } from '../present/passes';
 import { type PathTraceOptions, pathTraceInto } from '../present/pathTrace';
 import { useExportFlags } from './flags';
 
@@ -15,6 +16,10 @@ export interface CaptureOptions {
   transparent: boolean;
   /** Hide the grid, helpers, selection and measurements. */
   presentation: boolean;
+  /** Render a guide pass instead of the colour picture: normalised depth (near = white) or surface normals. Same camera and size as the colour render. */
+  pass?: RenderPass;
+  /** Make the longer side this many pixels (overrides `scale`; used for the enhancement inputs). */
+  longSide?: number;
   /** Render through the presentation post-processing (bloom, SSAO, tone mapping) when it is on. */
   fx?: boolean;
   /** Path-trace the picture (progressively) instead of rasterizing it. Falls back to a normal render when it cannot run. */
@@ -82,15 +87,19 @@ export function ExportBridge() {
           controls?.update();
         }
         const limit = Math.min(gl.capabilities.maxTextureSize, 8192);
-        const scale = Math.max(
-          1,
-          Math.min(o.scale, Math.floor(limit / Math.max(size.width, size.height, 1))),
-        );
+        const scale = o.longSide
+          ? Math.min(o.longSide, limit) / Math.max(size.width, size.height, 1)
+          : Math.max(
+              1,
+              Math.min(o.scale, Math.floor(limit / Math.max(size.width, size.height, 1))),
+            );
         const ratio = gl.getPixelRatio();
         gl.setPixelRatio(scale);
         gl.setSize(size.width, size.height, false);
+        let restorePass: (() => void) | null = null;
         try {
-          const composer = o.fx ? getComposer() : null;
+          restorePass = o.pass ? applyPass(scene, camera, o.pass) : null;
+          const composer = o.fx && !o.pass ? getComposer() : null;
           let pathTraced: 'done' | 'cancelled' | undefined;
           let fallback: string | undefined;
           if (o.pathTrace) {
@@ -107,6 +116,8 @@ export function ExportBridge() {
             composer.setSize(size.width, size.height, false);
             composer.render();
           } else gl.render(scene, camera);
+          restorePass?.();
+          restorePass = null;
           camera.updateMatrixWorld();
           const viewProjection = new Matrix4()
             .multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
@@ -126,6 +137,7 @@ export function ExportBridge() {
             fallback,
           };
         } finally {
+          restorePass?.();
           gl.setPixelRatio(ratio);
           gl.setSize(size.width, size.height, false);
           getComposer()?.setSize(size.width, size.height, false);
