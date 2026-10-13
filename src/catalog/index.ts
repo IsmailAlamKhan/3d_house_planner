@@ -5,6 +5,7 @@ import { decorEntries } from './entries/decor';
 import { openingEntries } from './entries/openings';
 import type { CatalogCategory, CatalogEntry, PropSpec, Size } from './types';
 import type { OpeningKind } from '../model/types';
+import { type TranslationKey, t } from '../i18n';
 
 export * from './types';
 export { catalogNames } from './names';
@@ -51,6 +52,23 @@ export const CATALOG: CatalogEntry[] = [
 ].map(withLampProps);
 
 const byId = new Map(CATALOG.map((e) => [e.catalogId, e]));
+
+/** Name of an entry as shown to the user: the user's own name for imported models, else the translation. */
+export const entryName = (e: CatalogEntry, tr: (key: TranslationKey) => string = t): string =>
+  e.customName ?? tr(e.nameKey as TranslationKey);
+
+/** Replaces the user's imported models in the catalogue (they come from the server and can change at any time). */
+export function registerCustomEntries(entries: CatalogEntry[]): void {
+  for (let i = CATALOG.length - 1; i >= 0; i--)
+    if (CATALOG[i]!.catalogId.startsWith('custom:')) {
+      byId.delete(CATALOG[i]!.catalogId);
+      CATALOG.splice(i, 1);
+    }
+  for (const e of entries) {
+    CATALOG.push(e);
+    byId.set(e.catalogId, e);
+  }
+}
 
 export const getEntry = (catalogId: string): CatalogEntry | undefined => byId.get(catalogId);
 

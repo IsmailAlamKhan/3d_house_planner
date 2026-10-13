@@ -1,4 +1,4 @@
-import type { TranslationKey } from '../i18n';
+import { type TranslationKey, t } from '../i18n';
 
 export type MaterialCategory = 'floor' | 'wall' | 'ceiling' | 'surface' | 'ground';
 
@@ -28,6 +28,10 @@ export type TextureKind =
 export interface MaterialDef {
   id: string;
   nameKey: TranslationKey;
+  /** The user's own name for an uploaded texture (shown instead of the translated `nameKey`). */
+  name?: string;
+  /** An uploaded picture used as the texture (instead of a painted `texture` kind). */
+  textureUrl?: string;
   /** Where the picker offers it. The first entry is its main category. */
   categories: MaterialCategory[];
   /** Base color (also the flat color when no texture, and the swatch fallback). */
@@ -600,6 +604,43 @@ export const getMaterialDef = (id: string): MaterialDef | undefined => byId.get(
 export const materialsForCategory = (category: MaterialCategory): MaterialDef[] =>
   MATERIALS.filter((m) => m.categories.includes(category));
 
+/** The user's uploaded textures (they can go on any surface). */
+export const customTextureDefs = (): MaterialDef[] => [...customTextures.values()];
+
+/** Name of a material as shown to the user: the user's own name for uploaded textures, else the translation. */
+export const materialDefName = (d: MaterialDef, tr: (key: TranslationKey) => string = t): string =>
+  d.name ?? tr(d.nameKey);
+
+/** The user's uploaded textures (id `tex:<asset id>`), filled from the server's asset list. */
+const customTextures = new Map<string, MaterialDef>();
+let customVersion = 0;
+
+/** Changes whenever the set of uploaded textures changes (caches of materials built from them must refresh). */
+export const customTextureVersion = (): number => customVersion;
+
+export function registerCustomTextures(
+  list: { id: string; name: string; url: string; scale: number }[],
+): void {
+  customTextures.clear();
+  for (const x of list) {
+    customTextures.set(
+      x.id,
+      def({
+        id: x.id,
+        nameKey: 'mat.unknown',
+        name: x.name,
+        textureUrl: x.url,
+        categories: ['floor', 'wall', 'ceiling', 'surface', 'ground'],
+        color: '#ffffff',
+        textureScale: x.scale,
+        roughness: 0.85,
+        metalness: 0,
+      }),
+    );
+  }
+  customVersion++;
+}
+
 /** Custom paint: `paint:#rrggbb` is any colour of wall/ceiling paint. */
 export const PAINT_PREFIX = 'paint:';
 export const customPaint = (hex: string): string => `${PAINT_PREFIX}${hex.toLowerCase()}`;
@@ -608,7 +649,7 @@ export const customPaintColor = (id: string): string => id.slice(PAINT_PREFIX.le
 
 /** Material definition for any id the model may contain (library, custom paint, or an unknown id → flat grey). */
 export function resolveDef(id: string): MaterialDef {
-  const known = byId.get(id);
+  const known = byId.get(id) ?? customTextures.get(id);
   if (known) return known;
   if (isCustomPaint(id)) {
     return def({

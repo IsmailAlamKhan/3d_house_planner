@@ -5,6 +5,7 @@ import { extname, join, normalize, resolve, sep } from 'node:path';
 import { createAiProxy } from './aiProxy';
 import { GpuQueue } from './gpuQueue';
 import { ComfyClient } from './render/comfy';
+import { createAssetService } from './assetsApi';
 import { createRenderService, unloadOllama } from './render/renderApi';
 import { handleProjects } from './projectsApi';
 import { ProjectStore } from './store';
@@ -97,6 +98,7 @@ export function createApp(config: ServerConfig): AppHandle {
   });
   const ai = createAiProxy({ ollamaUrl: config.ollamaUrl, queue });
   const render = createRenderService({ comfyUrl: config.comfyUrl, dataDir: config.dataDir, queue });
+  const assets = createAssetService({ dataDir: config.dataDir });
   const store = new ProjectStore(
     config.dataDir === ':memory:' ? ':memory:' : join(config.dataDir, 'app.db'),
   );
@@ -234,6 +236,7 @@ export function createApp(config: ServerConfig): AppHandle {
 
       if (path === '/api/ai') return ai(req, res);
       if (await render.handle(req, res, path)) return;
+      if (await assets.handle(req, res, path)) return;
       if (await handleProjects(store, req, res, path)) return;
       if (path.startsWith('/api/')) return json(res, 404, { error: 'Unknown API route' });
       if (req.method !== 'GET' && req.method !== 'HEAD') {

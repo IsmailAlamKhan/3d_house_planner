@@ -1,4 +1,4 @@
-import { CATALOG, getEntry, type CatalogEntry } from '../../catalog';
+import { CATALOG, entryName, getEntry, type CatalogEntry } from '../../catalog';
 import { type TranslationKey, t } from '../../i18n';
 import { MATERIALS, customPaint, getMaterialDef, isCustomPaint } from '../../materials';
 import type { Level, Project, Room, RoomType } from '../../model/types';
@@ -218,12 +218,12 @@ export function findCatalogEntry(query: string): CatalogEntry | undefined {
   const exact = getEntry(raw);
   if (exact) return exact;
   const q = norm(query);
-  const byName = CATALOG.find((e) => norm(t(e.nameKey as TranslationKey)) === q);
+  const byName = CATALOG.find((e) => norm(entryName(e)) === q);
   if (byName) return byName;
   for (const [re, id] of SYNONYMS) if (re.test(q)) return getEntry(id);
   return CATALOG.find(
     (e) =>
-      norm(t(e.nameKey as TranslationKey)).includes(q) ||
+      norm(entryName(e)).includes(q) ||
       e.catalogId.includes(q.replace(/ /g, '-')),
   );
 }

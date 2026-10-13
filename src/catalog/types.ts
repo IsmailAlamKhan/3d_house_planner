@@ -13,6 +13,7 @@ export type CatalogCategory =
   | 'bathroom'
   | 'outdoor'
   | 'decor'
+  | 'custom'
   | 'other';
 
 export const CATEGORIES: CatalogCategory[] = [
@@ -25,6 +26,7 @@ export const CATEGORIES: CatalogCategory[] = [
   'bathroom',
   'outdoor',
   'decor',
+  'custom',
   'other',
 ];
 
@@ -73,6 +75,10 @@ export interface BuildCtx {
 export interface CatalogEntry {
   catalogId: string;
   nameKey: TranslationKey;
+  /** The user's own name for an imported model (shown instead of the translated `nameKey`). */
+  customName?: string;
+  /** Imported models: resolves when the model file has been loaded (its thumbnail can be drawn then). */
+  ready?: Promise<unknown>;
   category: CatalogCategory;
   placement: Placement;
   /** For wall entries: the opening kind this creates. */

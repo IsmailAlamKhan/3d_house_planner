@@ -4,6 +4,7 @@ import { useModel } from '../model/store';
 import { startAutosave } from '../persistence/autosave';
 import { pushOpenProject, startSync } from '../persistence/syncStore';
 import { SyncConflictDialog } from './SyncConflictDialog';
+import { useCustomAssets } from '../custom/store';
 import { bootstrapProject } from '../persistence/bootstrap';
 import { PlanCanvas } from '../plan2d/PlanCanvas';
 import { SceneCanvas } from '../scene3d/SceneCanvas';
@@ -48,6 +49,8 @@ export function App() {
     let stop: (() => void) | undefined;
     let stopSync: Promise<() => void> | undefined;
     let cancelled = false;
+    // The user's own models and textures (kept on the app server) join the library while the project loads.
+    void useCustomAssets.getState().refresh();
     void bootstrapProject().then(() => {
       if (cancelled) return;
       stop = startAutosave(useModel, undefined, 1000, pushOpenProject);

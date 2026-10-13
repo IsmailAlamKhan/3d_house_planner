@@ -1,6 +1,6 @@
-import { type TranslationKey, fmtNum, t } from '../../i18n';
+import { fmtNum, t } from '../../i18n';
 import { polygonArea } from '../../geometry/polygon';
-import { getEntry } from '../../catalog';
+import { entryName, getEntry } from '../../catalog';
 import { materialName } from '../../materials/eyedropper';
 import { roomOnSide } from '../../model/ops';
 import type { Project, Wall } from '../../model/types';
@@ -20,7 +20,7 @@ function wallLabel(p: Project, w: Wall): string {
 
 const itemName = (id: string) => {
   const e = getEntry(id);
-  return e ? t(e.nameKey as TranslationKey).toLowerCase() : id;
+  return e ? entryName(e).toLowerCase() : id;
 };
 
 /** Plain-language list of what differs between two versions of a project. */

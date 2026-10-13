@@ -58,6 +58,7 @@ export const catalogNames = {
   'cat.bathroom': 'Bathroom',
   'cat.outdoor': 'Outdoor',
   'cat.decor': 'Decor',
+  'cat.custom': 'My items',
   'catalog.plant-small': 'Plant (small)',
   'catalog.plant-medium': 'Plant (medium)',
   'catalog.plant-large': 'Plant (large)',

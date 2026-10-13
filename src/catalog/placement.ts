@@ -1,7 +1,8 @@
 import { boxCorners, overlapDepth, wallRect } from '../geometry/collide';
 import { pointInPolygon } from '../geometry/polygon';
 import { type Vec2, projectOnSegment } from '../geometry/vec';
-import { type TranslationKey, t, tf } from '../i18n';
+import { entryName } from './index';
+import { t, tf } from '../i18n';
 import {
   ITEM_BOUNDS_TOLERANCE,
   OPENING_END_MARGIN,
@@ -30,7 +31,7 @@ export const normalizeAngle = (a: number): number => {
   return ((a % tau) + tau) % tau;
 };
 
-const name = (e: CatalogEntry): string => t(e.nameKey as TranslationKey).toLowerCase();
+const name = (e: CatalogEntry): string => entryName(e).toLowerCase();
 
 // ───────────────────────── Doors & windows ─────────────────────────
 
@@ -201,7 +202,7 @@ export function clearanceWarnings(
     if (os.h <= 0.03) continue;
     if (Math.min(hi, other.elevation + os.h) - Math.max(lo, other.elevation) < 0.05) continue;
     if (overlapDepth(mine, boxCorners(other.position, os.w, os.d, other.rotation)) > 0.03) {
-      out.push(tf('msg.warnItem', { other: t(oe.nameKey as TranslationKey).toLowerCase() }));
+      out.push(tf('msg.warnItem', { other: entryName(oe).toLowerCase() }));
     }
   }
   if (

@@ -3,11 +3,12 @@ import {
   type PropSpec,
   getEntry,
   entryForOpening,
+  entryName,
   itemSize,
   openingStyles,
   surfaceKey,
 } from '../catalog';
-import { type TranslationKey, useT } from '../i18n';
+import { useT } from '../i18n';
 import { ModelError, paintItemSurface, updateItem, updateOpening } from '../model/ops';
 import { useModel } from '../model/store';
 import type { Item, Opening } from '../model/types';
@@ -298,7 +299,7 @@ function OpeningProps({ openings }: { openings: Opening[] }) {
             )}
             {styles.map((s) => (
               <option key={s.catalogId} value={s.catalogId}>
-                {t(s.nameKey as TranslationKey)}
+                {entryName(s)}
               </option>
             ))}
           </select>

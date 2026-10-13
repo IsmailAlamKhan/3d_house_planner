@@ -1,8 +1,8 @@
 import { toast } from '../catalog/actions';
-import { t, tf, type TranslationKey } from '../i18n';
+import { t, tf } from '../i18n';
 import { ModelError } from '../model/ops';
 import { edit, useModel } from '../model/store';
-import { isCustomPaint, resolveDef } from './library';
+import { isCustomPaint, materialDefName, resolveDef } from './library';
 import { usePaint } from './paintStore';
 import { type Surface, paintSurface, readSurface } from './surfaces';
 
@@ -11,7 +11,7 @@ export function materialName(id: string): string {
   const def = resolveDef(id);
   return isCustomPaint(id)
     ? `${t('mat.paint-custom')} ${def.color}`
-    : t(def.nameKey as TranslationKey);
+    : materialDefName(def);
 }
 
 /**

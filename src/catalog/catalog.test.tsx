@@ -77,7 +77,10 @@ describe('catalog registry', () => {
       }
     }
     for (const c of CATEGORIES) expect(en[`cat.${c}` as keyof typeof en]).toBeTruthy();
-    expect(CATEGORIES.every((c) => entriesByCategory(c).length > 0)).toBe(true);
+    // "My items" is filled by the user, so it is empty by default.
+    expect(
+      CATEGORIES.filter((c) => c !== 'custom').every((c) => entriesByCategory(c).length > 0),
+    ).toBe(true);
   });
 
   it('every wall entry is a door, window or archway; styles group by kind', () => {

@@ -1,6 +1,7 @@
 import { type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { EdgesGeometry, Plane, Vector3 } from 'three';
+import { useCustomAssets } from '../custom/store';
 import { t } from '../i18n';
 import { useModel } from '../model/store';
 import type { MaterialOverride } from '../model/types';
@@ -31,7 +32,10 @@ export function useSceneModel(): LevelScene[] & { site: AnyPart[] } {
   const walking = useCamera((s) => s.mode === 'walk');
   const wallMode = walking ? 'up' : wallModePref;
   const doorsOpen = useSceneStore((s) => s.doorsOpen);
-  const [builder] = useState(() => new SceneBuilder());
+  // A fresh builder whenever the user's own models change: items using a model that was not known yet must be rebuilt.
+  const customVersion = useCustomAssets((s) => s.version);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const builder = useMemo(() => new SceneBuilder(), [customVersion]);
   useEffect(() => () => builder.dispose(), [builder]);
   return useMemo(
     () => builder.build(project, { wallMode, cutHeight: DEFAULT_CUT_HEIGHT, doorsOpen }),

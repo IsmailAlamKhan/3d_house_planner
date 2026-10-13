@@ -260,6 +260,10 @@ Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 6
 - `e2e/lighting.spec.ts` with hardware GL: 4 of 5 pass; `white on white stays readable` misses its threshold narrowly (0.056 against > 0.06). With the default software GL two more tests fail (software rendering). Frame rate 60 fps at Low/Medium/High.
 - Browser-pane caveat: while testing in the in-app browser pane, the "Preparing the pictures" step only progressed while the pane was being interacted with (a background canvas is not composited); a visible browser tab was not tested.
 
+**Your own furniture and textures**
+- New: `/api/assets` (upload, list, serve, delete; content checked by bytes, size limits, password-protected like the rest), a **My items** library tab with *Add your own 3D model…* (.glb: name, real size with unit guess and locked proportions, category, floor or wall placement, live preview), and *Upload a texture…* in every material picker (real-world repeat size; applied at once; listed under *My textures*). Imported models are catalogue entries (`custom:<id>`), textures are materials (`tex:<id>`). 6 server tests, 10 unit tests (including parsing and fitting a real .glb built in code) and 2 end-to-end tests (upload → place → reload; texture → apply → delete) against the real server.
+- Limits: .glb only (a .gltf with separate files is not supported); a model is stretched to the size you set (no animation, no per-part recolouring); custom items are not embedded in exported project files; a static website has no server, so the feature is hidden there.
+
 **Flaky only under load:** `export`, `offline` and `polish` e2e tests (and `villa`) failed in the first full run next to other work and passed when re-run alone and in the next full run.
 
 **Still unverified**

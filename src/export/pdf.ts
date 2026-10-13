@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 import { areaSchedule } from '../checks/areas';
 import { isVoidRoom } from '../checks/voidRoom';
 import { t } from '../i18n';
-import { resolveDef } from '../materials';
+import { materialDefName, resolveDef } from '../materials';
 import { faceTowardRoom, wallsAroundRoom } from '../model/ops';
 import type { Project, Room } from '../model/types';
 import { formatArea } from '../ui/units';
@@ -95,7 +95,7 @@ function wallFinishes(project: Project, room: Room): string[] {
   const names = new Set<string>();
   for (const w of wallsAroundRoom(project, room)) {
     const field = faceTowardRoom(project, w, room);
-    if (field) names.add(t(resolveDef(w[field]).nameKey));
+    if (field) names.add(materialDefName(resolveDef(w[field])));
   }
   return [...names];
 }
@@ -241,8 +241,8 @@ export async function buildPdf(
       row(
         [
           `${r.name} (${level.name})`,
-          t(resolveDef(r.floorMaterial).nameKey),
-          t(resolveDef(r.ceilingMaterial).nameKey),
+          materialDefName(resolveDef(r.floorMaterial)),
+          materialDefName(resolveDef(r.ceilingMaterial)),
           wallFinishes(project, r).join(', ') || '—',
         ],
         mx.slice(0, 4),

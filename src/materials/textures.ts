@@ -1,4 +1,4 @@
-import { CanvasTexture, RepeatWrapping, SRGBColorSpace, type Texture } from 'three';
+import { CanvasTexture, RepeatWrapping, SRGBColorSpace, type Texture, TextureLoader } from 'three';
 import type { MaterialDef, TextureKind } from './library';
 
 /** Deterministic PRNG so a material always looks the same. */
@@ -502,6 +502,7 @@ export function getTextureCanvas(def: MaterialDef): HTMLCanvasElement | null {
  * so `repeat = 1 / textureScale` gives every surface the same real-world pattern size.
  */
 export function getTexture(def: MaterialDef): Texture | null {
+  if (def.textureUrl) return getImageTexture(def);
   if (!def.texture) return null;
   if (textures.has(def.id)) return textures.get(def.id) ?? null;
   const canvas = getTextureCanvas(def);
@@ -517,8 +518,27 @@ export function getTexture(def: MaterialDef): Texture | null {
   return tex;
 }
 
+/** An uploaded picture as a repeating texture (it loads in the background; the surface updates when it arrives). */
+function getImageTexture(def: MaterialDef): Texture | null {
+  const key = `${def.id}|${def.textureUrl}`;
+  if (textures.has(key)) return textures.get(key) ?? null;
+  let tex: Texture | null;
+  try {
+    tex = new TextureLoader().load(def.textureUrl!);
+    tex.wrapS = tex.wrapT = RepeatWrapping;
+    tex.repeat.set(1 / def.textureScale, 1 / def.textureScale);
+    tex.colorSpace = SRGBColorSpace;
+    tex.anisotropy = 8;
+  } catch {
+    tex = null; // no image support (tests): the surface stays a flat colour
+  }
+  textures.set(key, tex);
+  return tex;
+}
+
 /** Small PNG data URL for a picker swatch, or null for plain colors / no canvas. */
 export function getSwatchUrl(def: MaterialDef): string | null {
+  if (def.textureUrl) return def.textureUrl;
   if (!def.texture) return null;
   if (swatches.has(def.id)) return swatches.get(def.id) ?? null;
   const src = getTextureCanvas(def);

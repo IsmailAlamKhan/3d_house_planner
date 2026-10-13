@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { polygonArea } from '../geometry/polygon';
 import { type TranslationKey, useT } from '../i18n';
-import { entryForOpening, getEntry } from '../catalog';
+import { entryForOpening, entryName, getEntry } from '../catalog';
 import {
   type WallFaceField,
   faceField,
@@ -308,7 +308,7 @@ export function PropertiesPanel() {
     const items = project.items.filter((i) => selection.ids.includes(i.id));
     if (items.length) {
       const entry = items.length === 1 ? getEntry(items[0]!.catalogId) : undefined;
-      title = entry ? t(entry.nameKey as TranslationKey) : `${t('props.item')}${suffix}`;
+      title = entry ? entryName(entry) : `${t('props.item')}${suffix}`;
       body = <ItemProps key={items.map((i) => i.id).join()} items={items} />;
     }
   } else if (selection.type === 'opening') {
@@ -318,7 +318,7 @@ export function PropertiesPanel() {
         openings.length === 1
           ? entryForOpening(openings[0]!.catalogId, openings[0]!.kind)
           : undefined;
-      title = entry ? t(entry.nameKey as TranslationKey) : `${t('props.opening')}${suffix}`;
+      title = entry ? entryName(entry) : `${t('props.opening')}${suffix}`;
       body = <OpeningProps key={openings.map((o) => o.id).join()} openings={openings} />;
     }
   } else if (selection.type === 'stair') {

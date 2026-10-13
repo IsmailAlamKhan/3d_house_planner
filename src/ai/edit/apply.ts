@@ -1,7 +1,7 @@
-import { getEntry, itemSize } from '../../catalog';
+import { entryName, getEntry, itemSize } from '../../catalog';
 import { placeExistingItem, placeItem, placeOnWall } from '../../catalog/placement';
 import { pointInPolygon } from '../../geometry/polygon';
-import { type TranslationKey, fmtNum, t } from '../../i18n';
+import { fmtNum, t } from '../../i18n';
 import * as ops from '../../model/ops';
 import { ModelError } from '../../model/ops';
 import type { Project, Room } from '../../model/types';
@@ -186,7 +186,7 @@ function applyOne(p: Project, op: EditOperation, ctx: EditContext): void {
       if (entry.placement === 'wall') {
         // Doors/windows asked for through addItem: put one on the first free outer wall.
         throw new EditError(
-          t('ai.edit.useOpening').replace('{item}', t(entry.nameKey as TranslationKey)),
+          t('ai.edit.useOpening').replace('{item}', entryName(entry)),
         );
       }
       for (let i = 0; i < (op.count ?? 1); i++) {
@@ -194,7 +194,7 @@ function applyOne(p: Project, op: EditOperation, ctx: EditContext): void {
         if (!spot)
           throw new EditError(
             t('ai.edit.noSpace')
-              .replace('{item}', t(entry.nameKey as TranslationKey).toLowerCase())
+              .replace('{item}', entryName(entry).toLowerCase())
               .replace('{room}', room.name),
           );
         ops.addItem(p, {
@@ -221,7 +221,7 @@ function applyOne(p: Project, op: EditOperation, ctx: EditContext): void {
       if (!hits.length)
         throw new EditError(
           t('ai.edit.noItemFound')
-            .replace('{item}', t(entry.nameKey as TranslationKey).toLowerCase())
+            .replace('{item}', entryName(entry).toLowerCase())
             .replace('{room}', room?.name ?? t('ai.edit.thisLevel')),
         );
       ops.deleteSelection(p, { type: 'item', ids: hits.map((h) => h.id) });
@@ -241,7 +241,7 @@ function applyOne(p: Project, op: EditOperation, ctx: EditContext): void {
       if (!item)
         throw new EditError(
           t('ai.edit.noItemFound')
-            .replace('{item}', t(entry.nameKey as TranslationKey).toLowerCase())
+            .replace('{item}', entryName(entry).toLowerCase())
             .replace('{room}', room?.name ?? t('ai.edit.thisLevel')),
         );
       const r = placeExistingItem(p, item, {

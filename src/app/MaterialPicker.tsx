@@ -1,11 +1,17 @@
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { type ReactNode, useMemo, useState } from 'react';
-import { type TranslationKey, useT } from '../i18n';
+import { toast } from '../catalog/actions';
+import { UploadTextureDialog } from '../custom/UploadTextureDialog';
+import { assetOf } from '../custom/protocol';
+import { useCustomAssets } from '../custom/store';
+import { type TranslationKey, tf, useT } from '../i18n';
 import {
   type MaterialCategory,
   customPaint,
+  customTextureDefs,
   getSwatchUrl,
   isCustomPaint,
+  materialDefName,
   materialsForCategory,
   resolveDef,
 } from '../materials';
@@ -66,7 +72,13 @@ export function MaterialPicker({
 }: PickerProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
   const mixed = value === undefined;
+  const customVersion = useCustomAssets((s) => s.version);
+  const customStatus = useCustomAssets((s) => s.status);
+  const removeAsset = useCustomAssets((s) => s.remove);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const mine = useMemo(() => customTextureDefs(), [customVersion]);
   return (
     <div className="border-t border-slate-100 py-2 first:border-t-0">
       <button
@@ -115,8 +127,8 @@ export function MaterialPicker({
                   <button
                     key={m.id}
                     type="button"
-                    title={t(m.nameKey as TranslationKey)}
-                    aria-label={t(m.nameKey as TranslationKey)}
+                    title={materialDefName(m)}
+                    aria-label={materialDefName(m)}
                     aria-pressed={value === m.id}
                     onClick={() => onPick(m.id)}
                     className="rounded p-0.5 hover:bg-slate-100"
@@ -127,6 +139,60 @@ export function MaterialPicker({
               </div>
             </div>
           ))}
+          <div>
+            <div className="mb-1 text-xs font-medium text-slate-500">{t('custom.myTextures')}</div>
+            {mine.length > 0 && (
+              <div className="grid grid-cols-6 gap-1">
+                {mine.map((m) => (
+                  <span key={m.id} className="relative">
+                    <button
+                      type="button"
+                      title={materialDefName(m)}
+                      aria-label={materialDefName(m)}
+                      aria-pressed={value === m.id}
+                      data-testid={`mat-${m.id}`}
+                      onClick={() => onPick(m.id)}
+                      className="rounded p-0.5 hover:bg-slate-100"
+                    >
+                      <Swatch id={m.id} selected={value === m.id} />
+                    </button>
+                    <button
+                      type="button"
+                      title={t('custom.delete')}
+                      aria-label={`${t('custom.delete')} ${materialDefName(m)}`}
+                      onClick={() => {
+                        const name = materialDefName(m);
+                        if (!window.confirm(tf('custom.confirmDelete', { name }))) return;
+                        void removeAsset(assetOf(m.id)).then(() =>
+                          toast(tf('custom.deleted', { name })),
+                        );
+                      }}
+                      className="absolute -right-1 -top-1 rounded-full bg-white p-0.5 text-slate-500 opacity-70 shadow hover:text-red-600 hover:opacity-100 focus:opacity-100"
+                    >
+                      <X size={10} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {customStatus === 'unavailable' ? (
+              <p className="text-xs text-slate-500">{t('custom.unavailable')}</p>
+            ) : (
+              <button
+                type="button"
+                data-testid="upload-texture"
+                onClick={() => setUploadOpen(true)}
+                className="mt-1 rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50"
+              >
+                {t('custom.addTexture')}
+              </button>
+            )}
+            <UploadTextureDialog
+              open={uploadOpen}
+              onClose={() => setUploadOpen(false)}
+              onUploaded={(id) => onPick(id)}
+            />
+          </div>
           {allowCustom && (
             <label className="flex items-center justify-between text-xs text-slate-600">
               {t('mat.custom')}

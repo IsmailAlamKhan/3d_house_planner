@@ -1,5 +1,5 @@
 import { DoubleSide, MeshStandardMaterial, type Plane } from 'three';
-import { getTexture, resolveMaterial } from '../materials';
+import { customTextureVersion, getTexture, resolveMaterial } from '../materials';
 import type { MaterialOverride } from '../model/types';
 import { registerClippable } from './clipping';
 import { applySkyMix, capAlbedo } from './skyMix';
@@ -25,7 +25,8 @@ export function getMaterial(
   const outdoor = rawKey.endsWith('@out');
   const key = outdoor ? rawKey.slice(0, -4) : rawKey;
   const o = overrides[key];
-  const id = `${rawKey}|${o ? JSON.stringify(o) : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? `${flags.clip.constant}` : ''}|${flags.highlight ? 'h' : ''}`;
+  // Uploaded textures arrive from the server after start-up: their materials are rebuilt when that list changes.
+  const id = `${key.startsWith('tex:') ? customTextureVersion() : ''}|${rawKey}|${o ? JSON.stringify(o) : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? `${flags.clip.constant}` : ''}|${flags.highlight ? 'h' : ''}`;
   let m = cache.get(id);
   if (!m) {
     const spec = resolveMaterial(key, overrides);

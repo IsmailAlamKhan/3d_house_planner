@@ -1,8 +1,8 @@
 import { clearArea } from '../checks/areas';
 import { isVoidRoom } from '../checks/voidRoom';
-import { getEntry } from '../catalog';
+import { entryName, getEntry } from '../catalog';
 import { t } from '../i18n';
-import { resolveDef } from '../materials';
+import { materialDefName, resolveDef } from '../materials';
 import { wallHeight, wallLength } from '../model/integrity';
 import type { Project } from '../model/types';
 
@@ -32,7 +32,7 @@ const r2 = (v: number) => Math.round(v * 100) / 100;
 
 const materialLabel = (key: string): string => {
   const def = resolveDef(key);
-  const name = t(def.nameKey);
+  const name = materialDefName(def);
   return def.nameKey === 'mat.paint-custom' ? `${name} ${def.color}` : name;
 };
 
@@ -81,11 +81,11 @@ export function billOfMaterials(project: Project): BomLine[] {
 
   for (const o of project.openings) {
     const entry = getEntry(o.catalogId);
-    add(`opening:${o.catalogId}`, 'openings', entry ? t(entry.nameKey) : o.catalogId, 'pcs', 1);
+    add(`opening:${o.catalogId}`, 'openings', entry ? entryName(entry) : o.catalogId, 'pcs', 1);
   }
   for (const item of project.items) {
     const entry = getEntry(item.catalogId);
-    add(`item:${item.catalogId}`, 'furniture', entry ? t(entry.nameKey) : item.catalogId, 'pcs', 1);
+    add(`item:${item.catalogId}`, 'furniture', entry ? entryName(entry) : item.catalogId, 'pcs', 1);
   }
   for (const s of project.stairs)
     add(`stair:${s.type}`, 'stairs', `${t('bom.stair')} (${s.type})`, 'pcs', 1);

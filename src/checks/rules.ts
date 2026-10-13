@@ -1,8 +1,8 @@
-import { getEntry, itemSize } from '../catalog';
+import { entryName, getEntry, itemSize } from '../catalog';
 import { boxCorners, overlapDepth } from '../geometry/collide';
 import { polygonArea, polygonBounds, pointInPolygon } from '../geometry/polygon';
 import { type Vec2, dist, projectOnSegment } from '../geometry/vec';
-import { type TranslationKey, t } from '../i18n';
+import { t } from '../i18n';
 import type { Opening, Project, Room, Wall } from '../model/types';
 import { formatArea, formatLength } from '../ui/units';
 import { layoutStair, stairFootprintPlan, validateStair } from '../scene3d/generators/stairs';
@@ -306,7 +306,7 @@ export function placementRules(project: Project): CheckIssue[] {
   for (const it of project.items) {
     const box = itemBox(it);
     if (!box || box.size.h <= 0.05) continue;
-    const name = t(box.entry.nameKey as TranslationKey).toLowerCase();
+    const name = entryName(box.entry).toLowerCase();
     const level = project.levels.find((l) => l.id === it.levelId);
     // Columns
     for (const c of project.columns.filter((x) => x.levelId === it.levelId)) {
@@ -413,7 +413,7 @@ export function doorRules(project: Project): CheckIssue[] {
           severity: 'warning',
           message: sub(t('checks.swingItem'), {
             door: doorName(d.o, d.w),
-            item: t(box.entry.nameKey as TranslationKey).toLowerCase(),
+            item: entryName(box.entry).toLowerCase(),
           }),
           target,
         });
