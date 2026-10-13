@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { ProjectSchema } from '../model/schemas';
 import { buildProject, describeReport, enclosedGaps, wallSegments } from './build';
+import { projectToSpec } from './export';
+import { fidelityMarkdown } from './fidelity';
+import { createSampleProject } from '../model/sample';
 import {
   ReferenceSpecSchema,
   type ReferenceSpecInput,
@@ -360,5 +363,74 @@ describe('builder reports problems instead of hiding them', () => {
         items: p.items.map((i) => [i.catalogId, i.position, i.rotation]),
       });
     expect(strip(buildProject(spec()).project)).toBe(strip(buildProject(spec()).project));
+  });
+});
+
+describe('export back to a spec', () => {
+  it('round-trips: spec → project → spec → project is the same plan', () => {
+    const first = buildProject(spec());
+    const exported = projectToSpec(first.project);
+    expect(() => parseReferenceSpec(exported)).not.toThrow();
+    const second = buildProject(exported);
+    const norm = (p: typeof first.project) => ({
+      rooms: p.rooms
+        .map((r) => [
+          r.name,
+          r.type,
+          r.levelId,
+          r.polygon.map((q) => [Math.round(q.x * 1e3), Math.round(q.y * 1e3)]),
+        ])
+        .sort((a, b) => String(a[0]).localeCompare(String(b[0]))),
+      zones: p.site.zones.map((z) => [z.name, z.type, z.polygon.length]).sort(),
+      gates: p.site.gates.map((g) => [
+        g.kind,
+        Math.round(g.position.x * 1e3),
+        Math.round(g.position.y * 1e3),
+      ]),
+      openings: p.openings.map((o) => [o.kind, o.catalogId, Math.round(o.width * 1e3)]).sort(),
+      items: p.items
+        .map((i) => [
+          i.catalogId,
+          Math.round(i.position.x * 1e3),
+          Math.round(i.position.y * 1e3),
+          Math.round(i.rotation * 1e3),
+        ])
+        .sort(),
+      stairs: p.stairs.length,
+      roofs: p.roofs.length,
+      levels: p.levels.map((l) => [l.name, Math.round(l.floorToCeiling * 1e3)]),
+      walls: p.walls.length,
+    });
+    expect(norm(second.project)).toEqual(norm(first.project));
+    // the options survive too, with their own outdoor zones
+    expect(second.project.options).toHaveLength(1);
+    expect(second.project.options[0]!.design.rooms.map((r) => r.name).sort()).toEqual([
+      'Bedroom 1',
+      'Hall',
+    ]);
+    expect(second.project.options[0]!.design.zones![0]!.name).toBe('Pool');
+    expect(second.project.currentOption.letter).toBe('A');
+  });
+
+  it('exports an apartment (no plot) with a plot around the building', () => {
+    const exported = projectToSpec(createSampleProject());
+    expect(exported.plot.length).toBeGreaterThanOrEqual(3);
+    expect(() => buildProject(exported)).not.toThrow();
+  });
+});
+
+describe('fidelity report', () => {
+  it('lists every element against its label and the picture, and says how many labels are matched to an inch', () => {
+    const s = spec();
+    const result = buildProject(s);
+    const md = fidelityMarkdown(parseReferenceSpec(s), result);
+    expect(md).toContain('# Fidelity report — Test villa');
+    expect(md).toContain('| Hall |');
+    expect(md).toMatch(/Hall | room (living) | 18.0' × 28.0'/);
+    // Option A is the labelled one: deviation 0.0 in; the pictured option (B) is 16 × 30 against a 18 × 28 label
+    expect(md).toMatch(/Hall .*0.0 in/);
+    expect(md).toContain('labelled sizes within 1 inch: 3 of 3');
+    expect(md).toContain('## Build report');
+    expect(md).toContain('Unreachable rooms: none');
   });
 });

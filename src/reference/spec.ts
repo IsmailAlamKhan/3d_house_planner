@@ -45,6 +45,8 @@ export const RoomSpecSchema = z
     parapet: z.boolean().optional(),
     /** The size written on the picture ("14' x 12'") as [width, depth], for the fidelity report. */
     labelSize: z.tuple([num.positive(), num.positive()]).optional(),
+    /** Why this room differs from the picture or its label (shown in the fidelity report). */
+    note: z.string().optional(),
   })
   .refine(needsShape, shapeMessage);
 
@@ -84,6 +86,7 @@ export const ZoneSpecSchema = z
     material: z.string().optional(),
     covered: z.boolean().optional(),
     labelSize: z.tuple([num.positive(), num.positive()]).optional(),
+    note: z.string().optional(),
   })
   .refine(needsShape, shapeMessage);
 
@@ -107,6 +110,9 @@ export const ItemSpecSchema = z.object({
   /** Wanted size [width, depth, height]; the item is scaled from its catalogue size. */
   size: z.tuple([num.positive(), num.positive(), num.positive()]).optional(),
   props: attr,
+  /** The inventory element of the picture this item stands for ("Waterfall wall feature"): listed in the fidelity report. */
+  inventory: z.string().optional(),
+  note: z.string().optional(),
 });
 
 /** A row of identical items along a line (hedges, palms, bollards, pillar lights). */
@@ -120,6 +126,8 @@ export const ItemLineSpecSchema = z.object({
   rotation: z.union([z.literal('along'), num]).default('along'),
   size: z.tuple([num.positive(), num.positive(), num.positive()]).optional(),
   props: attr,
+  inventory: z.string().optional(),
+  note: z.string().optional(),
 });
 
 export const StairSpecSchema = z.object({
