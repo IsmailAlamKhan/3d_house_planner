@@ -19,7 +19,7 @@ import {
   type ResultMeta,
 } from '../../src/render/protocol';
 import type { GpuQueue } from '../gpuQueue';
-import { ComfyClient, ComfyError, firstOutput } from './comfy';
+import { ComfyClient, ComfyError } from './comfy';
 import { WORKFLOW_VERSION, buildWorkflow } from './workflow';
 
 export interface RenderServiceOptions {
@@ -174,7 +174,7 @@ export function createRenderService(opts: RenderServiceOptions) {
       job.controller.signal.removeEventListener('abort', onAbort);
       tracker.close();
     }
-    const out = firstOutput((await comfy.history(promptId))[promptId]);
+    const out = await comfy.waitForOutput(promptId);
     if (!out) throw new ComfyError('ComfyUI finished but returned no picture', 502, '');
     const image = await comfy.view(out);
     writeFileSync(join(dirOf(job.id), 'result.png'), image);

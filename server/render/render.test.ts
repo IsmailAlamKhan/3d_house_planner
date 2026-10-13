@@ -27,7 +27,9 @@ const PNG = Buffer.concat([
 const dataUrl = (b: Buffer = PNG) => `data:image/png;base64,${b.toString('base64')}`;
 
 /** A pretend ComfyUI: records what it was asked and "renders" over the websocket. */
-async function fakeComfy(opts: { steps?: number; hold?: Promise<void> } = {}) {
+async function fakeComfy(
+  opts: { steps?: number; hold?: Promise<void>; emptyHistoryCalls?: number } = {},
+) {
   const log = {
     uploads: [] as string[],
     prompts: [] as {
@@ -36,6 +38,7 @@ async function fakeComfy(opts: { steps?: number; hold?: Promise<void> } = {}) {
     }[],
     freed: 0,
     interrupted: 0,
+    historyCalls: 0,
   };
   const sockets = new Map<string, import('ws').WebSocket>();
   const server = createServer((req, res) => {
@@ -74,13 +77,16 @@ async function fakeComfy(opts: { steps?: number; hold?: Promise<void> } = {}) {
         })();
         return json({ prompt_id: 'p1' });
       }
-      if (url.pathname === '/history/p1')
+      if (url.pathname === '/history/p1') {
+        // Real ComfyUI announces the end on the socket before it stores the result in /history.
+        if (log.historyCalls++ < (opts.emptyHistoryCalls ?? 0)) return json({});
         return json({
           p1: {
             status: { status_str: 'success' },
             outputs: { '14': { images: [{ filename: 'out.png', subfolder: '', type: 'output' }] } },
           },
         });
+      }
       if (url.pathname === '/view') {
         res.setHeader('Content-Type', 'image/png');
         return void res.end(Buffer.concat([PNG, Buffer.from('RESULT')]));
@@ -242,6 +248,15 @@ describe('/api/render', () => {
     expect(await (await fetch(`${url}/api/render/results?project=other`)).json()).toEqual([]);
     expect((await fetch(`${url}/api/render/results/${id}`, { method: 'DELETE' })).status).toBe(200);
     expect((await fetch(`${url}/api/render/results/${id}`)).status).toBe(404);
+  });
+
+  it('still finds the picture when ComfyUI reports the end before it has stored the result', async () => {
+    const comfy = await fakeComfy({ emptyHistoryCalls: 4 });
+    const url = await app(comfy.url, await fakeOllama({ unloaded: [] }));
+    const { id } = (await (await post(url, request())).json()) as { id: string };
+    const done = await waitFor(url, id, (j) => j.status === 'done' || j.status === 'error');
+    expect(done.status).toBe('done');
+    expect(comfy.log.historyCalls).toBeGreaterThan(4);
   });
 
   it('an AI design job and a render job take turns: the render waits and says who is ahead', async () => {

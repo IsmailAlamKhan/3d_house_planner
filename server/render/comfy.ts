@@ -72,6 +72,28 @@ export class ComfyClient {
     });
   }
 
+  /**
+   * The saved picture of a finished prompt. ComfyUI announces the end of a prompt on the socket BEFORE it stores the
+   * result in /history (with --disable-smart-memory it unloads the models in between: seconds), so a single look can
+   * find nothing. Retries until the picture appears, ComfyUI reports an error, or `timeoutMs` has passed (then null).
+   */
+  async waitForOutput(
+    promptId: string,
+    timeoutMs = 120_000,
+    intervalMs = 500,
+  ): Promise<{ filename: string; subfolder: string; type: string } | null> {
+    const t0 = Date.now();
+    for (;;) {
+      const entry = (await this.history(promptId))[promptId];
+      const out = firstOutput(entry);
+      if (out) return out;
+      if (entry?.status?.status_str === 'error')
+        throw new ComfyError('ComfyUI could not finish the render', 500, '');
+      if (Date.now() - t0 >= timeoutMs) return null;
+      await new Promise((r) => setTimeout(r, intervalMs));
+    }
+  }
+
   async interrupt(): Promise<void> {
     await this.json('/interrupt', { method: 'POST' });
   }
