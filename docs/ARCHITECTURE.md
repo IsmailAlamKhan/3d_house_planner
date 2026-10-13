@@ -33,11 +33,10 @@ Lengths are stored in **meters**, angles in **radians**. Conversion to metric/fe
 | `src/commands`, `src/onboarding` | Command palette, shortcut sheet; first-run tour |
 | `src/prefs`, `src/i18n`, `src/theme.css` | Language/theme/motion preferences; English + Bengali; colour tokens |
 | `src/persistence` | IndexedDB repo, autosave, 20-version history, bootstrap |
-| `src/pwa`, `src/platform` | Service worker registration/install prompt; browser-vs-Tauri file adapter |
+| `src/pwa`, `src/platform` | Service worker registration/install prompt; browser file-download adapter |
 | `src/perf` | Stress project and performance budgets (tests) |
 | `src/ui` | `Modal`, `Drawer`, `PopoverMenu`, units, `uiStore` |
 | `server/` | `/api/ai` proxy to the user's local model (dev and preview servers) |
-| `src-tauri/` | Optional desktop shell |
 
 ## Data flow
 ```mermaid
@@ -58,7 +57,7 @@ flowchart LR
   STORE -->|debounced| PERSIST[(IndexedDB: project + last 20 versions)]
   PERSIST -->|bootstrap, restore| STORE
   AI <-->|/api/ai, localhost only| OLLAMA[(Ollama / local server)]
-  EXPORT --> FILES[Browser download or Tauri Save dialog]
+  EXPORT --> FILES[Browser download]
   SW[Service worker] -.caches.-> APP[App shell + lazy chunks + viewer]
 ```
 

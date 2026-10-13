@@ -2,17 +2,18 @@
 # Duplex Designer: the production web build plus the small app server (static files, /api/ai, /api/projects).
 
 # ── 1. Build the web app and bundle the server ─────────────────────────────────────────────────────────────────
-FROM node:20.18.1-bookworm-slim AS build
+FROM node:22.20.0-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 # Playwright's browsers are only for end-to-end tests: never download them while building the image.
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-RUN npm ci
+# better-sqlite3 (native, no prebuilt binaries, needs Node >= 22) is compiled in the "deps" stage; the build needs no install scripts.
+RUN npm ci --ignore-scripts
 COPY . .
 RUN npm run build && npm run build:server
 
 # ── 2. The only native runtime dependency: better-sqlite3, compiled for this exact image ───────────────────────
-FROM node:20.18.1-bookworm-slim AS deps
+FROM node:22.20.0-bookworm-slim AS deps
 WORKDIR /srv
 RUN apt-get update \
  && apt-get install -y --no-install-recommends python3 make g++ \
@@ -23,7 +24,7 @@ require('fs').writeFileSync('package.json', JSON.stringify({name:'duplex-runtime
  && npm install --omit=dev --no-audit --no-fund
 
 # ── 3. Runtime: slim, non-root, nothing but the build, the bundled server and better-sqlite3 ────────────────────
-FROM node:20.18.1-bookworm-slim AS runtime
+FROM node:22.20.0-bookworm-slim AS runtime
 ENV NODE_ENV=production PORT=8080 HOST=0.0.0.0 DATA_DIR=/data
 WORKDIR /srv
 COPY --from=deps /srv/node_modules ./node_modules

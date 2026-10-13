@@ -8,13 +8,13 @@ sentence.
 > **Indicative only — consult a licensed architect/engineer.** Plans, quantities and checks are aids for planning,
 > not construction documents.
 
-- Runs in any modern browser; installable as an app (PWA); optional desktop build (Tauri).
+- Runs in any modern browser; installable as an app (PWA).
 - No account, no server, no tracking. Projects are stored in your browser (IndexedDB) and can be saved as `.json`.
 - English and Bengali (বাংলা), light and dark themes, keyboard- and touch-friendly.
 
 ## Quick start
 
-Requirements: **Node.js 20+** (22 recommended).
+Requirements: **Node.js 22+** (the server uses better-sqlite3 13).
 
 ```bash
 npm install
@@ -30,7 +30,6 @@ npm run dev          # http://localhost:5173
 | `npm test` | Unit tests (Vitest) |
 | `npm run test:coverage` | Unit tests with coverage for `model/`, `geometry/`, `ai/` (≥ 80 % enforced) |
 | `npm run test:e2e` | Playwright end-to-end tests (builds and serves the app itself) |
-| `npm run tauri:dev` / `tauri:build` | Desktop app (see below) |
 
 First run of the end-to-end tests: `npx playwright install chromium`.
 
@@ -102,20 +101,6 @@ running Ollama on Windows? `docker compose -f docker-compose.yml -f docker-compo
 The production build registers a service worker that caches the app shell, every lazily loaded screen, the fonts and
 the snapshot viewer. After the first load everything except the AI model works with no network. Chrome/Edge show an
 **Install app** button; on iOS use *Share → Add to Home Screen*.
-
-## Desktop app (Tauri 2)
-
-The desktop build wraps the same web build and adds native Open/Save dialogs (`src/platform/index.ts`).
-
-```bash
-# one-time: install Rust (https://rustup.rs) and the Tauri prerequisites for your OS
-# (https://v2.tauri.app/start/prerequisites/)
-npm install
-npm run tauri:dev      # desktop window with hot reload
-npm run tauri:build    # installers in src-tauri/target/release/bundle/
-```
-
-The browser version is unchanged and does not need any of this.
 
 ## Deployment
 

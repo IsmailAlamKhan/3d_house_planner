@@ -109,10 +109,10 @@ Limitations: no right-to-left or other languages; comparison shows two designs (
 - [x] Performance: found and fixed a real bottleneck (room matching sampled every room pair: 28.7 s → ~20 ms on a 2-level, ~180-wall, ~300-item stress project, `src/perf/`). Measured: first scene build ~150 ms, edit rebuild 2–4 ms, room detection ~20 ms, checks ~4 ms, solver 3–16 ms — all under the 50 ms budget, so no Web Worker was needed. Export/PDF/AI/wizard/comparison are lazy-loaded (initial JS split).
 - [x] Robustness: last-20 autosave history with Restore, "Recover last autosave" on the crash screen, readable (translated) damaged-file messages, unsaved-work warning on closing the tab
 - [x] PWA (vite-plugin-pwa): app shell, lazy chunks, fonts and the snapshot viewer cached; install prompt, update notice; Playwright proves reload + Export + snapshot export with the network off
-- [x] Desktop: Tauri 2 config (`src-tauri/`), `platform` adapter (browser download/upload vs native dialogs, unit-tested with mocked plugins), `npm run tauri:dev` / `tauri:build`
+- [x] Desktop packaging (Tauri) was later removed from the project; the app ships as a PWA, a Docker stack or the native Windows scripts.
 - [x] Tests: 402 unit tests, coverage of `model/`, `geometry/`, `ai/` ≈ 94 % lines (80 % enforced); 51 Playwright tests incl. the full journey (wizard → offline AI → edit → place → material → walk → PDF + GLB)
 - [x] CI/deploy: `.github/workflows/ci.yml` (lint, typecheck, coverage tests, build, e2e, GitHub Pages deploy with `BASE_PATH=/<repo>/`, verified), `netlify.toml`; README and final architecture/Mermaid diagram
-Gap: the Rust toolchain is not configured on this machine, so `npm run tauri:build` was not run; the config is committed and follows the Tauri 2 schema. Instancing of repeated catalog items was not added: the measured build/edit times did not call for it.
+Gap: Instancing of repeated catalog items was not added: the measured build/edit times did not call for it.
 Limitation: on static hosting there is no `/api/ai` proxy, so the offline generator is used there.
 
 ## Prompt 13 — Free Local AI & Self-Hosting on a Windows PC — DONE
@@ -155,7 +155,38 @@ Limitations: no terrain/slope, roads beyond the gate or neighbouring plots (out 
 
 **Final verification (this machine, after Prompt 15).** `npm run typecheck` clean · `npm run lint` clean · `npm test`: 489 unit tests in 49 files pass · `npm run test:coverage`: model/geometry/ai ≈ 92 % lines (80 % enforced) · `npm run build` succeeds (PWA precache 47 entries) · `npm run test:e2e`: 55 Playwright tests pass (the shared-storage conflict test is timing-sensitive and passed on a re-run when the whole suite was loading the machine).
 
-**Known gaps (documented per prompt).** Docker image build and GPU acceleration were not run locally (Docker Desktop storage error on this Mac; the CI job builds and smoke-tests the image); `npm run tauri:build` and the PowerShell scripts were not run (no Rust toolchain / Windows PC here). Plans, quantities and checks are indicative only — *consult a licensed architect/engineer* (printed on every export).
+**Known gaps (documented per prompt).** Docker image build and GPU acceleration were not run locally (Docker Desktop storage error on this Mac; the CI job builds and smoke-tests the image); the PowerShell scripts were not run (no Windows PC here). Plans, quantities and checks are indicative only — *consult a licensed architect/engineer* (printed on every export).
 
 **How to use.** See README.md: `npm install && npm run dev`; New project → apartment or villa → template, AI or empty; the AI tab takes a sentence ("3-bedroom duplex with open kitchen", "luxury villa with pool, garden, 2-car garage, gym and sauna").
 
+
+## Verified on Windows
+
+Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 610.88, Docker 28.4.0 (Docker Desktop, WSL2 backend), Node 22.20.0, Windows PowerShell 5.1. Model `qwen3:14b`.
+
+**Ran and works**
+- Docker GPU check (`nvidia-smi` inside `nvidia/cuda:12.4.1-base-ubuntu22.04` shows the GPU).
+- `docker compose up -d --build`: first real build of the `Dockerfile` (after the fixes below), model pulled by `ollama-init`, `/api/health` shows app OK, Ollama reachable, model installed.
+- `ollama ps`: 10 GB, **100 % GPU**, context 4096; `nvidia-smi` ≈ 12 GB used in total while generating. A 300-token answer takes ≈ 12 s (≈ 25 tok/s).
+- A project created through the API and the wizard persists on the server, is listed from the PC's LAN address, survives `docker compose down && up -d`.
+- `scripts/docker-smoke.sh` (via Git Bash), `scripts\backup.ps1` → delete → `scripts\restore.ps1`: the project came back.
+- AI tab: "3 bedroom duplex with open kitchen" (≈ 45 s, applied) and "luxury villa with pool, garden, 2-car garage, gym and sauna" on a Villa on a plot project (18 × 16 m on 34 × 42 m; ≈ 60 s, applied). The villa result filled the building with rooms; no pool or garage was visible on the plot in the 3D view (quality gap of the model, not a crash).
+- `npm run ai:eval` (Ollama on loopback only): schema-valid **15/15**, repair round needed 3/15, solver success **15/15**, followed the brief **12/15**, average **24.2 s** per generation (Mac baseline: 15/15, 15/15, 12/15, ~73 s).
+- `npm run typecheck`, `lint`, `test` (489 unit tests), `build`: green. `npx playwright test`: **55/55** passed.
+- Native option: `scripts\windows\setup.ps1` and `start.ps1` ran under Windows PowerShell 5.1 and `/api/health` answered (tested with a model that was already installed and port 8090; not a download of `qwen3:14b`).
+
+**Bugs found and fixed**
+- `Dockerfile` did not build: `better-sqlite3 13` needs Node ≥ 22 and ships no prebuilt binaries, but the image used Node 20 and ran `npm ci` without Python/compilers. All stages now use `node:22.20.0-bookworm-slim`, and the `build` stage runs `npm ci --ignore-scripts` (the native module is compiled in the `deps` stage).
+- Applying an AI design could crash the whole app ("Unable to complete output ring…"): `polygon-clipping` throws on near-degenerate polygons. `unionPolygons` and `subtractPolygons` (`src/scene3d/generators/common.ts`) now degrade gracefully instead of throwing. No unit test: the exact failing polygon is not reproducible from the saved project alone.
+- `scripts/docker-smoke.sh` failed on Git Bash: path conversion of `/tmp/...` (`MSYS_NO_PATHCONV=1`), `curl | grep -q` under `pipefail`, and `curl -o /dev/null` exiting 23.
+- `e2e/shared.spec.ts` spawned `npx` (ENOENT on Windows); it now runs Node with the `tsx` CLI.
+- `setup.ps1` and the docs said Node 20+; Node 22+ is required. `setup.ps1` now explains the C++ build-tools requirement when `npm install` fails.
+- Desktop packaging (Tauri) was removed from the project on request.
+
+**Flaky only under load:** `export`, `offline` and `polish` e2e tests (and `villa`) failed in the first full run next to other work and passed when re-run alone and in the next full run.
+
+**Still unverified**
+- A truly clean native install: `npm install` compiles `better-sqlite3`; on this PC it only works with a newer node-gyp (13.1) because Visual Studio 2026 is not recognised by npm's node-gyp 11. Not tested with the 2022 Build Tools.
+- Native `setup.ps1` pulling `qwen3:14b` (used an installed model instead), the Task Scheduler / NSSM autostart steps, and the firewall rule.
+- Opening the app from a second physical device on the LAN (checked with the PC's own LAN address only).
+- Restart of Docker Desktop mid-download restarts the model download from the start (observed once).

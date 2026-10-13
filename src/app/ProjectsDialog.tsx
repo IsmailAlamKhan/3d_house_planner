@@ -13,7 +13,6 @@ import {
   saveProject,
   type ProjectSummary,
 } from '../persistence/repo';
-import { isTauri, pickTextFile } from '../platform';
 import { syncClient } from '../persistence/syncStore';
 import { Modal } from '../ui/Modal';
 import { HistoryPanel } from './HistoryPanel';
@@ -99,11 +98,7 @@ export function ProjectsDialog() {
           </button>
           <button
             className={btn}
-            onClick={() => {
-              // The desktop app uses the native Open dialog; the browser uses the hidden file input.
-              if (isTauri()) void pickTextFile().then((f) => f && importText(f.text));
-              else fileRef.current?.click();
-            }}
+            onClick={() => fileRef.current?.click()}
           >
             <Upload size={16} /> {t('projects.import')}
           </button>

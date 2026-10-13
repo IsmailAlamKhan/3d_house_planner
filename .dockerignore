@@ -12,7 +12,6 @@ playwright-report
 coverage
 data
 backups
-src-tauri/target
 *.log
 ai-eval-results.json
 .DS_Store

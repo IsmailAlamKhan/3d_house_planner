@@ -10,7 +10,8 @@ const URL = `http://127.0.0.1:${PORT}`;
 let server: ChildProcess;
 
 test.beforeAll(async () => {
-  server = spawn('npx', ['tsx', 'server/index.ts'], {
+  // Node + the tsx CLI directly: spawning 'npx' fails with ENOENT on Windows (it is npx.cmd there).
+  server = spawn(process.execPath, ['node_modules/tsx/dist/cli.mjs', 'server/index.ts'], {
     env: {
       ...process.env,
       PORT: String(PORT),

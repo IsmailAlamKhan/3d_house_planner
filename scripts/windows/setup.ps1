@@ -9,11 +9,11 @@ Set-Location (Join-Path $PSScriptRoot '..\..')
 function Fail($msg) { Write-Host "`n[!] $msg" -ForegroundColor Red; exit 1 }
 function Step($msg) { Write-Host "`n==> $msg" -ForegroundColor Cyan }
 
-Step 'Checking Node.js (version 20 or newer)'
+Step 'Checking Node.js (version 22 or newer)'
 $node = Get-Command node -ErrorAction SilentlyContinue
 if (-not $node) { Fail 'Node.js is not installed. Install the LTS version from https://nodejs.org and run this script again.' }
 $major = [int]((node --version).TrimStart('v').Split('.')[0])
-if ($major -lt 20) { Fail "Node.js $(node --version) is too old. Install version 20 or newer from https://nodejs.org." }
+if ($major -lt 22) { Fail "Node.js $(node --version) is too old. Install version 22 or newer from https://nodejs.org." }
 Write-Host "Node.js $(node --version) - OK"
 
 Step 'Checking Ollama'
@@ -33,7 +33,7 @@ Get-Content .env | ForEach-Object { if ($_ -match '^\s*OLLAMA_MODEL\s*=\s*(\S+)'
 
 Step 'Installing dependencies'
 npm install
-if ($LASTEXITCODE -ne 0) { Fail 'npm install failed.' }
+if ($LASTEXITCODE -ne 0) { Fail 'npm install failed. If the error mentions node-gyp / Visual Studio: better-sqlite3 has to be compiled on Windows. Install Python 3 and the Visual Studio Build Tools workload "Desktop development with C++" (see docsHOSTING_WINDOWS.md, Option B), or use Docker instead.' }
 
 Step 'Building the app'
 npm run build

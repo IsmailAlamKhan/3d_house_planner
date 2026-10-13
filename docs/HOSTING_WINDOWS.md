@@ -40,7 +40,9 @@ Only the app port is reachable from the network. Ollama has no published port.
 docker run --rm --gpus all nvidia/cuda:12.4.1-base-ubuntu22.04 nvidia-smi
 ```
 
-You should see your RTX 4060 Ti. If not, update the NVIDIA driver and restart Docker Desktop.
+You should see your RTX 4060 Ti. If not, update the NVIDIA driver and restart Docker Desktop. (Verified: driver
+610.88, Docker Desktop 28.4 / WSL2; the first run downloads the small CUDA image.) If `docker` says it cannot
+connect to `dockerDesktopLinuxEngine`, Docker Desktop is not running yet: start it and wait until the engine is up.
 
 ### Start
 
@@ -50,12 +52,23 @@ copy .env.example .env          # optional: change PORT, OLLAMA_MODEL, set APP_P
 docker compose up -d
 ```
 
-That starts the app, Ollama (with the GPU) and a one-time job that downloads the model (several GB, once). The app is
+The first start builds the app image (about 3 minutes; it compiles the native `better-sqlite3` module on Node 22 —
+the build needs no Python or compiler on your PC, it all happens inside Docker). That starts the app, Ollama (with
+the GPU) and a one-time job that downloads the model (`qwen3:14b` is 9.3 GB: about 20 minutes at 8–9 MB/s). If Docker
+Desktop restarts while the download runs, the download starts again from the beginning: just run
+`docker compose up -d` again and wait. The app is
 usable right away: until the model has arrived the AI tab says *"Downloading the AI model…"* and the built-in offline
 generator is used. Watch progress with `docker compose logs -f ollama-init`.
 
 Open `http://localhost:8080` on the PC, or the PC's address on your phone (`ipconfig` → IPv4, e.g.
 `http://192.168.1.23:8080`).
+
+> **If `http://localhost:8080` gives an empty reply or "connection reset"** right after Docker Desktop restarted,
+> a stale WSL port forward (`wslrelay.exe`) is holding port 8080. Run `docker compose restart app` (or
+> `docker compose up -d --force-recreate app`); if it persists, set another `PORT` in `.env`.
+>
+> **If you already run Ollama natively on Windows** it uses port 11434 on this PC. The Docker Ollama needs no host
+> port, so nothing clashes, and the two do not share models.
 
 ### Check that generation runs on the GPU
 
@@ -67,6 +80,11 @@ docker compose exec ollama ollama ps
 
 The `PROCESSOR` column should say **100% GPU**. (If it shows a CPU/GPU split the model does not fit in video
 memory: choose a smaller model, see *Choosing a model*.) Health check: `http://localhost:8080/api/health`.
+
+Measured on an RTX 4060 Ti 16 GB with `qwen3:14b`: `ollama ps` shows **10 GB, 100% GPU, context 4096**;
+`nvidia-smi` shows about 12 GB used in total while generating (about 2.6 GB is the desktop itself); a 300-token
+answer takes about 12 s (≈ 25 tokens/s); the app's own design generation takes 24 s on average
+(15 sample briefs, see the AI quality note in `PROGRESS.md`).
 
 ### Projects are shared between devices
 
@@ -101,7 +119,9 @@ The app then reaches Ollama through `http://host.docker.internal:11434`.
 
 `scripts\backup.ps1` (Windows) or `scripts/backup.sh` copies the database out of the volume into
 `backups\app-<timestamp>.db` using SQLite's online backup — safe while the app is running, never a raw file copy.
-`scripts\restore.ps1 <file>` puts a backup back (while the app runs).
+`scripts\restore.ps1 <file>` puts a backup back (while the app runs; a harmless `rm: cannot remove
+'/tmp/restore-….db'` warning at the end is expected). Running the shell scripts from **Git Bash** works too: the
+scripts set `MSYS_NO_PATHCONV=1` so Git Bash does not rewrite `/tmp/...` arguments.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\backup.ps1
@@ -124,9 +144,17 @@ at all in Docker). For use away from home use **Tailscale**; **do not port-forwa
 
 ## 1. Install the prerequisites (once)
 
-1. **Node.js 20 or newer (LTS)** — https://nodejs.org
+1. **Node.js 22 or newer (LTS)** — https://nodejs.org
 2. **Ollama for Windows** — https://ollama.com/download/windows (start it once; it then runs in the tray)
 3. **Git** (or download the project as a zip).
+4. **A C++ build toolchain.** `better-sqlite3 13` (Node 22+) has no prebuilt Windows binary, so `npm install`
+   compiles it. You need **Python 3** and the **"Desktop development with C++"** workload of *Visual Studio Build
+   Tools* (`winget install Microsoft.VisualStudio.2022.BuildTools --override "--passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"`).
+   With only Visual Studio **2026** installed, npm's bundled node-gyp (11.x) does not recognise it and fails with
+   *"find VS … unknown version"*. Either install the 2022 Build Tools as above, or compile once with a newer
+   node-gyp: `npm i --prefix %TEMP%\ng node-gyp@latest`, then in `node_modules\better-sqlite3` run
+   `node %TEMP%\ng\node_modules\node-gyp\bin\node-gyp.js rebuild` (verified: node-gyp 13.1 + VS 2026 works).
+   If you do not want a compiler on the PC, use Option A (Docker).
 
 ## 2. Set up and start
 
@@ -147,6 +175,9 @@ From your phone:   http://192.168.1.23:8080   (same Wi-Fi)
 ```
 
 Open the second address on a phone connected to the same Wi-Fi. (If it does not load, see *Firewall* below.)
+`start.ps1` lists **every** IPv4 address of the PC, including virtual ones (WSL, Hyper-V, VPN, Tailscale): use the one
+that starts like your router's network (`192.168.x.x`). Verified on Windows PowerShell 5.1 (`setup.ps1` and
+`start.ps1` both ran; health check OK against a native Ollama).
 
 ### Settings (`.env`)
 
@@ -178,7 +209,7 @@ Any Ollama model that can follow a JSON schema works.
 `ollama pull <model>`, restart `start.ps1`.
 
 One generation runs at a time; others wait in a queue ("Waiting for AI… (1 ahead of you)") so the GPU is never
-overloaded. The AI step takes roughly 30–60 s with `qwen3:14b`. With Ollama stopped, the app still works and uses its
+overloaded. The AI step takes roughly 25–50 s with `qwen3:14b` on an RTX 4060 Ti (24 s average over the 15 sample briefs). With Ollama stopped, the app still works and uses its
 built-in offline generator.
 
 ## 4. Start automatically

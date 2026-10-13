@@ -65,13 +65,32 @@ export const toRing = (pts: Vec2[]): Ring => pts.map((p) => [p.x, p.y] as Pair);
 export function subtractPolygons(subject: Vec2[], holes: Vec2[][]): MultiPolygon {
   const s: Polygon = [toRing(subject)];
   if (!holes.length) return [s];
-  return polygonClipping.difference(s, ...holes.map((h): Polygon => [toRing(h)]));
+  try {
+    return polygonClipping.difference(s, ...holes.map((h): Polygon => [toRing(h)]));
+  } catch {
+    // Near-degenerate holes make polygon-clipping throw; draw the surface without them rather than crash the app.
+    return [s];
+  }
 }
 
 export function unionPolygons(polys: Vec2[][]): MultiPolygon {
   if (!polys.length) return [];
   const [first, ...rest] = polys.map((p): Polygon => [toRing(p)]);
-  return polygonClipping.union(first!, ...rest);
+  try {
+    return polygonClipping.union(first!, ...rest);
+  } catch {
+    // polygon-clipping throws ("Unable to complete output ring") on near-degenerate input such as AI-generated
+    // slivers. Merge one at a time and leave out any polygon that cannot be merged instead of crashing the app.
+    let acc: MultiPolygon = [first!];
+    for (const p of rest) {
+      try {
+        acc = polygonClipping.union(acc, p);
+      } catch {
+        /* skip this polygon */
+      }
+    }
+    return acc;
+  }
 }
 
 const stripClose = (ring: Ring): Ring => {
