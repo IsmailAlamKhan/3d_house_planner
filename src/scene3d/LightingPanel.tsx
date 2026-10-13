@@ -15,13 +15,20 @@ import { useSceneStore } from './sceneStore';
 
 const PRESETS: {
   id: LightingPreset;
-  label: 'light.morning' | 'light.noon' | 'light.evening' | 'light.night' | 'light.marketing';
+  label:
+    | 'light.morning'
+    | 'light.noon'
+    | 'light.evening'
+    | 'light.night'
+    | 'light.marketing'
+    | 'light.dusk';
 }[] = [
   { id: 'morning', label: 'light.morning' },
   { id: 'noon', label: 'light.noon' },
   { id: 'evening', label: 'light.evening' },
   { id: 'night', label: 'light.night' },
   { id: 'marketing', label: 'light.marketing' },
+  { id: 'dusk', label: 'light.dusk' },
 ];
 
 const QUALITIES: {

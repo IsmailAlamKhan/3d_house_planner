@@ -1,6 +1,7 @@
 import { furnitureEntries } from './entries/furniture';
 import { kitchenBathEntries } from './entries/kitchenBath';
 import { outdoorEntries } from './entries/outdoor';
+import { decorEntries } from './entries/decor';
 import { openingEntries } from './entries/openings';
 import type { CatalogCategory, CatalogEntry, Size } from './types';
 import type { OpeningKind } from '../model/types';
@@ -14,6 +15,7 @@ export const CATALOG: CatalogEntry[] = [
   ...furnitureEntries(),
   ...kitchenBathEntries(),
   ...outdoorEntries(),
+  ...decorEntries(),
 ];
 
 const byId = new Map(CATALOG.map((e) => [e.catalogId, e]));

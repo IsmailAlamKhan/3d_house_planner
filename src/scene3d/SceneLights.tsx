@@ -120,7 +120,7 @@ function SkyDome({ top, horizon, ground }: { top: string; horizon: string; groun
   }, [top, horizon, ground]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   return (
-    <mesh geometry={geometry} renderOrder={-10} frustumCulled={false}>
+    <mesh geometry={geometry} renderOrder={-10} frustumCulled={false} userData={{ sky: true }}>
       <meshBasicMaterial
         vertexColors
         side={BackSide}

@@ -608,8 +608,19 @@ function rug(): CatalogEntry {
           { value: 'round', label: 'cprop.round' },
         ],
       },
+      {
+        key: 'pattern',
+        label: 'cprop.pattern',
+        kind: 'select',
+        options: [
+          { value: 'plain', label: 'cprop.plain' },
+          { value: 'stripes', label: 'cprop.stripes' },
+          { value: 'border', label: 'cprop.border' },
+          { value: 'geometric', label: 'cprop.geometric' },
+        ],
+      },
     ],
-    defaults: { color: '#b8a89a', shape: 'rect' },
+    defaults: { color: '#b8a89a', shape: 'rect', pattern: 'plain' },
     build: (g, p, s) => {
       if (p.shape === 'round') {
         const r = cyl(g, 0.5, 0.5, s.h, [0, 0.002, 0], c(p), 1, 40);
@@ -619,6 +630,30 @@ function rug(): CatalogEntry {
       } else {
         box(g, [s.w, s.h, s.d], [0, 0.002, 0], c(p), 1);
         box(g, [s.w - 0.2, s.h + 0.002, s.d - 0.2], [0, 0.002, 0], '#ffffff', 1, 0.35);
+        if (p.pattern === 'stripes')
+          for (let i = 0; i < 7; i++)
+            box(
+              g,
+              [0.06, s.h + 0.004, s.d - 0.2],
+              [-s.w / 2 + 0.3 + i * ((s.w - 0.6) / 6), 0.002, 0],
+              '#fffaf0',
+              1,
+              0.7,
+            );
+        else if (p.pattern === 'border') {
+          for (const z of [-1, 1])
+            box(g, [s.w - 0.34, s.h + 0.004, 0.04], [0, 0.002, z * (s.d / 2 - 0.17)], '#2f3b4a', 1);
+          for (const x of [-1, 1])
+            box(g, [0.04, s.h + 0.004, s.d - 0.34], [x * (s.w / 2 - 0.17), 0.002, 0], '#2f3b4a', 1);
+        } else if (p.pattern === 'geometric')
+          for (let i = 0; i < 3; i++)
+            box(
+              g,
+              [s.w * (0.55 - i * 0.17), s.h + 0.004 + i * 0.001, s.d * (0.55 - i * 0.17)],
+              [0, 0.002, 0],
+              i % 2 ? '#f5ece0' : '#3c4a5e',
+              1,
+            );
       }
     },
     draw: (p, s) =>

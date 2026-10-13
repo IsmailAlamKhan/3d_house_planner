@@ -2,6 +2,9 @@ import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { Vec3 } from '../scene3d/camera/views';
+import { Matrix4 } from 'three';
+import { getComposer } from '../present/fxBridge';
+import { type PathTraceOptions, pathTraceInto } from '../present/pathTrace';
 import { useExportFlags } from './flags';
 
 export interface CaptureOptions {
@@ -12,6 +15,10 @@ export interface CaptureOptions {
   transparent: boolean;
   /** Hide the grid, helpers, selection and measurements. */
   presentation: boolean;
+  /** Render through the presentation post-processing (bloom, SSAO, tone mapping) when it is on. */
+  fx?: boolean;
+  /** Path-trace the picture (progressively) instead of rasterizing it. Falls back to a normal render when it cannot run. */
+  pathTrace?: Omit<PathTraceOptions, 'background'> & { background: string };
   /** Look from here instead of where the camera is now (orbit mode). */
   pose?: { position: Vec3; target: Vec3 };
 }
@@ -22,6 +29,11 @@ export interface CaptureResult {
   height: number;
   /** The scale actually used (may be lower than asked when the GPU limit was reached). */
   scale: number;
+  /** The camera's projection × view matrix at the moment of capture (for projecting labels onto the picture). */
+  viewProjection: number[];
+  /** `cancelled`: the path tracer was stopped (the picture is partial). `fallback`: why the normal render was used. */
+  pathTraced?: 'done' | 'cancelled';
+  fallback?: string;
 }
 
 type CaptureFn = (o: CaptureOptions) => Promise<CaptureResult>;
@@ -78,16 +90,45 @@ export function ExportBridge() {
         gl.setPixelRatio(scale);
         gl.setSize(size.width, size.height, false);
         try {
-          gl.render(scene, camera);
+          const composer = o.fx ? getComposer() : null;
+          let pathTraced: 'done' | 'cancelled' | undefined;
+          let fallback: string | undefined;
+          if (o.pathTrace) {
+            try {
+              get().setFrameloop('never');
+              pathTraced = await pathTraceInto(gl, scene, camera, o.pathTrace);
+            } catch (e) {
+              fallback = e instanceof Error ? e.message : String(e);
+              gl.render(scene, camera);
+            } finally {
+              get().setFrameloop('always');
+            }
+          } else if (composer) {
+            composer.setSize(size.width, size.height, false);
+            composer.render();
+          } else gl.render(scene, camera);
+          camera.updateMatrixWorld();
+          const viewProjection = new Matrix4()
+            .multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+            .toArray();
           const blob = await toBlob(
             gl.domElement,
             o.format === 'png' ? 'image/png' : 'image/jpeg',
             o.format === 'jpeg' ? 0.92 : undefined,
           );
-          return { blob, width: gl.domElement.width, height: gl.domElement.height, scale };
+          return {
+            blob,
+            width: gl.domElement.width,
+            height: gl.domElement.height,
+            scale,
+            viewProjection,
+            pathTraced,
+            fallback,
+          };
         } finally {
           gl.setPixelRatio(ratio);
           gl.setSize(size.width, size.height, false);
+          getComposer()?.setSize(size.width, size.height, false);
         }
       } finally {
         camera.position.copy(from.position);

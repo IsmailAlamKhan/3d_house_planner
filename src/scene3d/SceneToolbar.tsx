@@ -1,6 +1,7 @@
 import { DoorOpen, Home, Maximize, Move3d, Pipette, Rotate3d } from 'lucide-react';
 import { EyedropperHint } from '../app/EyedropperHint';
 import { LightingPanel } from './LightingPanel';
+import { PresentPanel } from '../present/PresentPanel';
 import { CameraToolbar } from './camera/CameraToolbar';
 import { useModel } from '../model/store';
 import type { ReactNode } from 'react';
@@ -127,6 +128,7 @@ export function SceneToolbar() {
           <Pipette size={18} />
         </Toggle>
         <LightingPanel />
+        <PresentPanel />
         <Toggle active={false} label={t('view3d.resetCamera')} onClick={resetCamera}>
           <Maximize size={18} />
         </Toggle>

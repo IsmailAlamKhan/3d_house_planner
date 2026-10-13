@@ -23,9 +23,14 @@ import { ExportBridge } from '../export/bridge';
 import { NotePins3D } from '../notes/NotePins3D';
 import { useExportFlags } from '../export/flags';
 import { modalOpen } from '../ui/modalOpen';
+import { AccentLights } from '../present/AccentLights';
+import { LabelsOverlay } from '../present/LabelsOverlay';
+import { LabelsProjector } from '../present/LabelsProjector';
+import { usePresent } from '../present/presentStore';
 
 // Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
 const AmbientOcclusion = lazy(() => import('./AmbientOcclusion'));
+const PresentationFx = lazy(() => import('../present/PresentationFx'));
 
 function StairWarnings() {
   const project = useModel((s) => s.project);
@@ -100,6 +105,8 @@ export function SceneCanvas() {
   const q = QUALITY[quality];
   const night = useSceneStore((s) => s.lighting.mode === 'night');
   const presentation = useExportFlags((s) => s.presentation);
+  const presentActive = usePresent((s) => s.active);
+  const presentFx = usePresent((s) => s.fx);
   useCameraShortcuts();
   return (
     <div data-testid="scene-canvas" className="relative h-full w-full bg-slate-200">
@@ -136,12 +143,21 @@ export function SceneCanvas() {
         <NotePins3D />
         <CameraSystem />
         {showFps && <FpsMeter />}
-        {q.ao && (
+        <AccentLights quality={quality} />
+        <LabelsProjector />
+        {presentActive && presentFx ? (
           <Suspense fallback={null}>
-            <AmbientOcclusion />
+            <PresentationFx />
           </Suspense>
+        ) : (
+          q.ao && (
+            <Suspense fallback={null}>
+              <AmbientOcclusion />
+            </Suspense>
+          )
         )}
       </Canvas>
+      <LabelsOverlay />
       <SceneToolbar />
       <SavedViewsStrip />
       <Minimap />

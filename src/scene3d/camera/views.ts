@@ -57,8 +57,14 @@ const DIRECTIONS: Record<Preset, Vec3> = {
  * Camera pose looking at the middle of the building from direction `dir`, as close as possible while every corner of
  * the building's bounding box still fits the view (perspective-correct, for any window aspect ratio).
  */
-export function fitPose(project: Project, dir: Vec3, aspect: number, margin = 1.08): CamPose {
-  const m = modelBox(project);
+export function fitPose(
+  project: Project,
+  dir: Vec3,
+  aspect: number,
+  margin = 1.08,
+  box: ReturnType<typeof modelBox> = modelBox(project),
+): CamPose {
+  const m = box;
   const target: Vec3 = [m.cx, m.top / 2, m.cz];
   const len = Math.hypot(...dir) || 1;
   const d0: Vec3 = [dir[0] / len, dir[1] / len, dir[2] / len];

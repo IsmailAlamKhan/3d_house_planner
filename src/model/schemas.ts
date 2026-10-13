@@ -36,6 +36,8 @@ export const ROOM_TYPES = [
   'home-theatre',
   'prayer',
   'outdoor-dining',
+  // Balcony, terrace or garden: no ceiling, optional parapet, outdoor floors.
+  'outdoor',
   'other',
 ] as const;
 export const ZONE_TYPES = [

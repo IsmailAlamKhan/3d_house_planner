@@ -12,6 +12,7 @@ export type CatalogCategory =
   | 'kitchen'
   | 'bathroom'
   | 'outdoor'
+  | 'decor'
   | 'other';
 
 export const CATEGORIES: CatalogCategory[] = [
@@ -23,6 +24,7 @@ export const CATEGORIES: CatalogCategory[] = [
   'kitchen',
   'bathroom',
   'outdoor',
+  'decor',
   'other',
 ];
 

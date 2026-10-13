@@ -26,6 +26,32 @@ export function addRoom(p: Project, input: NewRoom): string {
   return id;
 }
 
+/** Height of a parapet (m): a waist-high wall instead of a full-height one. */
+export const PARAPET_HEIGHT = 1.0;
+
+/** The walls of a level that run along the edges of a room's outline. */
+export function parapetWallsOf(p: Project, roomId: string) {
+  const room = getRoom(p, roomId);
+  const onEdge = (pt: { x: number; y: number }) =>
+    room.polygon.some((a, i) => {
+      const b = room.polygon[(i + 1) % room.polygon.length]!;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len2 = dx * dx + dy * dy || 1;
+      const t = Math.max(0, Math.min(1, ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / len2));
+      return Math.hypot(pt.x - (a.x + t * dx), pt.y - (a.y + t * dy)) < 0.2;
+    });
+  return p.walls.filter((w) => w.levelId === room.levelId && onEdge(w.start) && onEdge(w.end));
+}
+
+/** Turns the walls around an outdoor room into a low parapet (or back to full height). */
+export function setRoomParapet(p: Project, roomId: string, on: boolean): void {
+  for (const w of parapetWallsOf(p, roomId)) {
+    if (on) w.height = PARAPET_HEIGHT;
+    else delete w.height;
+  }
+}
+
 export function updateRoom(
   p: Project,
   id: string,
