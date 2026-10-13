@@ -41,7 +41,7 @@ First run of the end-to-end tests: `npx playwright install chromium`.
   entrance and existing facade windows (locked); then start empty, from one of four templates, or with the AI.
 - **2D plan** — walls with typed lengths, rooms detected automatically, snapping, dimensions, undo/redo for everything.
 - **Library** — 77 doors, windows, furniture, outdoor and fitness pieces; drag and drop (or tap, then tap) into the plan or the 3D view.
-- **Materials & light** — 40 procedural materials, paint colours, eyedropper, time of day, evening/night looks.
+- **Materials & light** — 46 procedural materials (incl. grass, water, paving, decking), paint colours, eyedropper, time of day, evening/night/marketing looks.
 - **3D** — orbit, **walkthrough** (WASD, collision, stairs), top view, section cuts, isolate a room, x-ray, measure,
   minimap, saved views.
 - **Checks** — headroom on stairs, unreachable rooms, missing windows, drains, minimum areas, door swings; click a
