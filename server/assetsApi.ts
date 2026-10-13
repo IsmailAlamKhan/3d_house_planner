@@ -100,7 +100,14 @@ const num = (v: unknown, min: number, max: number): number | null => {
 export function parseMeta(
   raw: string | undefined,
   kind: AssetKind,
-): { name: string; model?: AssetMeta['model']; texture?: AssetMeta['texture'] } | string {
+):
+  | {
+      name: string;
+      model?: AssetMeta['model'];
+      texture?: AssetMeta['texture'];
+      image?: AssetMeta['image'];
+    }
+  | string {
   let j: Record<string, unknown>;
   try {
     j = JSON.parse(decodeURIComponent(raw ?? '')) as Record<string, unknown>;
@@ -114,6 +121,13 @@ export function parseMeta(
     .trim()
     .slice(0, 60);
   if (!name) return 'Give it a name.';
+  if (kind === 'image') {
+    const width = num(j.width, 1, 30000);
+    const height = num(j.height, 1, 30000);
+    return width === null || height === null
+      ? 'The picture size must be given in pixels.'
+      : { name, image: { width: Math.round(width), height: Math.round(height) } };
+  }
   if (kind === 'texture') {
     const scale = num(j.scale, 0.05, 20);
     return scale === null
@@ -178,21 +192,32 @@ export function createAssetService(opts: { dataDir: string }) {
             send(res, 413, { error: 'Texture images may be up to 20 MB.' });
             return true;
           }
-          const header = req.headers['x-asset-meta'];
-          const meta = parseMeta(Array.isArray(header) ? header[0] : header, found.kind);
+          const header = Array.isArray(req.headers['x-asset-meta'])
+            ? req.headers['x-asset-meta'][0]
+            : req.headers['x-asset-meta'];
+          // A PNG / JPEG / WebP is a texture unless the client says it is a reference picture.
+          let kind: AssetKind = found.kind;
+          try {
+            const asked = (JSON.parse(decodeURIComponent(header ?? '')) as { as?: string }).as;
+            if (asked === 'image' && found.kind === 'texture') kind = 'image';
+          } catch {
+            // parseMeta reports an unreadable header below
+          }
+          const meta = parseMeta(header, kind);
           if (typeof meta === 'string') {
             send(res, 400, { error: meta });
             return true;
           }
           const asset: AssetMeta = {
             id: randomBytes(8).toString('hex'),
-            kind: found.kind,
+            kind,
             name: meta.name,
             ext: found.ext,
             size: buf.length,
             createdAt: new Date().toISOString(),
             ...(meta.model ? { model: meta.model } : {}),
             ...(meta.texture ? { texture: meta.texture } : {}),
+            ...(meta.image ? { image: meta.image } : {}),
           };
           writeFileSync(fileOf(asset), buf);
           write([...read(), asset]);

@@ -311,6 +311,47 @@ export const SiteSchema = z.object({
   setback: z.number().nonnegative().default(1.5),
 });
 
+/**
+ * A picture the plan is traced from (a photo or render of a floor plan), laid under (or over) the plan. `transform` is
+ * the homography picture pixels → plan metres found when the picture was rectified; `offset` and `rotation` (about the
+ * picture's centre on the plan) are the fine adjustments the user makes afterwards.
+ */
+export const UnderlaySchema = z.object({
+  id,
+  name: z.string(),
+  /** Level it is shown on; absent = every level. */
+  levelId: z.string().optional(),
+  /** Where the picture lives: an uploaded asset on the app server, a copy in this browser, or a plain URL. */
+  source: z.discriminatedUnion('kind', [
+    z.object({ kind: z.literal('asset'), assetId: z.string().min(1) }),
+    z.object({ kind: z.literal('local'), key: z.string().min(1) }),
+    z.object({ kind: z.literal('url'), url: z.string().min(1) }),
+  ]),
+  imageWidth: z.number().int().positive(),
+  imageHeight: z.number().int().positive(),
+  /** 3 × 3 matrix (row-major): picture pixel → plan metre. */
+  transform: z.tuple([num, num, num, num, num, num, num, num, num]),
+  /** How the matrix was found, so the setup can be reopened: 4 corners + real size, 2 points + distance, or manual scale. */
+  setup: z
+    .object({
+      mode: z.enum(['corners', 'two-point', 'scale']),
+      points: z.array(PointSchema).max(4).default([]),
+      /** corners: [width, depth] of the marked rectangle (m); two-point: [distance]; scale: [metres per pixel]. */
+      size: z.array(num).default([]),
+      origin: PointSchema.default({ x: 0, y: 0 }),
+    })
+    .optional(),
+  offset: PointSchema.default({ x: 0, y: 0 }),
+  rotation: z.number().default(0),
+  opacity: z.number().min(0).max(1).default(0.5),
+  visible: z.boolean().default(true),
+  locked: z.boolean().default(false),
+  /** Draw over the plan (to check alignment) instead of under it. */
+  onTop: z.boolean().default(false),
+  /** Also show as a faint decal on the ground in 3D. */
+  show3d: z.boolean().default(false),
+});
+
 export const PROJECT_KINDS = ['apartment', 'villa'] as const;
 
 /**
@@ -354,6 +395,8 @@ export const ProjectSchema = z.object({
   site: SiteSchema.default({ plot: [], gates: [], zones: [], setback: 1.5 }),
   currentOption: OptionMetaSchema.default({ id: 'main', letter: null, name: null }),
   costs: CostsSchema.default({ currency: 'USD', unitCosts: {} }),
+  /** Reference pictures the plan is traced from, back-most first. */
+  underlays: z.array(UnderlaySchema).default([]),
   createdAt: z.string(),
   updatedAt: z.string(),
   schemaVersion: z.number().int(),

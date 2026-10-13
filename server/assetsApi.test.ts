@@ -142,6 +142,34 @@ describe('/api/assets', () => {
     expect(file.headers.get('content-type')).toBe('image/png');
   });
 
+  it('keeps a reference picture apart from textures: only when the client says so, with its pixel size', async () => {
+    const url = await start();
+    const img = await upload(url, PNG, {
+      as: 'image',
+      name: 'Villa photo',
+      width: 720,
+      height: 1600,
+    });
+    expect(img.status).toBe(201);
+    const a = (await img.json()) as {
+      id: string;
+      kind: string;
+      image: { width: number; height: number };
+    };
+    expect(a).toMatchObject({ kind: 'image', image: { width: 720, height: 1600 } });
+    expect((await fetch(`${url}/api/assets/${a.id}/file`)).headers.get('content-type')).toBe(
+      'image/png',
+    );
+    // Without the request it is still a texture.
+    const tex = await upload(url, PNG, { name: 'Tiles', scale: 1 });
+    expect(((await tex.json()) as { kind: string }).kind).toBe('texture');
+    // A reference picture needs its size; a model cannot be called an image.
+    expect((await upload(url, PNG, { as: 'image', name: 'x' })).status).toBe(400);
+    expect((await upload(url, GLB, { as: 'image', name: 'x', width: 1, height: 1 })).status).toBe(
+      400,
+    );
+  });
+
   it('refuses what it cannot use, with a reason', async () => {
     const url = await start();
     const text = await upload(url, Buffer.from('this is not a model, it is only text'), MODEL);

@@ -1,6 +1,6 @@
 /** What the app server (`/api/assets`) and the browser both know about the user's own models and textures. */
 
-export type AssetKind = 'model' | 'texture';
+export type AssetKind = 'model' | 'texture' | 'image';
 
 export interface AssetMeta {
   id: string;
@@ -22,6 +22,8 @@ export interface AssetMeta {
   };
   /** Textures: metres covered by one repeat of the image. */
   texture?: { scale: number };
+  /** Reference pictures (an underlay to trace a plan from): size in pixels. */
+  image?: { width: number; height: number };
 }
 
 /** Id of a custom catalogue item / texture material in a project. */

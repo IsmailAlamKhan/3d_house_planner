@@ -44,6 +44,7 @@ export function createEmptyProject(name = 'Untitled home'): Project {
     site: { plot: [], gates: [], zones: [], setback: 1.5 },
     currentOption: { id: 'main', letter: null, name: null },
     costs: { currency: 'USD', unitCosts: {} },
+    underlays: [],
     createdAt: now,
     updatedAt: now,
     schemaVersion: SCHEMA_VERSION,

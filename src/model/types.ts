@@ -27,6 +27,7 @@ export type DesignOption = z.infer<typeof S.DesignOptionSchema>;
 export type Note = z.infer<typeof S.NoteSchema>;
 export type Lights = z.infer<typeof S.LightsSchema>;
 export type Costs = z.infer<typeof S.CostsSchema>;
+export type Underlay = z.infer<typeof S.UnderlaySchema>;
 export type Project = z.infer<typeof S.ProjectSchema>;
 
 export type Units = (typeof S.UNITS)[number];
