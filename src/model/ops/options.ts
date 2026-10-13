@@ -20,16 +20,18 @@ export function designOf(p: Project): Design {
     materials: p.materials,
     zones: p.site.zones,
     gates: p.site.gates,
+    ...(p.kind === 'villa' ? { footprint: p.shell.footprint, entrance: p.shell.entrance } : {}),
   }) as Design;
 }
 
 /** A project showing `design` (everything else — shell, settings, costs, notes — is the project's own). */
 export function withDesign(p: Project, design: Design): Project {
   const c = plain(design) as Design;
-  const { zones, gates, ...rest } = c;
+  const { zones, gates, footprint, entrance, ...rest } = c;
   return {
     ...p,
     ...rest,
+    shell: { ...p.shell, footprint: footprint ?? p.shell.footprint, entrance: entrance ?? p.shell.entrance },
     site: { ...p.site, zones: zones ?? p.site.zones, gates: gates ?? p.site.gates },
   };
 }
@@ -47,6 +49,8 @@ function loadDesign(p: Project, d: Design): void {
   p.materials = c.materials;
   if (c.zones) p.site.zones = c.zones;
   if (c.gates) p.site.gates = c.gates;
+  if (c.footprint) p.shell.footprint = c.footprint;
+  if (c.entrance) p.shell.entrance = c.entrance;
 }
 
 const letterOrder = (m: OptionMeta) => (m.letter === null ? -1 : LETTERS.indexOf(m.letter));

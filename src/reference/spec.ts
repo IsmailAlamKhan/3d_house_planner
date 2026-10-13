@@ -47,6 +47,8 @@ export const RoomSpecSchema = z
     labelSize: z.tuple([num.positive(), num.positive()]).optional(),
     /** Why this room differs from the picture or its label (shown in the fidelity report). */
     note: z.string().optional(),
+    /** Where the room is on the reference picture, as the box [left, top, right, bottom] in picture pixels (traced from it). */
+    pic: z.tuple([num, num, num, num]).optional(),
   })
   .refine(needsShape, shapeMessage);
 
@@ -74,6 +76,8 @@ export const OpeningSpecSchema = z.object({
   sill: num.nonnegative().optional(),
   swing: z.enum(['left', 'right', 'none']).optional(),
   flip: z.boolean().optional(),
+  /** The inventory element of the picture this door or window stands for (listed in the fidelity report). */
+  inventory: z.string().optional(),
 });
 
 export const ZoneSpecSchema = z
@@ -87,6 +91,8 @@ export const ZoneSpecSchema = z
     covered: z.boolean().optional(),
     labelSize: z.tuple([num.positive(), num.positive()]).optional(),
     note: z.string().optional(),
+    /** Where the zone is on the reference picture: [left, top, right, bottom] in picture pixels. */
+    pic: z.tuple([num, num, num, num]).optional(),
   })
   .refine(needsShape, shapeMessage);
 
@@ -96,6 +102,7 @@ export const GateSpecSchema = z.object({
   /** The side the gate faces: a compass word or an angle in degrees. */
   facing: z.union([z.enum(['north', 'south', 'east', 'west']), num]).default('south'),
   width: num.positive().optional(),
+  inventory: z.string().optional(),
 });
 
 export const ItemSpecSchema = z.object({
@@ -140,6 +147,7 @@ export const StairSpecSchema = z.object({
   direction: num,
   width: num.positive(),
   railing: z.boolean().default(true),
+  inventory: z.string().optional(),
 });
 
 export const RoofSpecSchema = z

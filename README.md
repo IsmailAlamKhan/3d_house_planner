@@ -21,15 +21,16 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
-| Command                             | What it does                                                                |
-| ----------------------------------- | --------------------------------------------------------------------------- |
-| `npm run dev`                       | Development server (also builds the snapshot viewer first)                  |
-| `npm run build`                     | Type-check and produce the production build in `dist/`                      |
-| `npm run preview`                   | Serve `dist/` locally (the end-to-end tests use this)                       |
-| `npm run typecheck` / `lint`        | TypeScript (strict) and ESLint                                              |
-| `npm test`                          | Unit tests (Vitest)                                                         |
-| `npm run test:coverage`             | Unit tests with coverage for `model/`, `geometry/`, `ai/` (≥ 80 % enforced) |
-| `npm run test:e2e`                  | Playwright end-to-end tests (builds and serves the app itself)              |
+| Command                             | What it does                                                                                                         |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`                       | Development server (also builds the snapshot viewer first)                                                           |
+| `npm run build`                     | Type-check and produce the production build in `dist/`                                                               |
+| `npm run preview`                   | Serve `dist/` locally (the end-to-end tests use this)                                                                |
+| `npm run typecheck` / `lint`        | TypeScript (strict) and ESLint                                                                                       |
+| `npm test`                          | Unit tests (Vitest)                                                                                                  |
+| `npm run test:coverage`             | Unit tests with coverage for `model/`, `geometry/`, `ai/` (≥ 80 % enforced)                                          |
+| `npm run test:e2e`                  | Playwright end-to-end tests (builds and serves the app itself)                                                       |
+| `npm run reference:build -- <spec>` | Build a reference spec (e.g. `reference/villa.spec.json`) into a project, save it to the app and write `FIDELITY.md` |
 
 First run of the end-to-end tests: `npx playwright install chromium`.
 
@@ -48,7 +49,9 @@ First run of the end-to-end tests: `npx playwright install chromium`.
   problem to see it. Area schedule included.
 - **Present** — one click to a magazine-style render: cutaway top-down or 3/4 views at dusk with warm lights, plants and decor, crisp room labels (name and size), auto-decorate, PNG export at 1×–4×, and an optional path-traced high-quality still.
 - **Your own furniture and textures** — in the library, **Add your own 3D model…** takes a `.glb` file (binary glTF, from Blender, Sketchfab and most 3D tools; up to 60 MB): name it, check the real size (centimetre and millimetre models are detected), choose where it belongs and whether it stands on the floor or hangs on a wall, and it appears under **My items** like any built-in piece (drag it in, rotate, resize, duplicate). In any material picker, **Upload a texture…** takes a PNG, JPEG or WebP picture and the real-world size of one repeat; it is applied to the surface at once and kept under **My textures** for floors, walls, ceilings and surfaces. Both are stored on the app server (Docker or `start.ps1`), so every device sees them; they are not available on a static website. Custom models are not part of a project file: exporting a project to another server leaves them behind.
-- **Enhance with AI** — turn a presentation render into a photoreal mood image with Stable Diffusion XL + ControlNet in a local ComfyUI container that starts with the rest of the stack (`docker compose up -d`; the first start downloads about 12 GB of models); labels are re-applied crisply afterwards. Find it under **Present** (clapperboard icon in the 3D toolbar) → Cutaway view → *Enhance with AI…*.
+- **Enhance with AI** — turn a presentation render into a photoreal mood image with Stable Diffusion XL + ControlNet in a local ComfyUI container that starts with the rest of the stack (`docker compose up -d`; the first start downloads about 12 GB of models); labels are re-applied crisply afterwards. Find it under **Present** (clapperboard icon in the 3D toolbar) → Cutaway view → _Enhance with AI…_.
+- **Trace from a picture** — the **Reference picture** button on the plan toolbar takes a photo or render of a plan: click the four corners of a rectangle whose real size you know (or two points and a distance), and the picture is straightened and scaled onto the plan; set its opacity, show it over the plan to check alignment, lock it, nudge or rotate it, and **Compare with reference** to see it beside a top-down render with a draggable divider.
+- **Reference Villa** — `reference/villa.spec.json` rebuilds the villa of `reference/villa-reference.png` exactly, as two design options (A: every labelled room at its labelled size; B: proportions measured from the picture, which overlays it wall for wall). `npm run reference:build -- reference/villa.spec.json` saves it to the running app (or `--out villa.json`) and writes `reference/FIDELITY.md`; **Export → Share → Reference spec** writes any project back as such a spec.
 - **Notes** pinned to the plan, **design options** (Option A/B/C) with a synced side-by-side comparison.
 - **Export** — images (1×/2×/4×), PDF plan set to scale (1:50/1:100), GLB and OBJ, SVG and DXF per level, bill of
   materials with your own unit costs (CSV), and a **read-only snapshot** `.html` that opens offline anywhere.

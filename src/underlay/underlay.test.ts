@@ -12,6 +12,7 @@ import { createSampleProject } from '../model/sample';
 import { ProjectSchema } from '../model/schemas';
 import {
   baseBounds,
+  focusRect,
   pictureDistance,
   pictureToPlan,
   planToPicture,
@@ -93,6 +94,22 @@ describe('underlay matrix', () => {
   it('matrix is the identity-composed transform when nothing is adjusted', () => {
     const m = underlayMatrix(picture);
     for (let i = 0; i < 9; i++) expect(m[i]).toBeCloseTo(transform[i]!, 9);
+  });
+});
+
+describe('the part of the plan a picture was set up on', () => {
+  it('is the marked rectangle, moved with the picture; the whole picture without one', () => {
+    const setup = { mode: 'corners', size: [10, 20], origin: { x: 2, y: 3 } };
+    expect(focusRect({ ...picture, setup })).toEqual({ x0: 2, y0: 3, x1: 12, y1: 23 });
+    const moved = focusRect({ ...picture, offset: { x: 1, y: -1 }, setup });
+    expect([moved.x0, moved.y0, moved.x1, moved.y1]).toEqual([3, 2, 13, 22]);
+    // turned or set up with two points: the whole straightened picture
+    expect(focusRect({ ...picture, rotation: 0.3, setup })).toEqual(
+      underlayBounds({ ...picture, rotation: 0.3 }),
+    );
+    expect(
+      focusRect({ ...picture, setup: { mode: 'two-point', size: [5], origin: { x: 0, y: 0 } } }),
+    ).toEqual(underlayBounds(picture));
   });
 });
 

@@ -3,6 +3,7 @@ import { kitchenBathEntries } from './entries/kitchenBath';
 import { outdoorEntries } from './entries/outdoor';
 import { decorEntries } from './entries/decor';
 import { openingEntries } from './entries/openings';
+import { referenceEntries } from './entries/reference';
 import type { CatalogCategory, CatalogEntry, PropSpec, Size } from './types';
 import type { OpeningKind } from '../model/types';
 import { type TranslationKey, t } from '../i18n';
@@ -49,6 +50,7 @@ export const CATALOG: CatalogEntry[] = [
   ...kitchenBathEntries(),
   ...outdoorEntries(),
   ...decorEntries(),
+  ...referenceEntries(),
 ].map(withLampProps);
 
 const byId = new Map(CATALOG.map((e) => [e.catalogId, e]));

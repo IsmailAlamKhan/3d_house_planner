@@ -30,6 +30,7 @@ import RenderPipeline from './RenderPipeline';
 import { RenderDebugPanel } from '../debug/RenderDebugPanel';
 import { ContactBlobs } from './ContactBlobs';
 import { RoomLightButtons } from './RoomLightButtons';
+import { useUnderlayUi } from '../underlay/uiStore';
 
 // Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
 
@@ -119,6 +120,8 @@ export function SceneCanvas() {
   const q = QUALITY[quality];
   const night = useSceneStore((s) => s.lighting.mode === 'night');
   const presentation = useExportFlags((s) => s.presentation);
+  // "Compare with reference" wants a clean picture: no light switches, toolbars or minimap on top of the render.
+  const comparing = useUnderlayUi((s) => s.compareOpen);
   useCameraShortcuts();
   return (
     <div data-testid="scene-canvas" className="relative h-full w-full bg-slate-200">
@@ -155,7 +158,7 @@ export function SceneCanvas() {
         {!presentation && <MeasureOverlay />}
         <ExportBridge />
         <NotePins3D />
-        <RoomLightButtons />
+        {!comparing && <RoomLightButtons />}
         <CameraSystem />
         {showFps && <FpsMeter />}
         <AccentLights quality={quality} />
@@ -164,9 +167,9 @@ export function SceneCanvas() {
       </Canvas>
       <LabelsOverlay />
       <RenderDebugPanel />
-      <SceneToolbar />
-      <SavedViewsStrip />
-      <Minimap />
+      {!comparing && <SceneToolbar />}
+      {!comparing && <SavedViewsStrip />}
+      {!comparing && <Minimap />}
       <WalkHud />
       <StairWarnings />
       <CarryMessage />

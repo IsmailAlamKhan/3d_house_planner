@@ -83,3 +83,21 @@ export function pictureDistance(u: UnderlayGeometry, a: Vec2, b: Vec2): number {
   const pb = pictureToPlan(u, b);
   return Math.hypot(pb.x - pa.x, pb.y - pa.y);
 }
+
+/**
+ * The part of the plan the picture was set up on: the rectangle that was marked with four corners (the plot), moved
+ * with the picture. A picture set up with two points has none, so the whole picture is used.
+ */
+export function focusRect(
+  u: UnderlayGeometry & { setup?: { mode: string; size: number[]; origin: Vec2 } },
+): Bounds {
+  const s = u.setup;
+  if (s?.mode === 'corners' && s.size.length >= 2 && u.rotation === 0)
+    return {
+      x0: s.origin.x + u.offset.x,
+      y0: s.origin.y + u.offset.y,
+      x1: s.origin.x + u.offset.x + s.size[0]!,
+      y1: s.origin.y + u.offset.y + s.size[1]!,
+    };
+  return underlayBounds(u);
+}

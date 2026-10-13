@@ -21,6 +21,7 @@ import { ProjectsDialog } from './ProjectsDialog';
 import { useUndoRedoShortcuts } from './useShortcuts';
 import { RightSidebar } from './RightSidebar';
 import { StatusBar } from './StatusBar';
+import { CompareView } from '../underlay/CompareView';
 import { UnderlaySetupDialog } from '../underlay/SetupDialog';
 import { TopBar } from './TopBar';
 
@@ -86,8 +87,9 @@ export function App() {
             </section>
           )}
           {show3d && (
-            <section className="min-h-0 min-w-0 flex-1">
+            <section className="relative min-h-0 min-w-0 flex-1">
               <SceneCanvas />
+              <CompareView />
             </section>
           )}
         </main>

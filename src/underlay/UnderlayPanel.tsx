@@ -1,4 +1,4 @@
-import { ImageUp, X } from 'lucide-react';
+import { Columns2, ImageUp, X } from 'lucide-react';
 import { useRef } from 'react';
 import { toast } from '../catalog/actions';
 import { t, useT } from '../i18n';
@@ -216,6 +216,15 @@ export function UnderlayPanel() {
       >
         <ImageUp size={14} /> {tt('underlay.import')}
       </button>
+      {underlays.length > 0 && (
+        <button
+          onClick={() => useUnderlayUi.getState().openCompare()}
+          data-testid="compare-open"
+          className="flex items-center justify-center gap-1 rounded border border-sky-600 px-2 py-1.5 text-sm text-sky-700"
+        >
+          <Columns2 size={14} /> {tt('underlay.compare')}
+        </button>
+      )}
       {underlays.length === 0 ? (
         <p className="text-xs text-slate-500">{tt('underlay.empty')}</p>
       ) : (

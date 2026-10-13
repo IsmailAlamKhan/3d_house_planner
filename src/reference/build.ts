@@ -18,6 +18,7 @@ import { faceField, roomOnSide } from '../model/ops/paint';
 import { createEmptyProject } from '../model/project';
 import { SCHEMA_VERSION } from '../model/schemas';
 import type { Opening, Project, RoomType, SavedView, Wall } from '../model/types';
+import { type Walkthrough, walkthrough } from './walkthrough';
 import {
   type DesignSpec,
   type ItemLineSpec,
@@ -60,6 +61,8 @@ export interface DesignReport {
   unreachable: string[];
   /** Everything that could not be placed exactly as asked, and why. */
   warnings: string[];
+  /** The walk from the pedestrian gate: what it reaches and what it does not. */
+  walkthrough: Walkthrough;
 }
 
 export interface BuildResult {
@@ -173,6 +176,51 @@ function alongLine(a: Vec2, b: Vec2, every: number): { at: Vec2; angle: number }
     },
     angle,
   }));
+}
+
+/** The outline of everything built on the first level of a design (outdoor terraces left out); undefined when empty. */
+function groundFootprint(spec: ReferenceSpec, design: DesignSpec): Vec2[] | undefined {
+  const k = unitFactor(spec.units);
+  const first = spec.levels[0]!.id;
+  const rings = design.rooms
+    .filter((r) => (r.level ?? first) === first && r.type !== 'outdoor')
+    .map((r) => [polygonOf(r).map((q) => [q[0] * k, q[1] * k] as [number, number])]);
+  if (!rings.length) return undefined;
+  const union = polygonClipping.union(rings[0] as never, ...(rings.slice(1) as never[]));
+  const biggest = union
+    .map((poly) => poly[0]!)
+    .sort(
+      (a, b) =>
+        polygonArea(b.map(([x, y]) => ({ x, y }))) - polygonArea(a.map(([x, y]) => ({ x, y }))),
+    )[0];
+  return biggest ? biggest.slice(0, -1).map(([x, y]) => ({ x, y })) : undefined;
+}
+
+/** The entrance of the shell: the first main-door opening on the first level (else the middle of the front edge). */
+function entranceOf(p: Project, firstLevelId: string): Project['shell']['entrance'] {
+  const door = p.openings.find(
+    (o) =>
+      o.kind === 'door' &&
+      (o.catalogId === 'door-entrance' || o.catalogId === 'door-double') &&
+      p.walls.find((w) => w.id === o.wallId)?.levelId === firstLevelId,
+  );
+  if (door) {
+    const w = p.walls.find((x) => x.id === door.wallId)!;
+    const t = door.offset / wallLength(w);
+    return {
+      position: {
+        x: w.start.x + (w.end.x - w.start.x) * t,
+        y: w.start.y + (w.end.y - w.start.y) * t,
+      },
+      direction: Math.PI / 2,
+    };
+  }
+  const xs = p.shell.footprint.map((q) => q.x);
+  const ys = p.shell.footprint.map((q) => q.y);
+  return {
+    position: { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: Math.max(...ys) },
+    direction: Math.PI / 2,
+  };
 }
 
 /** Builds one design of the spec into a project that already has the shared parts (levels, plot, shell …). */
@@ -351,13 +399,22 @@ function buildDesign(
               z: (spec.size[1] * k) / entry.defaultSize.d,
             }
           : undefined;
+      // Where the library would put it: ceiling lights hang from the ceiling, wall pieces at their mounting height.
+      const level = p.levels.find((l) => l.id === lvl(spec.level));
+      const size = entry ? { h: entry.defaultSize.h * (scale?.y ?? 1) } : { h: 0 };
+      const autoElevation =
+        entry?.placement === 'ceiling' && level
+          ? Math.max(0, level.floorToCeiling - size.h)
+          : entry?.placement === 'wall-mounted'
+            ? (entry.mountHeight ?? 1.2)
+            : undefined;
       try {
         const id = ops.addItem(p, {
           levelId: lvl(spec.level),
           catalogId: spec.catalog,
           position: at,
           rotation,
-          elevation: spec.elevation !== undefined ? spec.elevation * k : undefined,
+          elevation: spec.elevation !== undefined ? spec.elevation * k : autoElevation,
           scale,
           props: spec.props,
         });
@@ -436,6 +493,13 @@ function buildDesign(
     }
   });
 
+  // The building outline and the entrance belong to the design.
+  const shaped = produce(project, (p) => {
+    const outline = groundFootprint(spec, design);
+    if (outline) p.shell.footprint = outline;
+    p.shell.entrance = entranceOf(p, firstLevel);
+  });
+
   // ── Report ──
   const overlaps: DesignReport['overlaps'] = [];
   for (const level of spec.levels) {
@@ -453,11 +517,11 @@ function buildDesign(
     ))
       gaps.push({ level: level.name, area });
   }
-  const unreachable = runChecks(project)
+  const unreachable = runChecks(shaped)
     .filter((i) => i.rule === 'unreachable')
     .map((i) => i.message ?? i.rule);
   return {
-    project,
+    project: shaped,
     report: {
       id: design.id,
       name: design.name,
@@ -470,6 +534,7 @@ function buildDesign(
       gaps,
       unreachable,
       warnings,
+      walkthrough: walkthrough(shaped),
     },
   };
 }
@@ -507,25 +572,9 @@ export function buildProject(input: unknown, opts: { id?: string } = {}): BuildR
     p.settings.defaultWallThickness = spec.wallThickness?.interior ?? 0.12;
     ops.setPlot(p, spec.plot.map(v));
     if (spec.setback !== undefined) p.site.setback = spec.setback * k;
-    // The shell: the outline of everything built on the first level, in any design.
-    const first = spec.levels[0]!.id;
-    const rings = spec.designs
-      .flatMap((d) => d.rooms)
-      .filter((r) => (r.level ?? first) === first && r.type !== 'outdoor')
-      .map((r) => [polygonOf(r).map((q) => [q[0] * k, q[1] * k] as [number, number])]);
-    if (rings.length) {
-      const union = polygonClipping.union(rings[0] as never, ...(rings.slice(1) as never[]));
-      const biggest = union
-        .map((poly) => poly[0]!)
-        .sort(
-          (a, b) =>
-            polygonArea(b.map(([x, y]) => ({ x, y }))) - polygonArea(a.map(([x, y]) => ({ x, y }))),
-        )[0];
-      if (biggest) {
-        const ring = biggest.slice(0, -1).map(([x, y]) => ({ x, y }));
-        p.shell.footprint = ring;
-      }
-    }
+    // The shell: the outline of the first design (every design carries its own).
+    const outline = groundFootprint(spec, spec.designs[0]!);
+    if (outline) p.shell.footprint = outline;
     p.shell.maxHeight = spec.levels.reduce((s, l) => s + l.height * k + 0.2, 0) + 0.5;
     p.shell.fixedPlumbingPoints = [];
     p.shell.windows = [];
@@ -534,36 +583,7 @@ export function buildProject(input: unknown, opts: { id?: string } = {}): BuildR
   const built = spec.designs.map((d) => buildDesign(base, spec, d));
   const main = built[0]!.project;
 
-  // The entrance of the shell: the first main-door opening on the first level (else the front edge).
-  const entranceOf = (p: Project) => {
-    const first = spec.levels[0]!.id;
-    const door = p.openings.find(
-      (o) =>
-        o.kind === 'door' &&
-        (o.catalogId === 'door-entrance' || o.catalogId === 'door-double') &&
-        p.walls.find((w) => w.id === o.wallId)?.levelId === first,
-    );
-    if (door) {
-      const w = p.walls.find((x) => x.id === door.wallId)!;
-      const t = door.offset / wallLength(w);
-      return {
-        position: {
-          x: w.start.x + (w.end.x - w.start.x) * t,
-          y: w.start.y + (w.end.y - w.start.y) * t,
-        },
-        direction: Math.PI / 2,
-      };
-    }
-    const xs = p.shell.footprint.map((q) => q.x);
-    const ys = p.shell.footprint.map((q) => q.y);
-    return {
-      position: { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: Math.max(...ys) },
-      direction: Math.PI / 2,
-    };
-  };
-
   const project = produce(main, (p) => {
-    p.shell.entrance = entranceOf(main);
     const first = spec.designs[0]!;
     p.currentOption = {
       id: `design-${first.id}`,
@@ -632,6 +652,9 @@ export function describeReport(r: BuildResult['report']): string {
         d.overlaps.length ? `${d.overlaps.length} overlap(s)` : 'no overlaps',
         d.gaps.length ? `${d.gaps.length} gap(s)` : 'no gaps',
         d.unreachable.length ? `UNREACHABLE: ${d.unreachable.join('; ')}` : 'all rooms reachable',
+        d.walkthrough.unreached.length
+          ? `NOT WALKABLE from the gate: ${d.walkthrough.unreached.join('; ')}`
+          : `walk from the gate reaches all ${d.walkthrough.total} rooms and areas`,
         d.warnings.length ? `${d.warnings.length} warning(s)` : 'no warnings',
       ];
       return `Design ${d.id} "${d.name}": ${bits.join(' · ')}`;

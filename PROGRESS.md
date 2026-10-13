@@ -301,17 +301,32 @@ State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Wind
 - `offline`, `shared`, `export`, `polish`, `villa` e2e tests are flaky only when the whole suite runs under load; they pass alone.
 - Custom models are not embedded in exported project files; the feature needs the app server (hidden on a static site).
 
-## Prompt 18 — Reference Villa: Trace From the Picture and Build It 1:1 — IN PROGRESS
+## Prompt 18 — Reference Villa: Trace From the Picture and Build It 1:1 — DONE (3D look checked with software GL only)
 
-Plan (checked off as they land):
-- [ ] A. `geometry/homography.ts`: 4-point homography (DLT), 2-point similarity, apply/invert, image rectification (+ tests)
-- [ ] B. `reference/spec.ts`: Zod `ReferenceSpec` (plot, levels, rooms rect/polygon, openings, glass partitions, zones, gates, boundary, items, lights, views, underlay, designs A/B) (+ tests)
-- [ ] C. Design options also swap outdoor zones and gates (`Design` gets `zones`, `gates`), so Option A and B can differ outdoors
-- [ ] D. `reference/build.ts`: deterministic exact builder (shared-wall graph, rooms, openings, zones, items, stairs, roof terrace, views) as one undoable batch + overlap / gap / unreachable report (+ tests)
-- [ ] E. `reference/export.ts` (project → spec), `Export → Reference spec`, `npm run reference:build -- <spec> [--out file]`, `FIDELITY.md` generator
-- [ ] F. Underlay: `project.underlay`, `/api/assets` image kind (+ IndexedDB fallback), rectification (4 corners + real size, 2-point mode), opacity/show/lock/move/rotate/send-to-back, 3D ground decal, "Measure from image"
-- [ ] G. `reference/villa.spec.json` traced from the picture: Option A "As labelled", Option B "As pictured" (+ saved views, FIDELITY.md)
-- [ ] H. "Compare with reference" view (reference image vs "Reference top-down" render, split slider)
-- [ ] I. docs/ARCHITECTURE.md, README, full verification, commit
+**What was built.** A reference-picture underlay (import → straighten with 4 corners + real size, or 2 points + distance → opacity / show / lock / over-the-plan / nudge / rotate / send to back / faint 3D ground decal / picture-pixel readout in the status bar), the exact spec → project builder with an overlap / gap / unreachable / walk-from-the-gate report, project → spec export, `npm run reference:build`, the committed `reference/villa.spec.json` (one project "Reference Villa", Option A "As labelled", Option B "As pictured", five saved views), the generated `reference/FIDELITY.md`, nine new procedural catalogue pieces and the **Compare with reference** view.
 
-Notes: the reference image is a phone screenshot (720 × ~1600); the plot is the band y ≈ 195-1270. Options share the model's `Design`; outdoor zones/gates are added to it in step C.
+- [x] A. `geometry/homography.ts`: DLT homography, 2-point scale, apply / invert / multiply, bilinear raster rectification (9 tests)
+- [x] B. `reference/spec.ts`: Zod `ReferenceSpec` (rooms as rect or polygon, walls, openings by point, zones, gates, items and rows, stairs, roofs, views, underlay, `designs[]`; `inventory` tags on items, rows, openings, gates and stairs; `pic` boxes tracing a room to the picture)
+- [x] C. `Design` carries outdoor `zones` and `gates`, and for villas its building `footprint` and `entrance` (so Option A and B can differ outdoors and each has its own entrance door)
+- [x] D. `reference/build.ts`: exact builder (shared-wall graph, T-junction splitting, wall finishes per face, openings snapped to walls, zones, gates, items with the library's default ceiling / wall elevation, stairs, roofs, roof terrace with parapet, views, underlay) + `reference/walkthrough.ts` + report (overlaps, enclosed gaps, unreachable, walk from the gates, warnings)
+- [x] E. `reference/export.ts`, **Export → Share → Reference spec (.json)**, `npm run reference:build -- <spec> [--out file] [--server url] [--id id]` (replaces the throw-away script), `reference/fidelity.ts` → `FIDELITY.md`
+- [x] F. Underlay: `project.underlays`, `/api/assets` image kind with IndexedDB fallback, setup dialog (click / drag markers, units-aware inputs), panel, plan layer, 3D decal, status-bar readout, PWA precache ignore
+- [x] G. `reference/villa.spec.json` + `scripts/author-villa-spec.ts` + `reference/FIDELITY.md`; catalogue additions `waterfall-wall`, `fire-pit-deck`, `floor-medallion`, `neon-strip`, `sofa-u`, `sofa-curved`, `pillar-light`, `planted-island`, `fountain-square`
+- [x] H. "Compare with reference" (picture beside the top-down render, draggable / keyboard divider, matched camera, restores the user's view)
+- [x] I. `docs/ARCHITECTURE.md`, README, tests, build
+
+**Acceptance.**
+- Build from a clean state: `npm run reference:build -- reference/villa.spec.json` → both options, no overlaps, no enclosed gaps, every room reachable, a walk from the gates reaches all 31 rooms and areas (foyer, every room, pool deck, gym, sauna, spa, roof terrace) in each option; the app's own checks (stairs, reachability, entrance, door swings, setback, gate paths, pool safety, minimum areas) report **0 issues in both options** (`villa.test.ts` requires none).
+- Option A: **23 of 23 labelled rooms and areas are exactly their label** (0.0 in; `FIDELITY.md`).
+- Option B: every one of the 30 rooms and areas with a picture box lies within **0.5 ft** of that box once the picture is straightened (`villa.test.ts`, worst edge ≤ 0.5 ft); the covered parking measures 20.00 ft. The underlay uses the same homography, so at 50 % opacity the plan overlays the picture wall for wall (checked by eye in the browser, and by the measurement above).
+- Inventory: 124 elements (Garden lounge with pergola and sofa set, organic infinity pool with waterfall wall and planted island, fire-pit deck with two loungers, garden door, gym, utility, kitchen, outdoor dining, kids play with trampoline and play tower, sauna, spa, left-wing rooms with the staircase to the roof terrace, living / dining with the 8-seat table, U-sectional and TV wall, foyer with medallion and double door, right-wing rooms with the neon gaming room, front garden with curved sofa and square fountain, pedestrian gate, covered parking with two SUVs, sliding car-port gate, perimeter wall with lit pillars, hedges, palms, side paths) — the same list in both options (`villa.test.ts`), listed in `FIDELITY.md`.
+- Tests: 626 unit tests pass (new: homography 9, underlay 8, asset API 7, reference spec / builder / export / fidelity 22, Reference Villa 6, options 2); 2 Playwright tests (`e2e/reference.spec.ts`: import → mark corners → straighten → lock / nudge / undo → reload → compare; and build script → options → export spec → compare).
+
+**Deviations and limits (honest list).**
+- The picture is a rendering, not a survey: its walls are not exactly straight or parallel. The four straightening corners are therefore *fitted* (least squares over every wall reading) rather than taken at the plot wall. "Within 0.5 ft" is measured against the readings I took from 3× enlargements with a 50 px grid (about ±0.25 ft of reading error), not against ground truth.
+- Labels in the picture are loose (the parking is labelled 20' × 18' but measures 20 × 17.8; most rooms measure 10–30 % off their labels), which is why Option A and Option B differ; Option A adds unlabelled filler rooms (store, guest dressing, a corridor) to keep each wing a clean rectangle, listed in the report; Option B adds a stair hall and an L-shaped corridor the picture implies.
+- The picture shows the ground floor only: the roof terrace (over the left-front wing, reached by the staircase) and the flat roofs are my interpretation. The upper slab of a villa covers its building footprint, so the comparison view looks into the house by showing the ground floor only.
+- Option B sits inside the shared plot (74 × 98 ft, the size Option A needs), against the front edge where the gates are, with garden around it; a gate snaps to the plot edge, so both options' entrance paths run to it.
+- Furniture is placed by rules (beds on a wall, wardrobes opposite, U-sectional facing the TV wall …), not copied item for item; doors that would swing into furniture are moved or made pocket doors.
+- 3D: the compare view, the roof-less cutaway and the two e2e tests ran under software GL only (slow; the browser pane lost its GL context once when switching views repeatedly). Interiors at dusk are dark where no lamp reaches (the project's lights are all on, but only the nearest 8 / 16 / 32 emit): this is the existing realistic-lighting model, and the visual match to the picture's bright interiors is for the GPU runs of Prompts 19–21. `dusk` + `lights.master: on` is set; the preset itself is a view setting, so it is applied by the compare view rather than saved in the project.
+- Not built: dragging the picture with the mouse (nudge buttons, numeric rotate instead), perspective-correct 3D decal of a picture set up with two points (it is flat).

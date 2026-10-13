@@ -1,0 +1,9137 @@
+{
+ "version": 1,
+ "name": "Reference Villa",
+ "units": "ft",
+ "plot": [
+  [
+   0,
+   0
+  ],
+  [
+   74,
+   0
+  ],
+  [
+   74,
+   98
+  ],
+  [
+   0,
+   98
+  ]
+ ],
+ "setback": 3,
+ "levels": [
+  {
+   "id": "g",
+   "name": "Ground floor",
+   "height": 10
+  },
+  {
+   "id": "roof",
+   "name": "Roof terrace",
+   "height": 9
+  }
+ ],
+ "wallThickness": {
+  "exterior": 0.75,
+  "interior": 0.4,
+  "partition": 0.16
+ },
+ "compass": 0,
+ "lights": {
+  "master": "on",
+  "off": [],
+  "on": []
+ },
+ "views": [
+  {
+   "name": "Reference top-down",
+   "mode": "top",
+   "position": [
+    37,
+    200,
+    55.5
+   ],
+   "target": [
+    37,
+    0,
+    55.5
+   ],
+   "zoom": 8.5
+  },
+  {
+   "name": "Front gate",
+   "mode": "orbit",
+   "position": [
+    37,
+    6,
+    107
+   ],
+   "target": [
+    37,
+    4,
+    60
+   ]
+  },
+  {
+   "name": "Living room",
+   "mode": "walk",
+   "position": [
+    36.5,
+    5.4,
+    57
+   ],
+   "target": [
+    36.5,
+    4.6,
+    41
+   ]
+  },
+  {
+   "name": "Pool deck",
+   "mode": "orbit",
+   "position": [
+    45.75,
+    11,
+    39.25
+   ],
+   "target": [
+    35.75,
+    1,
+    13.25
+   ]
+  },
+  {
+   "name": "Master bedroom",
+   "mode": "walk",
+   "position": [
+    18.5,
+    5.4,
+    76.75
+   ],
+   "target": [
+    8.5,
+    3.6,
+    76.75
+   ]
+  }
+ ],
+ "underlay": {
+  "image": "reference/villa-reference.png",
+  "imageSize": [
+   720,
+   1600
+  ],
+  "corners": [
+   [
+    45,
+    216.5
+   ],
+   [
+    683.75,
+    221.25
+   ],
+   [
+    715,
+    1181.25
+   ],
+   [
+    14,
+    1191.75
+   ]
+  ],
+  "size": [
+   57.82,
+   84.5
+  ],
+  "origin": [
+   8,
+   13.150000000000006
+  ],
+  "opacity": 0.5
+ },
+ "designs": [
+  {
+   "id": "A",
+   "letter": "A",
+   "name": "As labelled",
+   "description": "Every labelled room has exactly its labelled size (to the inch). The arrangement follows the picture; the leftover space becomes corridors and planting.",
+   "rooms": [
+    {
+     "id": "utility",
+     "name": "Utility",
+     "type": "utility",
+     "rect": [
+      6,
+      18,
+      6,
+      8
+     ],
+     "wallFinish": "paint-white",
+     "labelSize": [
+      6,
+      8
+     ]
+    },
+    {
+     "id": "store",
+     "name": "Store (not labelled)",
+     "type": "pantry",
+     "rect": [
+      6,
+      26,
+      6,
+      4
+     ],
+     "note": "Fills the 6′ × 4′ left under the 6′ × 8′ utility room so the wing is a clean rectangle."
+    },
+    {
+     "id": "kitchen",
+     "name": "Kitchen",
+     "type": "kitchen",
+     "rect": [
+      12,
+      18,
+      16,
+      12
+     ],
+     "wallFinish": "paint-cream",
+     "labelSize": [
+      16,
+      12
+     ]
+    },
+    {
+     "id": "bed2",
+     "name": "Bedroom 2",
+     "type": "bedroom",
+     "rect": [
+      6,
+      30,
+      14,
+      12
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      14,
+      12
+     ]
+    },
+    {
+     "id": "corridorL",
+     "name": "Left corridor and stair hall (not labelled)",
+     "type": "corridor",
+     "polygon": [
+      [
+       20,
+       30
+      ],
+      [
+       28,
+       30
+      ],
+      [
+       28,
+       79
+      ],
+      [
+       20,
+       79
+      ],
+      [
+       20,
+       62
+      ],
+      [
+       24,
+       62
+      ],
+      [
+       24,
+       48
+      ],
+      [
+       22,
+       48
+      ],
+      [
+       22,
+       42
+      ],
+      [
+       20,
+       42
+      ]
+     ],
+     "floor": "floor-marble",
+     "wallFinish": "paint-cream"
+    },
+    {
+     "id": "bath2",
+     "name": "Bath 2",
+     "type": "bathroom",
+     "rect": [
+      6,
+      42,
+      8,
+      6
+     ],
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      8,
+      6
+     ]
+    },
+    {
+     "id": "closet",
+     "name": "Walk-in Closet",
+     "type": "walk-in-closet",
+     "rect": [
+      14,
+      42,
+      8,
+      6
+     ],
+     "floor": "floor-walnut",
+     "labelSize": [
+      8,
+      6
+     ]
+    },
+    {
+     "id": "guestL",
+     "name": "Guest Room (left)",
+     "type": "bedroom",
+     "rect": [
+      6,
+      48,
+      18,
+      14
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      18,
+      14
+     ]
+    },
+    {
+     "id": "ensuite",
+     "name": "Guest Ensuite (not labelled)",
+     "type": "bathroom",
+     "rect": [
+      6,
+      62,
+      14,
+      5
+     ],
+     "wallFinish": "paint-grey"
+    },
+    {
+     "id": "bed1",
+     "name": "Bedroom 1",
+     "type": "bedroom",
+     "rect": [
+      6,
+      67,
+      14,
+      12
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      14,
+      12
+     ]
+    },
+    {
+     "id": "living",
+     "name": "Living & Dining Area",
+     "type": "living",
+     "rect": [
+      28,
+      30,
+      18,
+      28
+     ],
+     "floor": "floor-marble",
+     "wallFinish": "paint-cream",
+     "labelSize": [
+      18,
+      28
+     ]
+    },
+    {
+     "id": "foyer",
+     "name": "Foyer",
+     "type": "foyer",
+     "rect": [
+      32,
+      58,
+      10,
+      8
+     ],
+     "floor": "floor-marble",
+     "wallFinish": "paint-cream",
+     "labelSize": [
+      10,
+      8
+     ]
+    },
+    {
+     "id": "bed3",
+     "name": "Bedroom 3",
+     "type": "bedroom",
+     "rect": [
+      46,
+      28,
+      14,
+      12
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      14,
+      12
+     ]
+    },
+    {
+     "id": "bath3",
+     "name": "Bath 3",
+     "type": "bathroom",
+     "rect": [
+      60,
+      28,
+      8,
+      6
+     ],
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      8,
+      6
+     ]
+    },
+    {
+     "id": "gaming",
+     "name": "Gaming Room",
+     "type": "game-room",
+     "rect": [
+      46,
+      40,
+      16,
+      12
+     ],
+     "floor": "floor-carpet-grey",
+     "wallFinish": "paint-charcoal",
+     "labelSize": [
+      16,
+      12
+     ]
+    },
+    {
+     "id": "guestR",
+     "name": "Guest Room (right)",
+     "type": "bedroom",
+     "rect": [
+      46,
+      52,
+      14,
+      11
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      14,
+      11
+     ]
+    },
+    {
+     "id": "bathR",
+     "name": "Guest Bath",
+     "type": "bathroom",
+     "rect": [
+      60,
+      52,
+      8,
+      5
+     ],
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      8,
+      5
+     ]
+    },
+    {
+     "id": "dressR",
+     "name": "Guest Dressing (not labelled)",
+     "type": "walk-in-closet",
+     "rect": [
+      60,
+      57,
+      8,
+      6
+     ],
+     "floor": "floor-walnut",
+     "note": "In the picture this strip belongs to the guest bath (Option B)."
+    },
+    {
+     "id": "gym",
+     "name": "Gym",
+     "type": "gym",
+     "rect": [
+      54,
+      4,
+      14,
+      12
+     ],
+     "wallFinish": "paint-charcoal",
+     "labelSize": [
+      14,
+      12
+     ]
+    },
+    {
+     "id": "sauna",
+     "name": "Sauna",
+     "type": "sauna",
+     "rect": [
+      60,
+      16,
+      8,
+      6
+     ],
+     "labelSize": [
+      8,
+      6
+     ]
+    },
+    {
+     "id": "spa",
+     "name": "Spa",
+     "type": "spa",
+     "rect": [
+      60,
+      22,
+      8,
+      6
+     ],
+     "wallFinish": "paint-white",
+     "labelSize": [
+      8,
+      6
+     ]
+    },
+    {
+     "id": "terrace",
+     "name": "Roof Terrace",
+     "type": "outdoor",
+     "level": "roof",
+     "rect": [
+      6,
+      62,
+      22,
+      17
+     ],
+     "floor": "decking",
+     "parapet": true,
+     "note": "The picture shows the ground floor only; the terrace is placed over the left-front wing, reached by the staircase."
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      0.25,
+      0.25
+     ],
+     "to": [
+      73.75,
+      0.25
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 7.5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      0.25,
+      97.75
+     ],
+     "to": [
+      33.75,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      40.25,
+      97.75
+     ],
+     "to": [
+      49.75,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      66.25,
+      97.75
+     ],
+     "to": [
+      73.75,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      0.25,
+      0.25
+     ],
+     "to": [
+      0.25,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      73.75,
+      0.25
+     ],
+     "to": [
+      73.75,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    }
+   ],
+   "openings": [
+    {
+     "at": [
+      37,
+      58
+     ],
+     "kind": "archway",
+     "style": "archway",
+     "width": 6.5,
+     "inventory": "Foyer opening to the living room"
+    },
+    {
+     "at": [
+      28,
+      37
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      46,
+      35.5
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      46,
+      46
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      46,
+      55
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      60,
+      31
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      64,
+      28
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      64,
+      22
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      64,
+      16
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      60,
+      60
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      64,
+      57
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      25.5,
+      30
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3.5
+    },
+    {
+     "at": [
+      12,
+      22
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      9,
+      26
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      12,
+      28
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      20,
+      36
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      10,
+      42
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      22,
+      45
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      24,
+      55
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      15,
+      62
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      20,
+      73
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "width": 3,
+     "swing": "none"
+    },
+    {
+     "at": [
+      14,
+      45
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      37,
+      66
+     ],
+     "kind": "door",
+     "style": "door-double",
+     "width": 5.4,
+     "inventory": "Double entrance door of the foyer"
+    },
+    {
+     "at": [
+      28,
+      23
+     ],
+     "kind": "door",
+     "style": "door-sliding",
+     "swing": "none",
+     "width": 5,
+     "inventory": "Kitchen door to the outdoor dining"
+    },
+    {
+     "at": [
+      37,
+      30
+     ],
+     "kind": "door",
+     "style": "door-sliding",
+     "swing": "none",
+     "width": 8,
+     "inventory": "Living room opening to the outdoor dining"
+    },
+    {
+     "at": [
+      54,
+      12.75
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3.2,
+     "inventory": "Gym door to the deck"
+    },
+    {
+     "at": [
+      9,
+      18
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      6,
+      22
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      20,
+      18
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      6,
+      36
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      6,
+      45
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      6,
+      55
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      6,
+      64.5
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      13,
+      79
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      6,
+      73
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      53,
+      28
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      60,
+      37
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      68,
+      31
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      64,
+      34
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      53,
+      63
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      46,
+      60.5
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 3.8
+    },
+    {
+     "at": [
+      65,
+      52
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      68,
+      54.5
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      61,
+      4
+     ],
+     "kind": "window",
+     "style": "window-full",
+     "width": 4.5
+    },
+    {
+     "at": [
+      68,
+      10
+     ],
+     "kind": "window",
+     "style": "window-full",
+     "width": 4.5
+    },
+    {
+     "at": [
+      57,
+      16
+     ],
+     "kind": "window",
+     "style": "window-full",
+     "width": 4.5
+    },
+    {
+     "at": [
+      51.5,
+      0.25
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3.4,
+     "height": 6.6,
+     "inventory": "Garden door in the back wall"
+    }
+   ],
+   "zones": [
+    {
+     "id": "lounge",
+     "name": "Garden Lounge",
+     "type": "lawn",
+     "rect": [
+      6,
+      4,
+      18,
+      14
+     ],
+     "labelSize": [
+      18,
+      14
+     ]
+    },
+    {
+     "id": "pool",
+     "name": "Infinity Pool (Organic Shape)",
+     "type": "pool",
+     "polygon": [
+      [
+       24,
+       4
+      ],
+      [
+       46,
+       4
+      ],
+      [
+       46,
+       11.5
+      ],
+      [
+       44.5,
+       15
+      ],
+      [
+       41,
+       17.5
+      ],
+      [
+       35,
+       18
+      ],
+      [
+       30,
+       16.5
+      ],
+      [
+       27,
+       15.5
+      ],
+      [
+       24.5,
+       14.5
+      ],
+      [
+       24,
+       12
+      ]
+     ],
+     "material": "pool-tile",
+     "labelSize": [
+      22,
+      14
+     ]
+    },
+    {
+     "id": "firedeck",
+     "name": "Fire-Pit Deck",
+     "type": "deck",
+     "rect": [
+      46,
+      4,
+      8,
+      14
+     ],
+     "material": "decking"
+    },
+    {
+     "id": "dining",
+     "name": "Outdoor Dining",
+     "type": "patio",
+     "rect": [
+      28,
+      18,
+      14,
+      10
+     ],
+     "material": "decking",
+     "covered": true,
+     "labelSize": [
+      14,
+      10
+     ]
+    },
+    {
+     "id": "kids",
+     "name": "Kids Play Area",
+     "type": "play",
+     "rect": [
+      46,
+      18,
+      14,
+      10
+     ],
+     "material": "grass",
+     "labelSize": [
+      14,
+      10
+     ]
+    },
+    {
+     "id": "frontgarden",
+     "name": "Front Garden",
+     "type": "lawn",
+     "rect": [
+      8,
+      81,
+      24,
+      14
+     ],
+     "labelSize": [
+      24,
+      14
+     ]
+    },
+    {
+     "id": "entrypath",
+     "name": "Entrance Path and Steps",
+     "type": "path",
+     "rect": [
+      33,
+      66,
+      8,
+      32
+     ],
+     "material": "paving-stone"
+    },
+    {
+     "id": "parking",
+     "name": "Covered Car Parking",
+     "type": "parking",
+     "rect": [
+      48,
+      63,
+      20,
+      18
+     ],
+     "material": "gravel",
+     "covered": true,
+     "labelSize": [
+      20,
+      18
+     ]
+    },
+    {
+     "id": "driveway",
+     "name": "Driveway",
+     "type": "path",
+     "rect": [
+      48,
+      81,
+      20,
+      17
+     ],
+     "material": "gravel"
+    },
+    {
+     "id": "sidePlanter",
+     "name": "Side Planter (right wing)",
+     "type": "garden",
+     "rect": [
+      60,
+      34,
+      8,
+      6
+     ]
+    },
+    {
+     "id": "sideGarden",
+     "name": "Side Garden (right wing)",
+     "type": "garden",
+     "rect": [
+      62,
+      40,
+      6,
+      12
+     ]
+    },
+    {
+     "id": "carWall",
+     "name": "Planter strip beside the parking",
+     "type": "garden",
+     "rect": [
+      46,
+      63,
+      2,
+      18
+     ]
+    },
+    {
+     "id": "sideL",
+     "name": "Side Path (left)",
+     "type": "path",
+     "rect": [
+      2.75,
+      14.25,
+      1.5,
+      69.25
+     ],
+     "material": "paving-stone"
+    },
+    {
+     "id": "sideR",
+     "name": "Side Path (right)",
+     "type": "path",
+     "rect": [
+      69.75,
+      14.25,
+      1.5,
+      69.25
+     ],
+     "material": "paving-stone"
+    }
+   ],
+   "gates": [
+    {
+     "kind": "pedestrian",
+     "at": [
+      37,
+      98
+     ],
+     "facing": "south",
+     "width": 6,
+     "inventory": "Pedestrian gate (main entrance)"
+    },
+    {
+     "kind": "vehicle",
+     "at": [
+      58,
+      98
+     ],
+     "facing": "south",
+     "width": 16,
+     "inventory": "Vehicle gate (car entrance)"
+    }
+   ],
+   "items": [
+    {
+     "catalog": "washing-machine",
+     "at": [
+      7.8,
+      19.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Washing machine and dryer"
+    },
+    {
+     "catalog": "washing-machine",
+     "at": [
+      10.3,
+      19.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Washing machine and dryer"
+    },
+    {
+     "catalog": "kitchen-base-run",
+     "at": [
+      7.9,
+      22.95
+     ],
+     "rotation": 270,
+     "props": {},
+     "size": [
+      3.6,
+      2,
+      3
+     ],
+     "inventory": "Utility counter"
+    },
+    {
+     "catalog": "plant-small",
+     "at": [
+      10.8,
+      24.8
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (utility)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      9,
+      22
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "closet-shelving",
+     "at": [
+      9,
+      27.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      5,
+      1.8,
+      7
+     ],
+     "inventory": "Walk-in closet shelving"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      9,
+      28
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "fridge",
+     "at": [
+      14.05,
+      19.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge",
+     "size": [
+      2.296587926509186,
+      2.3,
+      6
+     ]
+    },
+    {
+     "catalog": "kitchen-base-run",
+     "at": [
+      16.85,
+      19.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge",
+     "size": [
+      3.3270341207349077,
+      2,
+      3
+     ]
+    },
+    {
+     "catalog": "sink-kitchen",
+     "at": [
+      20.15,
+      19.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge"
+    },
+    {
+     "catalog": "kitchen-base-run",
+     "at": [
+      23.45,
+      19.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge",
+     "size": [
+      3.3270341207349077,
+      2,
+      3
+     ]
+    },
+    {
+     "catalog": "stove",
+     "at": [
+      26.1,
+      19.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge"
+    },
+    {
+     "catalog": "kitchen-wall-cabinet",
+     "at": [
+      17.2,
+      19.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      3.7678040244969373,
+      1.15,
+      2.3
+     ],
+     "inventory": "Kitchen wall cabinets"
+    },
+    {
+     "catalog": "kitchen-wall-cabinet",
+     "at": [
+      21.15,
+      19.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      3.7678040244969373,
+      1.15,
+      2.3
+     ],
+     "inventory": "Kitchen wall cabinets"
+    },
+    {
+     "catalog": "kitchen-wall-cabinet",
+     "at": [
+      25.1,
+      19.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      3.7678040244969373,
+      1.15,
+      2.3
+     ],
+     "inventory": "Kitchen wall cabinets"
+    },
+    {
+     "catalog": "kitchen-island",
+     "at": [
+      20,
+      25.2
+     ],
+     "rotation": 0,
+     "props": {
+      "stools": true
+     },
+     "inventory": "Kitchen island with stools"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      18.2,
+      25.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      21.8,
+      25.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      26.4,
+      25.4
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (kitchen)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      20,
+      22.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-queen",
+     "at": [
+      13,
+      34.25
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (bed2)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      9.3,
+      31.55
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed2)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      16.7,
+      31.55
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed2)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      9.3,
+      31.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed2)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      16.7,
+      31.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed2)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      13,
+      39.15
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (bed2)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      9.9,
+      40.1
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (bed2)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      16.1,
+      40.4
+     ],
+     "rotation": 180,
+     "props": {},
+     "inventory": "TV unit (bed2)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      17.8,
+      40
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (bed2)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      15.4,
+      40.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (bed2)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      13,
+      36
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bed2)"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      23,
+      33
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      23,
+      39
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      23,
+      45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      23,
+      63
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      23,
+      69
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      23,
+      75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      8,
+      44.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      10.95,
+      43.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      10.95,
+      42.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      11.6,
+      45.7
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      10,
+      45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bath2)"
+    },
+    {
+     "catalog": "closet-shelving",
+     "at": [
+      18,
+      46.2
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      6.4,
+      1.8,
+      7
+     ],
+     "inventory": "Walk-in closet shelving"
+    },
+    {
+     "catalog": "closet-shelving",
+     "at": [
+      15.8,
+      45
+     ],
+     "rotation": 270,
+     "props": {},
+     "size": [
+      4.4,
+      1.8,
+      7
+     ],
+     "inventory": "Walk-in closet shelving"
+    },
+    {
+     "catalog": "plant-small",
+     "at": [
+      20.7,
+      43.3
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (closet)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      18,
+      45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-queen",
+     "at": [
+      10.25,
+      55
+     ],
+     "rotation": 270,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (guestL)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      7.55,
+      51.3
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (guestL)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      7.55,
+      58.7
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (guestL)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      7.4,
+      51.3
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestL)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      7.4,
+      58.7
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestL)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      15.15,
+      55
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (guestL)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      19.85,
+      51.9
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (guestL)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      17.9,
+      58.1
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "TV unit (guestL)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      21.8,
+      60
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (guestL)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      19.4,
+      60.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (guestL)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      15,
+      55
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (guestL)"
+    },
+    {
+     "catalog": "bathtub",
+     "at": [
+      8.8,
+      64.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      13.3,
+      64.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      15.8,
+      63.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      15.8,
+      62.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      18.3,
+      64.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      13,
+      64.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-king",
+     "at": [
+      10.25,
+      73
+     ],
+     "rotation": 270,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (bed1)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      7.55,
+      68.95
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (bed1)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      7.55,
+      77.05
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (bed1)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      7.4,
+      68.95
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed1)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      7.4,
+      77.05
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed1)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      15.15,
+      73
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (bed1)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      18.1,
+      70.35
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (bed1)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      18.4,
+      75.65
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "TV unit (bed1)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      17.8,
+      77
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (bed1)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      15.4,
+      77.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (bed1)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      13,
+      73
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bed1)"
+    },
+    {
+     "catalog": "dining-table-8",
+     "at": [
+      37,
+      35.2
+     ],
+     "rotation": 0,
+     "props": {
+      "chairColor": "#44403c"
+     },
+     "inventory": "8-seat dining table"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      34.8,
+      35.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights over the dining table"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      37,
+      35.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights over the dining table"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      39.2,
+      35.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights over the dining table"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      37,
+      47.35
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#6f6a62"
+     },
+     "size": [
+      11,
+      8,
+      0.05
+     ],
+     "inventory": "Living room rug"
+    },
+    {
+     "catalog": "sofa-u",
+     "at": [
+      37.4,
+      47.35
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#e4dccd"
+     },
+     "inventory": "U-shaped sectional sofa"
+    },
+    {
+     "catalog": "coffee-table",
+     "at": [
+      36.6,
+      47.35
+     ],
+     "rotation": 0,
+     "props": {
+      "shape": "round"
+     },
+     "size": [
+      3.4,
+      3.4,
+      1.3
+     ],
+     "inventory": "Coffee table"
+    },
+    {
+     "catalog": "tv-wall-unit",
+     "at": [
+      29.6,
+      47.35
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "TV wall"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.7,
+      32.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      44.3,
+      32.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.7,
+      41.75
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      44.3,
+      41.75
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.7,
+      56
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      41.55,
+      56
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "floor-lamp",
+     "at": [
+      32,
+      42.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Floor lamps"
+    },
+    {
+     "catalog": "floor-lamp",
+     "at": [
+      42,
+      42.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Floor lamps"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      32.5,
+      34.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      41.5,
+      34.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      32.5,
+      43.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      41.5,
+      43.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      32.5,
+      52.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      41.5,
+      52.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "floor-medallion",
+     "at": [
+      37,
+      62
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      6.4,
+      6.4,
+      0.07
+     ],
+     "inventory": "Floor medallion in the foyer"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      33.55,
+      61.2
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Foyer console tables"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      40.45,
+      61.2
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Foyer console tables"
+    },
+    {
+     "catalog": "vase-bowl",
+     "at": [
+      33.4,
+      61.2
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.6,
+     "inventory": "Foyer console tables"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      33.5,
+      59.6
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms at the entrance"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      40.5,
+      59.6
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms at the entrance"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      37,
+      62
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "bed-king",
+     "at": [
+      53,
+      32.25
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (bed3)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      48.95,
+      29.55
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed3)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      57.05,
+      29.55
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed3)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      48.95,
+      29.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed3)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      57.05,
+      29.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed3)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      53,
+      37.15
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (bed3)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      49.9,
+      38.1
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (bed3)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      56.1,
+      38.4
+     ],
+     "rotation": 180,
+     "props": {},
+     "inventory": "TV unit (bed3)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      57.8,
+      38
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (bed3)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      55.4,
+      38.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (bed3)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      53,
+      34
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bed3)"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      62,
+      30.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      64.95,
+      29.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      64.95,
+      28.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      65.6,
+      31.7
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      64,
+      31
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bath3)"
+    },
+    {
+     "catalog": "gaming-desk",
+     "at": [
+      50.65,
+      42.2
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#0f172a"
+     },
+     "inventory": "Gaming desks and monitors"
+    },
+    {
+     "catalog": "gaming-desk",
+     "at": [
+      57.35,
+      42.2
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#0f172a"
+     },
+     "inventory": "Gaming desks and monitors"
+    },
+    {
+     "catalog": "office-chair",
+     "at": [
+      50.65,
+      44.9
+     ],
+     "rotation": 180,
+     "props": {
+      "color": "#1d4ed8"
+     },
+     "inventory": "Gaming chairs"
+    },
+    {
+     "catalog": "office-chair",
+     "at": [
+      57.35,
+      44.9
+     ],
+     "rotation": 180,
+     "props": {
+      "color": "#1d4ed8"
+     },
+     "inventory": "Gaming chairs"
+    },
+    {
+     "catalog": "theatre-screen",
+     "at": [
+      61,
+      46
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      8,
+      0.3,
+      4.5
+     ],
+     "inventory": "Wall screen"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      49.2,
+      41
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#c026d3"
+     },
+     "size": [
+      4,
+      0.15,
+      0.3
+     ],
+     "elevation": 6.4,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      54,
+      41
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#38bdf8"
+     },
+     "size": [
+      5,
+      0.15,
+      0.3
+     ],
+     "elevation": 7.2,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      58.8,
+      41
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6366f1"
+     },
+     "size": [
+      4,
+      0.15,
+      0.3
+     ],
+     "elevation": 6.4,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      47,
+      46.6
+     ],
+     "rotation": 270,
+     "props": {
+      "color": "#ec4899"
+     },
+     "size": [
+      5,
+      0.15,
+      0.3
+     ],
+     "elevation": 3,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "sofa-2seat",
+     "at": [
+      58.8,
+      48.6
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#312e81"
+     },
+     "inventory": "Gaming lounge seating"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      54,
+      47
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#1e1b4b"
+     },
+     "size": [
+      11,
+      6,
+      0.05
+     ],
+     "inventory": "Gaming room rug"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      54,
+      46
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#a78bfa"
+     },
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-queen",
+     "at": [
+      53,
+      56.25
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (guestR)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      49.3,
+      52.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (guestR)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      56.7,
+      53.55
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (guestR)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      49.3,
+      52.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestR)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      56.7,
+      53.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestR)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      53,
+      61.15
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (guestR)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      49.9,
+      61.1
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (guestR)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      57.8,
+      61
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (guestR)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      55.4,
+      61.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (guestR)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      53,
+      57.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (guestR)"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      62,
+      54.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      64.95,
+      53.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      64.95,
+      52.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      65.6,
+      55.1
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      64,
+      54.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bathR)"
+    },
+    {
+     "catalog": "closet-shelving",
+     "at": [
+      64,
+      58.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      6.4,
+      1.8,
+      7
+     ],
+     "inventory": "Walk-in closet shelving"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      64,
+      60
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "treadmill",
+     "at": [
+      58.2,
+      7.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "treadmill",
+     "at": [
+      61,
+      7.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "gym-rack",
+     "at": [
+      65.15,
+      8.8
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "gym-bench",
+     "at": [
+      59.5,
+      11.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "gym-bench",
+     "at": [
+      62.3,
+      11.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      54.95,
+      10
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 2.6,
+     "size": [
+      6,
+      0.1,
+      4
+     ],
+     "inventory": "Gym mirror wall"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      57,
+      7
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      63,
+      7
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      57,
+      13
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      63,
+      13
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "sauna-bench",
+     "at": [
+      64,
+      18.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      6.2,
+      3.5,
+      3.6
+     ],
+     "inventory": "Sauna benches"
+    },
+    {
+     "catalog": "sauna-bench",
+     "at": [
+      66.1,
+      19
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      4,
+      2,
+      2.2
+     ],
+     "inventory": "Sauna benches"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      64,
+      19
+     ],
+     "rotation": 0,
+     "props": {
+      "kelvin": 2200
+     },
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "spa-tub",
+     "at": [
+      64,
+      25.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      6,
+      3.4,
+      2
+     ],
+     "inventory": "Spa tub"
+    },
+    {
+     "catalog": "plant-small",
+     "at": [
+      61.2,
+      26.9
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (spa)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      64,
+      25
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "lounge-set",
+     "at": [
+      13,
+      68.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace lounge"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      20.5,
+      67.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace lounge"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      22.2,
+      67.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace lounge"
+    },
+    {
+     "catalog": "planter-box",
+     "at": [
+      13,
+      63.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace planters"
+    },
+    {
+     "catalog": "planter-box",
+     "at": [
+      21,
+      63.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace planters"
+    },
+    {
+     "catalog": "pergola",
+     "at": [
+      15,
+      6.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      16,
+      5.4,
+      8.5
+     ],
+     "inventory": "Pergola over the garden lounge"
+    },
+    {
+     "catalog": "sofa-l",
+     "at": [
+      13.2,
+      11.6
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e5dccf"
+     },
+     "size": [
+      8.2,
+      5.6,
+      2.8
+     ],
+     "inventory": "Garden lounge sofa set"
+    },
+    {
+     "catalog": "sofa-l",
+     "at": [
+      18.6,
+      11.6
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#e5dccf"
+     },
+     "size": [
+      8.2,
+      5.6,
+      2.8
+     ],
+     "inventory": "Garden lounge sofa set"
+    },
+    {
+     "catalog": "fire-pit",
+     "at": [
+      15.9,
+      11.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Fire table in the garden lounge"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      7.5,
+      16.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f59e0b"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      12.5,
+      16.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e11d74"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      17.5,
+      16.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f59e0b"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      22.5,
+      16.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e11d74"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      7.1,
+      8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      7.1,
+      10.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      7.1,
+      13.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "waterfall-wall",
+     "at": [
+      37.65,
+      4.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      8,
+      1.4,
+      7.5
+     ],
+     "inventory": "Waterfall wall feature"
+    },
+    {
+     "catalog": "planted-island",
+     "at": [
+      27.2,
+      11.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      4.2,
+      3.8,
+      3.6
+     ],
+     "inventory": "Planted island in the pool"
+    },
+    {
+     "catalog": "pool-ladder",
+     "at": [
+      44.5,
+      6.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pool ladders"
+    },
+    {
+     "catalog": "pool-ladder",
+     "at": [
+      44.5,
+      11.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pool ladders"
+    },
+    {
+     "catalog": "fire-pit-deck",
+     "at": [
+      50,
+      8.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      7.2,
+      7.2,
+      2.4
+     ],
+     "inventory": "Fire-pit deck"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      48.6,
+      13.8
+     ],
+     "rotation": 20,
+     "props": {},
+     "inventory": "Two sun loungers on the deck"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      51.4,
+      14.4
+     ],
+     "rotation": 20,
+     "props": {},
+     "inventory": "Two sun loungers on the deck"
+    },
+    {
+     "catalog": "pergola",
+     "at": [
+      35,
+      20.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      12,
+      5,
+      8.5
+     ],
+     "inventory": "Pergola over the outdoor dining"
+    },
+    {
+     "catalog": "dining-table-6",
+     "at": [
+      35,
+      24
+     ],
+     "rotation": 0,
+     "props": {
+      "chairColor": "#44403c"
+     },
+     "inventory": "Outdoor dining table and chairs"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      33.2,
+      24
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 5.5,
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      36.8,
+      24
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 5.5,
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.2,
+      26.6
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms (outdoor dining)"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      40.8,
+      26.6
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms (outdoor dining)"
+    },
+    {
+     "catalog": "trampoline",
+     "at": [
+      49.8,
+      23
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#1e3a8a"
+     },
+     "size": [
+      4,
+      4,
+      3
+     ],
+     "inventory": "Trampoline"
+    },
+    {
+     "catalog": "play-frame",
+     "at": [
+      56.35,
+      22.2
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      5.6,
+      4.2,
+      6.5
+     ],
+     "inventory": "Play tower with slide"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      59,
+      26.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Planting around the play area"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      59,
+      19.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Planting around the play area"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      47,
+      26.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Planting around the play area"
+    },
+    {
+     "catalog": "sofa-curved",
+     "at": [
+      12.8,
+      88
+     ],
+     "rotation": 270,
+     "props": {},
+     "size": [
+      6.5,
+      4.4,
+      2.6
+     ],
+     "inventory": "Curved garden sofa"
+    },
+    {
+     "catalog": "fountain-square",
+     "at": [
+      20.5,
+      88
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      7,
+      7,
+      4.6
+     ],
+     "inventory": "Square fountain"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      10,
+      81.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e11d74"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      15,
+      81.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f59e0b"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      20,
+      81.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#dc2626"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      25,
+      81.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#a855f7"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      30,
+      81.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f97316"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      30.4,
+      93.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      9.8,
+      93.4
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms in the front garden"
+    },
+    {
+     "catalog": "tree-small",
+     "at": [
+      10.6,
+      83.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Shade trees"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      33.4,
+      69
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      40.6,
+      69
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      33.4,
+      75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      40.6,
+      75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      33.4,
+      81
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      40.6,
+      81
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      33.4,
+      87
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      40.6,
+      87
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      33.4,
+      93
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      40.6,
+      93
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "car",
+     "at": [
+      53.3,
+      71.5
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f4f4f5"
+     },
+     "size": [
+      6.4,
+      15,
+      5
+     ],
+     "inventory": "White SUV"
+    },
+    {
+     "catalog": "car",
+     "at": [
+      62.7,
+      71.5
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#18181b"
+     },
+     "size": [
+      6.4,
+      15,
+      5
+     ],
+     "inventory": "Black SUV"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      51,
+      64
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      65,
+      64
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "gate-vehicle",
+     "at": [
+      58,
+      81.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      16,
+      0.35,
+      4.6
+     ],
+     "inventory": "Sliding gate of the car port"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      0.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      0.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      33.2,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      40.8,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      49.4,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      66.6,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      48.4,
+      0.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      54.6,
+      0.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      14.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      14.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      28.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      28.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      42.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      42.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      56.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      56.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      70.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      70.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      0.35,
+      84.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      73.65,
+      84.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      14.35,
+      0.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      28.35,
+      0.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      42.35,
+      0.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      31.8,
+      94.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      42.2,
+      94.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      48,
+      94.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      5.85,
+      94.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      5.85,
+      4.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      68.65,
+      4.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      68.65,
+      94.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    }
+   ],
+   "lines": [
+    {
+     "catalog": "hedge",
+     "from": [
+      1.75,
+      1.75
+     ],
+     "to": [
+      1.75,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      72.25,
+      1.75
+     ],
+     "to": [
+      72.25,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      1.75,
+      1.75
+     ],
+     "to": [
+      48.5,
+      1.75
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      54.5,
+      1.75
+     ],
+     "to": [
+      72.25,
+      1.75
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      1.75,
+      96.25
+     ],
+     "to": [
+      31,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      43,
+      96.25
+     ],
+     "to": [
+      48,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      68,
+      96.25
+     ],
+     "to": [
+      72.25,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    }
+   ],
+   "stairs": [
+    {
+     "id": "stair-roof",
+     "from": "g",
+     "to": "roof",
+     "type": "straight",
+     "at": [
+      24,
+      78.5
+     ],
+     "direction": 270,
+     "width": 4.5,
+     "railing": true,
+     "inventory": "Staircase to the roof terrace"
+    }
+   ],
+   "roofs": [
+    {
+     "level": "g",
+     "kind": "flat",
+     "polygon": [
+      [
+       6,
+       18
+      ],
+      [
+       28,
+       18
+      ],
+      [
+       28,
+       30
+      ],
+      [
+       46,
+       30
+      ],
+      [
+       46,
+       28
+      ],
+      [
+       60,
+       28
+      ],
+      [
+       60,
+       16
+      ],
+      [
+       54,
+       16
+      ],
+      [
+       54,
+       4
+      ],
+      [
+       68,
+       4
+      ],
+      [
+       68,
+       34
+      ],
+      [
+       60,
+       34
+      ],
+      [
+       60,
+       40
+      ],
+      [
+       62,
+       40
+      ],
+      [
+       62,
+       52
+      ],
+      [
+       68,
+       52
+      ],
+      [
+       68,
+       63
+      ],
+      [
+       46,
+       63
+      ],
+      [
+       46,
+       58
+      ],
+      [
+       42,
+       58
+      ],
+      [
+       42,
+       66
+      ],
+      [
+       32,
+       66
+      ],
+      [
+       32,
+       58
+      ],
+      [
+       28,
+       58
+      ],
+      [
+       28,
+       62
+      ],
+      [
+       6,
+       62
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "B",
+   "letter": "B",
+   "name": "As pictured",
+   "description": "Proportions measured from the straightened picture (it overlays wall for wall at 50 % opacity), scaled so the covered parking is 20 ft wide.",
+   "rooms": [
+    {
+     "id": "utility",
+     "name": "Utility",
+     "type": "utility",
+     "rect": [
+      9.5,
+      27.25,
+      5.25,
+      11.5
+     ],
+     "wallFinish": "paint-white",
+     "labelSize": [
+      6,
+      8
+     ],
+     "pic": [
+      55,
+      368,
+      115,
+      492
+     ]
+    },
+    {
+     "id": "kitchen",
+     "name": "Kitchen",
+     "type": "kitchen",
+     "rect": [
+      14.75,
+      27.25,
+      12.75,
+      11.5
+     ],
+     "wallFinish": "paint-cream",
+     "labelSize": [
+      16,
+      12
+     ],
+     "pic": [
+      115,
+      368,
+      258,
+      492
+     ]
+    },
+    {
+     "id": "bed2",
+     "name": "Bedroom 2",
+     "type": "bedroom",
+     "rect": [
+      10.5,
+      38.75,
+      13.75,
+      11
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      14,
+      12
+     ],
+     "pic": [
+      62,
+      492,
+      220,
+      617
+     ]
+    },
+    {
+     "id": "corridorL",
+     "name": "Left corridor and stair hall (not labelled)",
+     "type": "corridor",
+     "rect": [
+      24.25,
+      38.75,
+      3.25,
+      19.75
+     ],
+     "floor": "floor-marble",
+     "wallFinish": "paint-cream",
+     "pic": [
+      220,
+      492,
+      258,
+      716
+     ]
+    },
+    {
+     "id": "bath2",
+     "name": "Bath 2",
+     "type": "bathroom",
+     "rect": [
+      10.5,
+      49.75,
+      8,
+      8.75
+     ],
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      8,
+      6
+     ],
+     "pic": [
+      57,
+      617,
+      152,
+      716
+     ]
+    },
+    {
+     "id": "closet",
+     "name": "Walk-in Closet",
+     "type": "walk-in-closet",
+     "rect": [
+      18.5,
+      49.75,
+      5.75,
+      8.75
+     ],
+     "floor": "floor-walnut",
+     "labelSize": [
+      8,
+      6
+     ],
+     "pic": [
+      152,
+      617,
+      220,
+      716
+     ]
+    },
+    {
+     "id": "guestL",
+     "name": "Guest Room (left)",
+     "type": "bedroom",
+     "rect": [
+      10.5,
+      58.5,
+      17,
+      10.25
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      18,
+      14
+     ],
+     "pic": [
+      57,
+      716,
+      258,
+      837
+     ]
+    },
+    {
+     "id": "ensuite",
+     "name": "Guest Ensuite (not labelled)",
+     "type": "bathroom",
+     "rect": [
+      10.5,
+      68.75,
+      13.5,
+      5.75
+     ],
+     "wallFinish": "paint-grey",
+     "pic": [
+      50,
+      837,
+      213,
+      904
+     ]
+    },
+    {
+     "id": "bed1",
+     "name": "Bedroom 1",
+     "type": "bedroom",
+     "rect": [
+      9,
+      74.5,
+      15,
+      11.25
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      14,
+      12
+     ],
+     "pic": [
+      33,
+      904,
+      213,
+      1043
+     ]
+    },
+    {
+     "id": "living",
+     "name": "Living & Dining Area",
+     "type": "living",
+     "rect": [
+      27.5,
+      40,
+      17.5,
+      32.5
+     ],
+     "floor": "floor-marble",
+     "wallFinish": "paint-cream",
+     "labelSize": [
+      18,
+      28
+     ],
+     "pic": [
+      258,
+      507,
+      460,
+      878
+     ]
+    },
+    {
+     "id": "foyer",
+     "name": "Foyer",
+     "type": "foyer",
+     "rect": [
+      31,
+      72.5,
+      8.75,
+      11
+     ],
+     "floor": "floor-marble",
+     "wallFinish": "paint-cream",
+     "labelSize": [
+      10,
+      8
+     ],
+     "pic": [
+      297,
+      878,
+      402,
+      1012
+     ]
+    },
+    {
+     "id": "bed3",
+     "name": "Bedroom 3",
+     "type": "bedroom",
+     "rect": [
+      45,
+      39.25,
+      12.5,
+      10.75
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      14,
+      12
+     ],
+     "pic": [
+      460,
+      499,
+      600,
+      619
+     ]
+    },
+    {
+     "id": "bath3",
+     "name": "Bath 3",
+     "type": "bathroom",
+     "rect": [
+      57.5,
+      39.25,
+      6.75,
+      9.75
+     ],
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      8,
+      6
+     ],
+     "pic": [
+      600,
+      499,
+      676,
+      606
+     ]
+    },
+    {
+     "id": "gaming",
+     "name": "Gaming Room",
+     "type": "game-room",
+     "rect": [
+      45,
+      50,
+      19.25,
+      9.5
+     ],
+     "floor": "floor-carpet-grey",
+     "wallFinish": "paint-charcoal",
+     "labelSize": [
+      16,
+      12
+     ],
+     "pic": [
+      460,
+      619,
+      682,
+      727
+     ]
+    },
+    {
+     "id": "guestR",
+     "name": "Guest Room (right)",
+     "type": "bedroom",
+     "rect": [
+      45,
+      59.5,
+      13,
+      12
+     ],
+     "floor": "floor-walnut",
+     "wallFinish": "paint-sage",
+     "labelSize": [
+      14,
+      11
+     ],
+     "pic": [
+      460,
+      727,
+      613,
+      866
+     ]
+    },
+    {
+     "id": "bathR",
+     "name": "Guest Bath",
+     "type": "bathroom",
+     "rect": [
+      58,
+      59.5,
+      6.25,
+      12
+     ],
+     "wallFinish": "paint-grey",
+     "labelSize": [
+      8,
+      5
+     ],
+     "pic": [
+      613,
+      727,
+      683,
+      866
+     ]
+    },
+    {
+     "id": "gym",
+     "name": "Gym",
+     "type": "gym",
+     "rect": [
+      53.5,
+      14,
+      11.25,
+      9
+     ],
+     "wallFinish": "paint-charcoal",
+     "labelSize": [
+      14,
+      12
+     ],
+     "pic": [
+      550,
+      230,
+      675,
+      323
+     ]
+    },
+    {
+     "id": "sauna",
+     "name": "Sauna",
+     "type": "sauna",
+     "rect": [
+      58.5,
+      23,
+      6.75,
+      5
+     ],
+     "labelSize": [
+      8,
+      6
+     ],
+     "pic": [
+      607,
+      323,
+      682,
+      378
+     ]
+    },
+    {
+     "id": "spa",
+     "name": "Spa",
+     "type": "spa",
+     "rect": [
+      58.5,
+      28,
+      7.25,
+      11.25
+     ],
+     "wallFinish": "paint-white",
+     "labelSize": [
+      8,
+      6
+     ],
+     "pic": [
+      607,
+      378,
+      690,
+      499
+     ]
+    },
+    {
+     "id": "stairHall",
+     "name": "Stair hall (not labelled)",
+     "type": "stair",
+     "polygon": [
+      [
+       24,
+       68.75
+      ],
+      [
+       27.5,
+       68.75
+      ],
+      [
+       27.5,
+       72.5
+      ],
+      [
+       29.5,
+       72.5
+      ],
+      [
+       29.5,
+       85.75
+      ],
+      [
+       24,
+       85.75
+      ]
+     ],
+     "floor": "floor-marble",
+     "wallFinish": "paint-cream"
+    },
+    {
+     "id": "terrace",
+     "name": "Roof Terrace",
+     "type": "outdoor",
+     "level": "roof",
+     "rect": [
+      9,
+      68.75,
+      20.5,
+      17
+     ],
+     "floor": "decking",
+     "parapet": true,
+     "note": "The picture shows the ground floor only; the terrace is placed over the left-front wing, reached by the staircase.",
+     "pic": [
+      33,
+      837,
+      280,
+      1043
+     ]
+    }
+   ],
+   "walls": [
+    {
+     "from": [
+      8,
+      13.25
+     ],
+     "to": [
+      65.75,
+      13.25
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 7.5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      8,
+      97.75
+     ],
+     "to": [
+      32.25,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      38.75,
+      97.75
+     ],
+     "to": [
+      45.75,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      62.25,
+      97.75
+     ],
+     "to": [
+      65.75,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      8,
+      13.25
+     ],
+     "to": [
+      8,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    },
+    {
+     "from": [
+      65.75,
+      13.25
+     ],
+     "to": [
+      65.75,
+      97.75
+     ],
+     "type": "exterior",
+     "thickness": 0.7,
+     "height": 5,
+     "material": "brick-white"
+    }
+   ],
+   "openings": [
+    {
+     "at": [
+      35.5,
+      72.5
+     ],
+     "kind": "archway",
+     "style": "archway",
+     "width": 6.5,
+     "inventory": "Foyer opening to the living room"
+    },
+    {
+     "at": [
+      27.5,
+      49.25
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      45,
+      45.5
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      45,
+      57.25
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      45,
+      65.5
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      57.5,
+      44.25
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      61.5,
+      39.25
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      62,
+      28
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      61.75,
+      23
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      58,
+      65.5
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      26,
+      38.75
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 2.45
+    },
+    {
+     "at": [
+      14.75,
+      33
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      24.25,
+      44.25
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3
+    },
+    {
+     "at": [
+      14.5,
+      49.75
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      24.25,
+      54.25
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      26,
+      58.5
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 2.45
+    },
+    {
+     "at": [
+      19.25,
+      68.75
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      25.75,
+      68.75
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "width": 2.7,
+     "swing": "none"
+    },
+    {
+     "at": [
+      24,
+      80.25
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "width": 3,
+     "swing": "none"
+    },
+    {
+     "at": [
+      18.5,
+      54.25
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "swing": "none",
+     "width": 3
+    },
+    {
+     "at": [
+      35.5,
+      83.5
+     ],
+     "kind": "door",
+     "style": "door-double",
+     "width": 5.4,
+     "inventory": "Double entrance door of the foyer"
+    },
+    {
+     "at": [
+      27.5,
+      34.25
+     ],
+     "kind": "door",
+     "style": "door-sliding",
+     "swing": "none",
+     "width": 5,
+     "inventory": "Kitchen door to the outdoor dining"
+    },
+    {
+     "at": [
+      36.25,
+      40
+     ],
+     "kind": "door",
+     "style": "door-sliding",
+     "swing": "none",
+     "width": 8,
+     "inventory": "Living room opening to the outdoor dining"
+    },
+    {
+     "at": [
+      53.5,
+      20.5
+     ],
+     "kind": "door",
+     "style": "door-pocket",
+     "width": 3.2,
+     "inventory": "Gym door to the deck",
+     "swing": "none"
+    },
+    {
+     "at": [
+      12.25,
+      27.25
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      9.5,
+      33
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      21.25,
+      27.25
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      10.5,
+      44.25
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      10.5,
+      54.25
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      10.5,
+      63.75
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      10.5,
+      71.75
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      16.5,
+      85.75
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      9,
+      80.25
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      42.5,
+      72.5
+     ],
+     "kind": "window",
+     "style": "window-full",
+     "width": 4.05
+    },
+    {
+     "at": [
+      51.25,
+      39.25
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      64.25,
+      44.25
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      61,
+      49
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      51.5,
+      71.5
+     ],
+     "kind": "window",
+     "style": "window-casement",
+     "width": 4.5
+    },
+    {
+     "at": [
+      64.25,
+      65.5
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      61.25,
+      71.5
+     ],
+     "kind": "window",
+     "style": "window-fixed",
+     "width": 2.5
+    },
+    {
+     "at": [
+      59.25,
+      14
+     ],
+     "kind": "window",
+     "style": "window-full",
+     "width": 4.5
+    },
+    {
+     "at": [
+      64.75,
+      18.5
+     ],
+     "kind": "window",
+     "style": "window-full",
+     "width": 4.5
+    },
+    {
+     "at": [
+      51,
+      13.25
+     ],
+     "kind": "door",
+     "style": "door-single",
+     "width": 3.4,
+     "height": 6.6,
+     "inventory": "Garden door in the back wall"
+    }
+   ],
+   "zones": [
+    {
+     "id": "lounge",
+     "name": "Garden Lounge",
+     "type": "lawn",
+     "rect": [
+      9.75,
+      14,
+      15.25,
+      13.25
+     ],
+     "labelSize": [
+      18,
+      14
+     ],
+     "pic": [
+      63,
+      225,
+      235,
+      365
+     ]
+    },
+    {
+     "id": "pool",
+     "name": "Infinity Pool (Organic Shape)",
+     "type": "pool",
+     "polygon": [
+      [
+       27.75,
+       16.5
+      ],
+      [
+       43.75,
+       16.25
+      ],
+      [
+       43.75,
+       22.5
+      ],
+      [
+       43.25,
+       24.75
+      ],
+      [
+       41.75,
+       26.25
+      ],
+      [
+       39,
+       26.75
+      ],
+      [
+       35.5,
+       26.75
+      ],
+      [
+       32.75,
+       26.25
+      ],
+      [
+       31,
+       25.5
+      ],
+      [
+       29.25,
+       25
+      ],
+      [
+       27.75,
+       24.25
+      ]
+     ],
+     "material": "pool-tile",
+     "labelSize": [
+      22,
+      14
+     ]
+    },
+    {
+     "id": "firedeck",
+     "name": "Fire-Pit Deck",
+     "type": "deck",
+     "rect": [
+      44,
+      16,
+      9.25,
+      13.5
+     ],
+     "material": "decking",
+     "pic": [
+      445,
+      250,
+      548,
+      392
+     ]
+    },
+    {
+     "id": "dining",
+     "name": "Outdoor Dining",
+     "type": "patio",
+     "rect": [
+      28,
+      28.75,
+      13,
+      11
+     ],
+     "material": "decking",
+     "covered": true,
+     "labelSize": [
+      14,
+      10
+     ],
+     "pic": [
+      267,
+      385,
+      415,
+      505
+     ]
+    },
+    {
+     "id": "kids",
+     "name": "Kids Play Area",
+     "type": "play",
+     "rect": [
+      42,
+      30.25,
+      15.75,
+      8.75
+     ],
+     "material": "grass",
+     "labelSize": [
+      14,
+      10
+     ],
+     "pic": [
+      423,
+      400,
+      600,
+      495
+     ]
+    },
+    {
+     "id": "frontgarden",
+     "name": "Front Garden",
+     "type": "lawn",
+     "rect": [
+      8.5,
+      87.5,
+      23.25,
+      10
+     ],
+     "labelSize": [
+      24,
+      14
+     ],
+     "pic": [
+      23,
+      1063,
+      305,
+      1187
+     ]
+    },
+    {
+     "id": "entrypath",
+     "name": "Entrance Path and Steps",
+     "type": "path",
+     "rect": [
+      32.25,
+      83.5,
+      6.75,
+      14.5
+     ],
+     "material": "paving-stone",
+     "pic": [
+      310,
+      1012,
+      392,
+      1197
+     ]
+    },
+    {
+     "id": "parking",
+     "name": "Covered Car Parking",
+     "type": "parking",
+     "rect": [
+      44,
+      73,
+      20,
+      17.75
+     ],
+     "material": "gravel",
+     "covered": true,
+     "labelSize": [
+      20,
+      18
+     ],
+     "pic": [
+      452,
+      885,
+      688,
+      1098
+     ]
+    },
+    {
+     "id": "driveway",
+     "name": "Driveway",
+     "type": "path",
+     "rect": [
+      44,
+      90.75,
+      20.75,
+      7.25
+     ],
+     "material": "gravel",
+     "pic": [
+      452,
+      1098,
+      700,
+      1197
+     ]
+    },
+    {
+     "id": "stonepath",
+     "name": "Stepping-stone path (garden lounge to the pool)",
+     "type": "path",
+     "rect": [
+      25,
+      13.75,
+      2.75,
+      13.25
+     ],
+     "material": "paving-stone",
+     "pic": [
+      235,
+      225,
+      265,
+      365
+     ]
+    },
+    {
+     "id": "courtL",
+     "name": "Entry Court (left planter)",
+     "type": "garden",
+     "rect": [
+      29.75,
+      72.5,
+      1.25,
+      10.75
+     ],
+     "pic": [
+      282,
+      880,
+      297,
+      1010
+     ]
+    },
+    {
+     "id": "courtR",
+     "name": "Entry Court (right planter)",
+     "type": "garden",
+     "rect": [
+      39.75,
+      72.5,
+      4.25,
+      11
+     ],
+     "pic": [
+      402,
+      880,
+      452,
+      1012
+     ]
+    },
+    {
+     "id": "sideL",
+     "name": "Side Path (left)",
+     "type": "path",
+     "rect": [
+      3.75,
+      27.25,
+      1.5,
+      56.5
+     ],
+     "material": "paving-stone"
+    },
+    {
+     "id": "sideR",
+     "name": "Side Path (right)",
+     "type": "path",
+     "rect": [
+      68.5,
+      27.25,
+      1.5,
+      56.5
+     ],
+     "material": "paving-stone"
+    }
+   ],
+   "gates": [
+    {
+     "kind": "pedestrian",
+     "at": [
+      35.5,
+      98
+     ],
+     "facing": "south",
+     "width": 6,
+     "inventory": "Pedestrian gate (main entrance)"
+    },
+    {
+     "kind": "vehicle",
+     "at": [
+      54,
+      98
+     ],
+     "facing": "south",
+     "width": 16,
+     "inventory": "Vehicle gate (car entrance)"
+    }
+   ],
+   "items": [
+    {
+     "catalog": "washing-machine",
+     "at": [
+      11.1,
+      29.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Washing machine and dryer"
+    },
+    {
+     "catalog": "washing-machine",
+     "at": [
+      13.3,
+      29.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Washing machine and dryer"
+    },
+    {
+     "catalog": "kitchen-base-run",
+     "at": [
+      11.4,
+      34.4
+     ],
+     "rotation": 270,
+     "props": {},
+     "size": [
+      5.175,
+      2,
+      3
+     ],
+     "inventory": "Utility counter"
+    },
+    {
+     "catalog": "plant-small",
+     "at": [
+      13.55,
+      37.55
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (utility)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      12.15,
+      33
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "fridge",
+     "at": [
+      16.8,
+      29.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge",
+     "size": [
+      2.296587926509186,
+      2.3,
+      6
+     ]
+    },
+    {
+     "catalog": "kitchen-base-run",
+     "at": [
+      18.8,
+      29.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge",
+     "size": [
+      1.7020341207349077,
+      2,
+      3
+     ]
+    },
+    {
+     "catalog": "sink-kitchen",
+     "at": [
+      21.3,
+      29.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge"
+    },
+    {
+     "catalog": "kitchen-base-run",
+     "at": [
+      23.8,
+      29.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge",
+     "size": [
+      1.7020341207349077,
+      2,
+      3
+     ]
+    },
+    {
+     "catalog": "stove",
+     "at": [
+      25.6,
+      29.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Kitchen cabinets, sink, hob and fridge"
+    },
+    {
+     "catalog": "kitchen-wall-cabinet",
+     "at": [
+      19.4,
+      28.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      2.6844706911636043,
+      1.15,
+      2.3
+     ],
+     "inventory": "Kitchen wall cabinets"
+    },
+    {
+     "catalog": "kitchen-wall-cabinet",
+     "at": [
+      22.25,
+      28.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      2.6844706911636043,
+      1.15,
+      2.3
+     ],
+     "inventory": "Kitchen wall cabinets"
+    },
+    {
+     "catalog": "kitchen-wall-cabinet",
+     "at": [
+      25.15,
+      28.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      2.6844706911636043,
+      1.15,
+      2.3
+     ],
+     "inventory": "Kitchen wall cabinets"
+    },
+    {
+     "catalog": "kitchen-island",
+     "at": [
+      21.15,
+      34.2
+     ],
+     "rotation": 0,
+     "props": {
+      "stools": true
+     },
+     "inventory": "Kitchen island with stools"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      19.35,
+      34.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      22.95,
+      34.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      25.9,
+      35.4
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (kitchen)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      21.15,
+      31.3
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-queen",
+     "at": [
+      17.4,
+      43
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (bed2)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      13.65,
+      40.3
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed2)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      21.1,
+      40.3
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed2)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      13.65,
+      40.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed2)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      21.1,
+      40.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed2)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      17.4,
+      47.9
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (bed2)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      14.35,
+      47.85
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (bed2)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      20.4,
+      48.15
+     ],
+     "rotation": 180,
+     "props": {},
+     "inventory": "TV unit (bed2)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      22.05,
+      47.75
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (bed2)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      19.65,
+      47.95
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (bed2)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      17.4,
+      44.25
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bed2)"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      27.25,
+      41.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      27.25,
+      47.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      27.25,
+      53.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      12.5,
+      51.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      15.45,
+      51.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      15.45,
+      50.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      16.1,
+      55.2
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Bathroom fittings (bath2)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      14.5,
+      54.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bath2)"
+    },
+    {
+     "catalog": "closet-shelving",
+     "at": [
+      21.4,
+      56.7
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      4.15,
+      1.8,
+      7
+     ],
+     "inventory": "Walk-in closet shelving"
+    },
+    {
+     "catalog": "closet-shelving",
+     "at": [
+      20.3,
+      54.15
+     ],
+     "rotation": 270,
+     "props": {},
+     "size": [
+      5,
+      1.8,
+      7
+     ],
+     "inventory": "Walk-in closet shelving"
+    },
+    {
+     "catalog": "plant-small",
+     "at": [
+      22.95,
+      51.05
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (closet)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      21.4,
+      54.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-queen",
+     "at": [
+      14.75,
+      63.65
+     ],
+     "rotation": 270,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (guestL)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      12.05,
+      59.9
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (guestL)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      12.05,
+      67.35
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (guestL)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      11.9,
+      59.9
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestL)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      11.9,
+      67.35
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestL)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      19.65,
+      63.65
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (guestL)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      23.6,
+      61.35
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (guestL)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      21.4,
+      65.9
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "TV unit (guestL)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      25.3,
+      66.75
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (guestL)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      22.9,
+      66.95
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (guestL)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      19,
+      63.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (guestL)"
+    },
+    {
+     "catalog": "bathtub",
+     "at": [
+      13.2,
+      70.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      17.5,
+      70.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      19.95,
+      70.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      19.95,
+      69.7
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      22.4,
+      71.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (guest ensuite)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      17.25,
+      71.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-king",
+     "at": [
+      13.25,
+      80.15
+     ],
+     "rotation": 270,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (bed1)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      10.55,
+      76.05
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (bed1)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      10.55,
+      84.2
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Bedside tables (bed1)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      10.4,
+      76.05
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed1)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      10.4,
+      84.2
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed1)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      18.15,
+      80.15
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (bed1)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      22.1,
+      77.65
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (bed1)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      22.4,
+      82.6
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "TV unit (bed1)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      21.8,
+      83.75
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (bed1)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      19.4,
+      83.95
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (bed1)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      16.5,
+      80.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bed1)"
+    },
+    {
+     "catalog": "dining-table-8",
+     "at": [
+      36.25,
+      45.2
+     ],
+     "rotation": 0,
+     "props": {
+      "chairColor": "#44403c"
+     },
+     "inventory": "8-seat dining table"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      34.05,
+      45.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights over the dining table"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      36.25,
+      45.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights over the dining table"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      38.45,
+      45.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights over the dining table"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      36.25,
+      60.15
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#6f6a62"
+     },
+     "size": [
+      11,
+      8,
+      0.05
+     ],
+     "inventory": "Living room rug"
+    },
+    {
+     "catalog": "sofa-u",
+     "at": [
+      36.65,
+      60.15
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#e4dccd"
+     },
+     "inventory": "U-shaped sectional sofa"
+    },
+    {
+     "catalog": "coffee-table",
+     "at": [
+      35.85,
+      60.15
+     ],
+     "rotation": 0,
+     "props": {
+      "shape": "round"
+     },
+     "size": [
+      3.4,
+      3.4,
+      1.3
+     ],
+     "inventory": "Coffee table"
+    },
+    {
+     "catalog": "tv-wall-unit",
+     "at": [
+      29.1,
+      60.15
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "TV wall"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.2,
+      42.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      43.3,
+      42.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.2,
+      53.65
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      43.3,
+      53.65
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.2,
+      70.5
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      43.3,
+      70.5
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms along the living room"
+    },
+    {
+     "catalog": "floor-lamp",
+     "at": [
+      31.25,
+      54.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Floor lamps"
+    },
+    {
+     "catalog": "floor-lamp",
+     "at": [
+      41.25,
+      54.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Floor lamps"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      32,
+      44.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      41,
+      44.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      32,
+      53.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      41,
+      53.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      32,
+      62.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      41,
+      62.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      32,
+      71.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      41,
+      71.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "floor-medallion",
+     "at": [
+      35.4,
+      78
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      7.15,
+      7.15,
+      0.07
+     ],
+     "inventory": "Floor medallion in the foyer"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      32.55,
+      76.9
+     ],
+     "rotation": 270,
+     "props": {},
+     "inventory": "Foyer console tables"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      38.2,
+      76.9
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Foyer console tables"
+    },
+    {
+     "catalog": "vase-bowl",
+     "at": [
+      32.4,
+      76.9
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 1.6,
+     "inventory": "Foyer console tables"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      32.5,
+      74.7
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms at the entrance"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      38.25,
+      74.7
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms at the entrance"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      35.4,
+      78
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "bed-king",
+     "at": [
+      51.25,
+      43.5
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (bed3)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      47.2,
+      40.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed3)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      55.3,
+      40.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (bed3)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      47.2,
+      40.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed3)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      55.3,
+      40.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (bed3)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      51.25,
+      48.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (bed3)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      48.5,
+      48.1
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (bed3)"
+    },
+    {
+     "catalog": "tv-unit",
+     "at": [
+      54,
+      48.4
+     ],
+     "rotation": 180,
+     "props": {},
+     "inventory": "TV unit (bed3)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      55.3,
+      48
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (bed3)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      52.9,
+      48.2
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (bed3)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      51.25,
+      44.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bed3)"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      59.2,
+      41.35
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      61.7,
+      40.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      61.7,
+      40.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      61.85,
+      45.3
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Bathroom fittings (bath3)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      60.9,
+      44.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bath3)"
+    },
+    {
+     "catalog": "gaming-desk",
+     "at": [
+      51.25,
+      52.2
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#0f172a"
+     },
+     "inventory": "Gaming desks and monitors"
+    },
+    {
+     "catalog": "gaming-desk",
+     "at": [
+      58,
+      52.2
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#0f172a"
+     },
+     "inventory": "Gaming desks and monitors"
+    },
+    {
+     "catalog": "office-chair",
+     "at": [
+      51.25,
+      54.9
+     ],
+     "rotation": 180,
+     "props": {
+      "color": "#1d4ed8"
+     },
+     "inventory": "Gaming chairs"
+    },
+    {
+     "catalog": "office-chair",
+     "at": [
+      58,
+      54.9
+     ],
+     "rotation": 180,
+     "props": {
+      "color": "#1d4ed8"
+     },
+     "inventory": "Gaming chairs"
+    },
+    {
+     "catalog": "theatre-screen",
+     "at": [
+      63.25,
+      54.75
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      7.5,
+      0.3,
+      4.5
+     ],
+     "inventory": "Wall screen"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      48.85,
+      51
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#c026d3"
+     },
+     "size": [
+      4,
+      0.15,
+      0.3
+     ],
+     "elevation": 6.4,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      54.65,
+      51
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#38bdf8"
+     },
+     "size": [
+      5,
+      0.15,
+      0.3
+     ],
+     "elevation": 7.2,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      60.4,
+      51
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6366f1"
+     },
+     "size": [
+      4,
+      0.15,
+      0.3
+     ],
+     "elevation": 6.4,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "neon-strip",
+     "at": [
+      46,
+      55.25
+     ],
+     "rotation": 270,
+     "props": {
+      "color": "#ec4899"
+     },
+     "size": [
+      5,
+      0.15,
+      0.3
+     ],
+     "elevation": 3,
+     "inventory": "Neon strip lights"
+    },
+    {
+     "catalog": "sofa-2seat",
+     "at": [
+      61.05,
+      56.1
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#312e81"
+     },
+     "inventory": "Gaming lounge seating"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      54.65,
+      55.75
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#1e1b4b"
+     },
+     "size": [
+      11,
+      6,
+      0.05
+     ],
+     "inventory": "Gaming room rug"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      54.65,
+      54.75
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#a78bfa"
+     },
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "bed-queen",
+     "at": [
+      51.5,
+      63.75
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#2f5d50",
+      "frameColor": "#5b3f27"
+     },
+     "inventory": "Bed (guestR)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      47.8,
+      61.05
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (guestR)"
+    },
+    {
+     "catalog": "side-table",
+     "at": [
+      55.2,
+      61.05
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bedside tables (guestR)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      47.8,
+      60.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestR)"
+    },
+    {
+     "catalog": "table-lamp",
+     "at": [
+      55.2,
+      60.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 1.65,
+     "inventory": "Bedside lamps (guestR)"
+    },
+    {
+     "catalog": "rug",
+     "at": [
+      51.5,
+      68.65
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#8a7d6a"
+     },
+     "size": [
+      8,
+      5.5,
+      0.05
+     ],
+     "inventory": "Rugs (guestR)"
+    },
+    {
+     "catalog": "wardrobe",
+     "at": [
+      48.65,
+      69.6
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      6,
+      2,
+      7.2
+     ],
+     "inventory": "Wardrobe (guestR)"
+    },
+    {
+     "catalog": "armchair",
+     "at": [
+      55.8,
+      69.5
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#6b8e7a"
+     },
+     "inventory": "Armchair (guestR)"
+    },
+    {
+     "catalog": "plant-medium",
+     "at": [
+      53.4,
+      69.7
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (guestR)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      51.5,
+      65.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (guestR)"
+    },
+    {
+     "catalog": "wc",
+     "at": [
+      59.55,
+      61.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "basin",
+     "at": [
+      61.9,
+      61.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      61.9,
+      60.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 3.6,
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "shower",
+     "at": [
+      61.85,
+      66.95
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Bathroom fittings (bathR)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      61.15,
+      65.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights (bathR)"
+    },
+    {
+     "catalog": "treadmill",
+     "at": [
+      56.9,
+      17.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "treadmill",
+     "at": [
+      59.15,
+      17.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "gym-rack",
+     "at": [
+      61.9,
+      17.6
+     ],
+     "rotation": 90,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "gym-bench",
+     "at": [
+      57.65,
+      20.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "gym-bench",
+     "at": [
+      60.45,
+      20.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Gym equipment"
+    },
+    {
+     "catalog": "mirror",
+     "at": [
+      54.45,
+      18.5
+     ],
+     "rotation": 270,
+     "props": {},
+     "elevation": 2.6,
+     "size": [
+      6,
+      0.1,
+      4
+     ],
+     "inventory": "Gym mirror wall"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      56.5,
+      17
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      62.5,
+      17
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Recessed ceiling lights"
+    },
+    {
+     "catalog": "sauna-bench",
+     "at": [
+      61.9,
+      25.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      4.95,
+      3.5,
+      3.6
+     ],
+     "inventory": "Sauna benches"
+    },
+    {
+     "catalog": "sauna-bench",
+     "at": [
+      63.35,
+      25.5
+     ],
+     "rotation": 90,
+     "props": {},
+     "size": [
+      3.2,
+      2,
+      2.2
+     ],
+     "inventory": "Sauna benches"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      61.9,
+      25.5
+     ],
+     "rotation": 0,
+     "props": {
+      "kelvin": 2200
+     },
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "spa-tub",
+     "at": [
+      62.15,
+      33.85
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      5.65,
+      3.4,
+      2
+     ],
+     "inventory": "Spa tub"
+    },
+    {
+     "catalog": "plant-small",
+     "at": [
+      59.7,
+      38.15
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "fern"
+     },
+     "inventory": "House plants (spa)"
+    },
+    {
+     "catalog": "ceiling-light",
+     "at": [
+      62.15,
+      33.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Ceiling lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      27,
+      71.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      27,
+      77.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "downlight",
+     "at": [
+      27,
+      83.75
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Corridor lights"
+    },
+    {
+     "catalog": "lounge-set",
+     "at": [
+      15.25,
+      75.25
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace lounge"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      22.75,
+      74.25
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace lounge"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      24.45,
+      74.25
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace lounge"
+    },
+    {
+     "catalog": "planter-box",
+     "at": [
+      15.25,
+      70.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace planters"
+    },
+    {
+     "catalog": "planter-box",
+     "at": [
+      23.25,
+      70.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "level": "roof",
+     "inventory": "Roof terrace planters"
+    },
+    {
+     "catalog": "pergola",
+     "at": [
+      17.4,
+      16.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      14.25,
+      5.4,
+      8.5
+     ],
+     "inventory": "Pergola over the garden lounge"
+    },
+    {
+     "catalog": "sofa-l",
+     "at": [
+      15.6,
+      21.25
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e5dccf"
+     },
+     "size": [
+      8.2,
+      5.6,
+      2.8
+     ],
+     "inventory": "Garden lounge sofa set"
+    },
+    {
+     "catalog": "sofa-l",
+     "at": [
+      21,
+      21.25
+     ],
+     "rotation": 90,
+     "props": {
+      "color": "#e5dccf"
+     },
+     "size": [
+      8.2,
+      5.6,
+      2.8
+     ],
+     "inventory": "Garden lounge sofa set"
+    },
+    {
+     "catalog": "fire-pit",
+     "at": [
+      18.3,
+      21.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Fire table in the garden lounge"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      11.25,
+      26.15
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f59e0b"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      15.35,
+      26.15
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e11d74"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      19.4,
+      26.15
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f59e0b"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      23.5,
+      26.15
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e11d74"
+     },
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      10.85,
+      18
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      10.85,
+      20.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      10.85,
+      23.2
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds"
+    },
+    {
+     "catalog": "waterfall-wall",
+     "at": [
+      37.65,
+      17.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      8,
+      1.4,
+      7.5
+     ],
+     "inventory": "Waterfall wall feature"
+    },
+    {
+     "catalog": "planted-island",
+     "at": [
+      30.95,
+      22.05
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      4.2,
+      3.8,
+      3.6
+     ],
+     "inventory": "Planted island in the pool"
+    },
+    {
+     "catalog": "pool-ladder",
+     "at": [
+      42.25,
+      18.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pool ladders"
+    },
+    {
+     "catalog": "pool-ladder",
+     "at": [
+      42.25,
+      22.05
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Pool ladders"
+    },
+    {
+     "catalog": "fire-pit-deck",
+     "at": [
+      48.65,
+      20.6
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      7.4,
+      7.4,
+      2.4
+     ],
+     "inventory": "Fire-pit deck"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      47.25,
+      25.3
+     ],
+     "rotation": 20,
+     "props": {},
+     "inventory": "Two sun loungers on the deck"
+    },
+    {
+     "catalog": "sun-lounger",
+     "at": [
+      50.05,
+      25.9
+     ],
+     "rotation": 20,
+     "props": {},
+     "inventory": "Two sun loungers on the deck"
+    },
+    {
+     "catalog": "pergola",
+     "at": [
+      34.5,
+      31.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      12,
+      5,
+      8.5
+     ],
+     "inventory": "Pergola over the outdoor dining"
+    },
+    {
+     "catalog": "dining-table-6",
+     "at": [
+      34.5,
+      35.25
+     ],
+     "rotation": 0,
+     "props": {
+      "chairColor": "#44403c"
+     },
+     "inventory": "Outdoor dining table and chairs"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      32.7,
+      35.25
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 5.5,
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "pendant-light",
+     "at": [
+      36.3,
+      35.25
+     ],
+     "rotation": 0,
+     "props": {},
+     "elevation": 5.5,
+     "inventory": "Pendant lights"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      29.2,
+      38.35
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms (outdoor dining)"
+    },
+    {
+     "catalog": "plant-large",
+     "at": [
+      39.8,
+      38.35
+     ],
+     "rotation": 0,
+     "props": {
+      "species": "palm"
+     },
+     "inventory": "Potted palms (outdoor dining)"
+    },
+    {
+     "catalog": "trampoline",
+     "at": [
+      46.25,
+      34.65
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#1e3a8a"
+     },
+     "size": [
+      4,
+      4,
+      3
+     ],
+     "inventory": "Trampoline"
+    },
+    {
+     "catalog": "play-frame",
+     "at": [
+      53.65,
+      33.95
+     ],
+     "rotation": 180,
+     "props": {},
+     "size": [
+      5.6,
+      4.2,
+      6.5
+     ],
+     "inventory": "Play tower with slide"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      56.75,
+      37.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Planting around the play area"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      56.75,
+      31.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Planting around the play area"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      43,
+      37.8
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Planting around the play area"
+    },
+    {
+     "catalog": "sofa-curved",
+     "at": [
+      13.15,
+      92.5
+     ],
+     "rotation": 270,
+     "props": {},
+     "size": [
+      6.5,
+      4.4,
+      2.6
+     ],
+     "inventory": "Curved garden sofa"
+    },
+    {
+     "catalog": "fountain-square",
+     "at": [
+      20.6,
+      92.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      7,
+      7,
+      4.6
+     ],
+     "inventory": "Square fountain"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      10.5,
+      88.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#e11d74"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      15.3,
+      88.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f59e0b"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      20.15,
+      88.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#dc2626"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      24.95,
+      88.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#a855f7"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "flower-bed",
+     "at": [
+      29.75,
+      88.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f97316"
+     },
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "shrub",
+     "at": [
+      30.15,
+      96.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Flower beds in the front garden"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      10.3,
+      95.9
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms in the front garden"
+    },
+    {
+     "catalog": "tree-small",
+     "at": [
+      11.1,
+      90.1
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Shade trees"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      32.65,
+      86.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      38.6,
+      86.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      32.65,
+      92.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      38.6,
+      92.5
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "car",
+     "at": [
+      49.3,
+      81.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#f4f4f5"
+     },
+     "size": [
+      6.4,
+      15,
+      5
+     ],
+     "inventory": "White SUV"
+    },
+    {
+     "catalog": "car",
+     "at": [
+      58.7,
+      81.4
+     ],
+     "rotation": 0,
+     "props": {
+      "color": "#18181b"
+     },
+     "size": [
+      6.4,
+      15,
+      5
+     ],
+     "inventory": "Black SUV"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      47,
+      74
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "garden-light",
+     "at": [
+      61,
+      74
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Garden lights"
+    },
+    {
+     "catalog": "gate-vehicle",
+     "at": [
+      54.4,
+      90.95
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      16,
+      0.35,
+      4.6
+     ],
+     "inventory": "Sliding gate of the car port"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      8,
+      13.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      65.8,
+      13.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      8,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      65.8,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      31.7,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      39.3,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      45.4,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      62.6,
+      97.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      47.9,
+      13.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      54.1,
+      13.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      8,
+      27.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      65.8,
+      27.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      8,
+      41.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      65.8,
+      41.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      8,
+      55.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      65.8,
+      55.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      8,
+      69.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      65.8,
+      69.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      8,
+      83.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      65.8,
+      83.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      22,
+      13.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "pillar-light",
+     "at": [
+      36,
+      13.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "size": [
+      1.5,
+      1.5,
+      4.4
+     ],
+     "inventory": "Lit wall pillars"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      30.3,
+      94.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      40.7,
+      94.45
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      44,
+      94.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      5,
+      94.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      5,
+      17.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      68.8,
+      17.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-palm",
+     "at": [
+      68.8,
+      94.15
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Palms along the perimeter"
+    },
+    {
+     "catalog": "tree-broad",
+     "at": [
+      14,
+      8.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Shade trees"
+    },
+    {
+     "catalog": "tree-broad",
+     "at": [
+      26,
+      8.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Shade trees"
+    },
+    {
+     "catalog": "tree-broad",
+     "at": [
+      38,
+      8.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Shade trees"
+    },
+    {
+     "catalog": "tree-broad",
+     "at": [
+      62,
+      8.65
+     ],
+     "rotation": 0,
+     "props": {},
+     "inventory": "Shade trees"
+    }
+   ],
+   "lines": [
+    {
+     "catalog": "hedge",
+     "from": [
+      6.5,
+      11.5
+     ],
+     "to": [
+      6.5,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      67.5,
+      11.5
+     ],
+     "to": [
+      67.5,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      6.5,
+      11.5
+     ],
+     "to": [
+      48,
+      11.5
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      54,
+      11.5
+     ],
+     "to": [
+      67.5,
+      11.5
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      6.5,
+      96.25
+     ],
+     "to": [
+      29.5,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    },
+    {
+     "catalog": "hedge",
+     "from": [
+      64,
+      96.25
+     ],
+     "to": [
+      67.5,
+      96.25
+     ],
+     "every": 9.8,
+     "rotation": "along",
+     "inventory": "Perimeter hedges"
+    }
+   ],
+   "stairs": [
+    {
+     "id": "stair-roof",
+     "from": "g",
+     "to": "roof",
+     "type": "straight",
+     "at": [
+      26.75,
+      85.25
+     ],
+     "direction": 270,
+     "width": 4.1,
+     "railing": true,
+     "inventory": "Staircase to the roof terrace"
+    }
+   ],
+   "roofs": [
+    {
+     "level": "g",
+     "kind": "flat",
+     "polygon": [
+      [
+       9.5,
+       27.25
+      ],
+      [
+       27.5,
+       27.25
+      ],
+      [
+       27.5,
+       40
+      ],
+      [
+       45,
+       40
+      ],
+      [
+       45,
+       39.25
+      ],
+      [
+       58.5,
+       39.25
+      ],
+      [
+       58.5,
+       23
+      ],
+      [
+       53.5,
+       23
+      ],
+      [
+       53.5,
+       14
+      ],
+      [
+       64.75,
+       14
+      ],
+      [
+       64.75,
+       23
+      ],
+      [
+       65.25,
+       23
+      ],
+      [
+       65.25,
+       28
+      ],
+      [
+       65.75,
+       28
+      ],
+      [
+       65.75,
+       39.25
+      ],
+      [
+       64.25,
+       39.25
+      ],
+      [
+       64.25,
+       49
+      ],
+      [
+       57.5,
+       49
+      ],
+      [
+       57.5,
+       50
+      ],
+      [
+       64.25,
+       50
+      ],
+      [
+       64.25,
+       71.5
+      ],
+      [
+       45,
+       71.5
+      ],
+      [
+       45,
+       72.5
+      ],
+      [
+       39.75,
+       72.5
+      ],
+      [
+       39.75,
+       83.5
+      ],
+      [
+       31,
+       83.5
+      ],
+      [
+       31,
+       72.5
+      ],
+      [
+       29.5,
+       72.5
+      ],
+      [
+       29.5,
+       68.75
+      ],
+      [
+       10.5,
+       68.75
+      ],
+      [
+       10.5,
+       38.75
+      ],
+      [
+       9.5,
+       38.75
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}

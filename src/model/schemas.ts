@@ -290,6 +290,9 @@ export const DesignSchema = z.object({
   /** Outdoor zones and gates belong to the design too (optional: designs saved before this existed leave the site as it is). */
   zones: z.array(SiteZoneSchema).optional(),
   gates: z.array(GateSchema).optional(),
+  /** Villas: the building outline and the entrance are part of the design too (an apartment's shell is shared). */
+  footprint: z.array(PointSchema).min(3).optional(),
+  entrance: ShellSchema.shape.entrance.optional(),
 });
 
 /** Which design is showing. `letter` null = the original ("Main design"); `name` null = use the default title. */

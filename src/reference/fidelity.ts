@@ -148,6 +148,9 @@ export function fidelityMarkdown(
     };
     for (const i of d.items) add(i.inventory, i.catalog, i.note);
     for (const l of d.lines) add(l.inventory, l.catalog, l.note);
+    for (const o of d.openings) add(o.inventory, o.style ?? o.kind);
+    for (const g of d.gates) add(g.inventory, `${g.kind} gate`);
+    for (const st of d.stairs) add(st.inventory, `${st.type} stair`);
   });
   if (inventory.size) {
     out.push('## Inventory of the picture (furniture, planting, features)');
@@ -183,6 +186,9 @@ export function fidelityMarkdown(
       `- Gaps inside the built area: ${r.gaps.length ? r.gaps.map((g) => `${g.area.toFixed(2)} m² (${g.level})`).join('; ') : 'none'}`,
     );
     out.push(`- Unreachable rooms: ${r.unreachable.length ? r.unreachable.join('; ') : 'none'}`);
+    out.push(
+      `- Walk from the pedestrian gate: ${r.walkthrough.unreached.length ? `cannot reach ${r.walkthrough.unreached.join('; ')}` : `reaches all ${r.walkthrough.total} rooms and outdoor areas`}`,
+    );
     if (r.warnings.length) {
       out.push('- Things that could not be placed exactly as asked:');
       for (const w of r.warnings) out.push(`  - ${w}`);
