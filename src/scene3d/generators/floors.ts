@@ -40,7 +40,7 @@ export function generateRoomFloor(room: Room, voids: Vec2[][]): Part | null {
  * (stairs, voids) which must also be open in the ceiling.
  */
 export function generateRoomCeiling(room: Room, level: Level, voidsAbove: Vec2[][]): Part | null {
-  if (room.doubleHeight) return null;
+  if (room.doubleHeight || room.type === 'outdoor') return null;
   const y = room.ceilingHeight ?? level.floorToCeiling;
   const geo = flatMulti(subtractPolygons(room.polygon, voidsAbove), y - 0.002, false);
   return geo
@@ -74,7 +74,7 @@ export function generateFlatRoof(
       layer: 'roof',
       entity: { type: 'roof', id },
       geometry: geo,
-      materials: ['roof'],
+      materials: ['roof@out'],
     });
   const glass = mergeAll(
     unionPolygons(skylights).map((poly) => {

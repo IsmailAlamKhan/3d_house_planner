@@ -1,5 +1,6 @@
 import { Sun } from 'lucide-react';
 import { useState } from 'react';
+import { useLightStyle } from './SceneLights';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
 import {
@@ -15,13 +16,20 @@ import { useSceneStore } from './sceneStore';
 
 const PRESETS: {
   id: LightingPreset;
-  label: 'light.morning' | 'light.noon' | 'light.evening' | 'light.night' | 'light.marketing';
+  label:
+    | 'light.morning'
+    | 'light.noon'
+    | 'light.evening'
+    | 'light.night'
+    | 'light.marketing'
+    | 'light.dusk';
 }[] = [
   { id: 'morning', label: 'light.morning' },
   { id: 'noon', label: 'light.noon' },
   { id: 'evening', label: 'light.evening' },
   { id: 'night', label: 'light.night' },
   { id: 'marketing', label: 'light.marketing' },
+  { id: 'dusk', label: 'light.dusk' },
 ];
 
 const QUALITIES: {
@@ -79,6 +87,137 @@ function CompassSlider() {
   );
 }
 
+/** Realistic / design lighting, exposure, night visibility, the lamp switches and the user's own presets. */
+function LightControls() {
+  const t = useT();
+  const style = useLightStyle();
+  const { lighting, exposure, nightVisibility, customPresets, setPref } = useSceneStore();
+  const master = useModel((s) => s.project.lights.master);
+  const setLights = useModel((s) => s.setLights);
+  const [name, setName] = useState('');
+  const seg = (on: boolean) =>
+    `rounded px-2 py-1 text-xs ${on ? 'bg-sky-700 font-semibold text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`;
+  return (
+    <div className="space-y-2 border-t border-slate-200 pt-2">
+      <div role="group" aria-label={t('light.style')} className="grid grid-cols-2 gap-1">
+        {(['realistic', 'design'] as const).map((k) => (
+          <button
+            key={k}
+            data-testid={`light-style-${k}`}
+            aria-pressed={style === k}
+            className={seg(style === k)}
+            onClick={() => setPref('lightStyle', k)}
+            title={t(`light.style.${k}Hint` as 'light.style.realisticHint')}
+          >
+            {t(`light.style.${k}` as 'light.style.realistic')}
+          </button>
+        ))}
+      </div>
+      <div role="group" aria-label={t('light.lamps')} className="grid grid-cols-3 gap-1">
+        {(['auto', 'on', 'off'] as const).map((m) => (
+          <button
+            key={m}
+            data-testid={`lamps-${m}`}
+            aria-pressed={master === m}
+            className={seg(master === m)}
+            onClick={() => setLights((l) => void ((l.master = m), (l.rooms = {}), (l.items = {})))}
+          >
+            {t(`light.lamps.${m}` as 'light.lamps.auto')}
+          </button>
+        ))}
+      </div>
+      <label className="block text-xs text-slate-600">
+        <span className="flex items-center justify-between">
+          {t('light.exposure')}
+          <span className="tabular-nums">
+            {exposure > 0 ? '+' : ''}
+            {exposure.toFixed(1)} EV
+          </span>
+        </span>
+        <input
+          type="range"
+          min={-3}
+          max={3}
+          step={0.1}
+          value={exposure}
+          aria-label={t('light.exposure')}
+          onChange={(e) => setPref('exposure', Number(e.target.value))}
+          onDoubleClick={() => setPref('exposure', 0)}
+          className="w-full"
+        />
+      </label>
+      {style === 'realistic' && (
+        <label className="block text-xs text-slate-600">
+          <span className="flex items-center justify-between">
+            {t('light.nightVisibility')}
+            <span className="tabular-nums">{Math.round(nightVisibility * 100)} %</span>
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={0.1}
+            step={0.005}
+            value={nightVisibility}
+            data-testid="night-visibility"
+            aria-label={t('light.nightVisibility')}
+            onChange={(e) => setPref('nightVisibility', Number(e.target.value))}
+            className="w-full"
+          />
+        </label>
+      )}
+      <div className="space-y-1 text-xs">
+        <div className="flex gap-1">
+          <input
+            className="min-w-0 flex-1 rounded border border-slate-300 px-1 py-0.5"
+            placeholder={t('light.presetName')}
+            aria-label={t('light.presetName')}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <button
+            className={seg(false)}
+            disabled={!name.trim()}
+            onClick={() => {
+              setPref('customPresets', [
+                ...customPresets.filter((p) => p.name !== name.trim()),
+                { name: name.trim(), lighting, master },
+              ]);
+              setName('');
+            }}
+          >
+            {t('light.savePreset')}
+          </button>
+        </div>
+        {customPresets.map((p) => (
+          <div key={p.name} className="flex items-center gap-1">
+            <button
+              className={`${seg(false)} flex-1 text-left`}
+              onClick={() => {
+                setPref('lighting', p.lighting);
+                setLights((l) => void (l.master = p.master));
+              }}
+            >
+              {p.name}
+            </button>
+            <button
+              aria-label={`${t('light.deletePreset')} ${p.name}`}
+              className={seg(false)}
+              onClick={() =>
+                setPref(
+                  'customPresets',
+                  customPresets.filter((x) => x.name !== p.name),
+                )
+              }
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** Sun-and-quality popover for the 3D view. */
 export function LightingPanel() {
   const t = useT();
@@ -107,7 +246,11 @@ export function LightingPanel() {
               <button
                 key={p.id}
                 aria-pressed={lighting.mode === p.id}
-                onClick={() => setPref('lighting', { mode: p.id, time: PRESET_TIME[p.id] })}
+                onClick={() => {
+                  setPref('lighting', { mode: p.id, time: PRESET_TIME[p.id] });
+                  // A preset sets the sky and the lamps together: back to "follow the preset".
+                  useModel.getState().setLights((l) => void (l.master = 'auto'));
+                }}
                 className={`rounded px-1 py-1 text-xs ${lighting.mode === p.id ? 'bg-sky-700 font-semibold text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
               >
                 {t(p.label)}
@@ -135,6 +278,7 @@ export function LightingPanel() {
             />
           </label>
           <CompassSlider />
+          <LightControls />
           <label className="flex items-center justify-between text-xs text-slate-600">
             {t('quality.title')}
             <select

@@ -122,13 +122,15 @@ export function generateWall({
   geo.applyMatrix4(wallMatrix(wall));
   geo.computeVertexNormals();
   const inside = insideSign(wall, footprint);
-  const leftKey = inside === 1 ? wall.materialInside : wall.materialOutside;
-  const rightKey = inside === 1 ? wall.materialOutside : wall.materialInside;
+  // The outside face of an exterior wall is outdoors: sky light reaches it (`@out`), unlike the rooms behind it.
+  const outside = wall.type === 'exterior' ? `${wall.materialOutside}@out` : wall.materialOutside;
+  const leftKey = inside === 1 ? wall.materialInside : outside;
+  const rightKey = inside === 1 ? outside : wall.materialInside;
   return {
     id: `wall:${wall.id}`,
     layer: 'wall',
     entity: { type: 'wall', id: wall.id },
     geometry: geo as BufferGeometry,
-    materials: [leftKey, rightKey, 'wall-edge'],
+    materials: [leftKey, rightKey, wall.type === 'exterior' ? 'wall-edge@out' : 'wall-edge'],
   };
 }

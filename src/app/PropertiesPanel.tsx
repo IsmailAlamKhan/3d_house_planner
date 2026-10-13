@@ -11,6 +11,8 @@ import {
   paintRoomWalls,
   roomOnSide,
   updateRoom,
+  setRoomParapet,
+  parapetWallsOf,
   updateWall,
 } from '../model/ops';
 import { ROOM_TYPES, WALL_TYPES } from '../model/schemas';
@@ -19,6 +21,8 @@ import type { Room, Wall } from '../model/types';
 import { ItemProps, OpeningProps } from './CatalogProps';
 import { StairProps } from './StairProps';
 import { GateProps, ZoneProps } from './SiteProps';
+import { lampOn, roomOfItem } from '../scene3d/lights';
+import { useSceneStore } from '../scene3d/sceneStore';
 import { MaterialPicker, ShortcutButton } from './MaterialPicker';
 import { CommitField, Row, SelectField, shared, useEditor } from './fields';
 import {
@@ -143,6 +147,17 @@ function WallProps({ walls }: { walls: Wall[] }) {
   );
 }
 
+/** Switches every fixture of the rooms on or off at once (the rooms' own switch; single-fixture switches are reset). */
+export function setRoomLights(roomIds: string[], on: boolean): void {
+  useModel.getState().setLights((l) => {
+    const project = useModel.getState().project;
+    for (const id of roomIds) {
+      l.rooms[id] = on;
+      for (const i of project.items) if (roomOfItem(project, i)?.id === id) delete l.items[i.id];
+    }
+  });
+}
+
 function RoomProps({ rooms }: { rooms: Room[] }) {
   const t = useT();
   const units = useModel((s) => s.project.units);
@@ -154,6 +169,22 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
   const area = rooms.reduce((a, r) => a + polygonArea(r.polygon), 0);
   const level = shared(rooms, (r) => r.levelId);
   const levels = useModel((s) => s.project.levels);
+  const parapetOn = useModel((s) => {
+    const ws = rooms.flatMap((r) => parapetWallsOf(s.project, r.id));
+    return ws.length > 0 && ws.every((w) => (w.height ?? 99) <= 1.2);
+  });
+  const lighting = useSceneStore((s) => s.lighting);
+  const roomLightsOn = useModel((s) =>
+    rooms.some((r) =>
+      s.project.items.some(
+        (i) =>
+          i.levelId === r.levelId &&
+          !!getEntry(i.catalogId)?.lamp &&
+          roomOfItem(s.project, i)?.id === r.id &&
+          lampOn(s.project, i, lighting),
+      ),
+    ),
+  );
   const levelAboveExists = rooms.every((r) => {
     const l = levels.find((x) => x.id === r.levelId);
     return !!l && levels.some((x) => x.index === l.index + 1);
@@ -172,12 +203,18 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
         options={[...ROOM_TYPES]}
         labelOf={(o) => t(`roomtype.${o}` as 'roomtype.living')}
         mixed={mixed}
-        onChange={(v) => patch({ type: v as Room['type'] })}
+        onChange={(v) =>
+          patch(
+            v === 'outdoor'
+              ? { type: 'outdoor', floorMaterial: 'decking' }
+              : { type: v as Room['type'] },
+          )
+        }
       />
       <MaterialPicker
         label={t('props.floorMaterial')}
         value={shared(rooms, (r) => r.floorMaterial)}
-        categories={['floor']}
+        categories={rooms.every((r) => r.type === 'outdoor') ? ['floor', 'ground'] : ['floor']}
         onPick={(m) => patch({ floorMaterial: m })}
       >
         {level && (
@@ -203,6 +240,27 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
           </ShortcutButton>
         )}
       </MaterialPicker>
+      <Row name={t('props.roomLights')}>
+        <input
+          type="checkbox"
+          data-testid="room-lights"
+          className="mr-auto h-4 w-4"
+          checked={roomLightsOn}
+          onChange={(e) => setRoomLights(ids, e.target.checked)}
+        />
+      </Row>
+      {rooms.every((r) => r.type === 'outdoor') && (
+        <Row name={t('props.parapet')}>
+          <input
+            type="checkbox"
+            className="mr-auto h-4 w-4"
+            checked={parapetOn}
+            onChange={(e) =>
+              run((d) => ids.forEach((id) => setRoomParapet(d, id, e.target.checked)))
+            }
+          />
+        </Row>
+      )}
       <Row name={t('props.doubleHeight')}>
         <input
           type="checkbox"

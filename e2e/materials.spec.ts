@@ -84,6 +84,7 @@ test('eyedropper: copy a floor material from one room and paint another', async 
 });
 
 test('3D light & quality panel: presets, time of day, compass and quality', async ({ page }) => {
+  test.setTimeout(120_000); // software GL renders the realistic pipeline slowly
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.getByRole('button', { name: 'Light & quality' }).click();
   const panel = page.getByRole('dialog', { name: 'Light & quality' });

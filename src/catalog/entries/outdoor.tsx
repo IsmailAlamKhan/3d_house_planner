@@ -509,7 +509,7 @@ const gardenLight = () =>
     id: 'garden-light',
     category: 'outdoor',
     size: { w: 0.2, d: 0.2, h: 0.9 },
-    lamp: { y: (s) => s.h - 0.1, color: '#ffd9a0', intensity: 9 },
+    lamp: { y: (s) => s.h - 0.1, lumens: 300, kelvin: 2700 },
     defaults: { color: '#fff1c4' },
     props: [colorProp('cprop.lightColor')],
     build: (g, p, s) => {

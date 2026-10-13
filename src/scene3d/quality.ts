@@ -1,53 +1,85 @@
 export type Quality = 'low' | 'medium' | 'high';
 export type QualityChoice = 'auto' | Quality;
 
+export type ShadowType = 'percentage' | 'soft' | 'variance';
+
+/**
+ * What each tier costs. The tiers differ in cost and fine detail only — never in overall brightness or colour: all of
+ * them use the same colour pipeline (linear lighting, one exposure, AgX tone mapping applied once) and the same lights.
+ */
 export interface QualitySettings {
-  /** Real-time shadows from the sun. */
+  /** Real-time shadows (the sun always casts them; hidden ceilings and roofs cast too). */
   shadows: boolean;
+  /** Sun shadow-map size. */
   shadowMapSize: number;
+  shadowType: ShadowType;
+  /** Hardware multisampling for canvases that do not use the post-processing pipeline (snapshot viewer, comparison). */
   antialias: boolean;
   /** Pixel-ratio range handed to the renderer: [min, max]. */
   dpr: [number, number];
-  /** Screen-space ambient occlusion (High only). */
-  ao: boolean;
-  /** Most interior lamps that emit light at once. */
+  /** Ambient occlusion in world units (N8AO): none / half-resolution / full resolution. */
+  ao: 'none' | 'half' | 'full';
+  /** Anti-aliasing in the post-processing pipeline. */
+  aa: 'fxaa' | 'smaa';
+  /** Subtle bloom on emissive surfaces. */
+  bloom: boolean;
+  /** Most point / spot lights that emit at once; the rest only glow. */
   maxLights: number;
-  /** Of those, how many cast shadows. */
+  /** Of those, how many (the nearest) cast shadows, besides the sun. */
   shadowLights: number;
-  /** Image-based light from a locally generated environment map. */
+  /** Image-based light from a locally generated environment map (reflections and a little fill). */
   environment: boolean;
+  /** Cheap soft blobs under furniture instead of ambient occlusion. */
+  blobShadows: boolean;
+  /** Most window skylights (area lights) in realistic lighting. */
+  maxWindowLights: number;
 }
 
 export const QUALITY: Record<Quality, QualitySettings> = {
   low: {
-    shadows: false,
-    shadowMapSize: 512,
-    antialias: false,
-    dpr: [1, 1],
-    ao: false,
-    maxLights: 4,
-    shadowLights: 0,
-    environment: false,
-  },
-  medium: {
     shadows: true,
     shadowMapSize: 1024,
-    antialias: true,
-    dpr: [1, 1.5],
-    ao: false,
+    shadowType: 'percentage',
+    antialias: false,
+    dpr: [1, 1],
+    ao: 'none',
+    aa: 'fxaa',
+    bloom: false,
     maxLights: 8,
     shadowLights: 0,
     environment: true,
+    blobShadows: true,
+    maxWindowLights: 6,
+  },
+  medium: {
+    shadows: true,
+    shadowMapSize: 2048,
+    shadowType: 'soft',
+    antialias: true,
+    dpr: [1, 1.5],
+    ao: 'half',
+    aa: 'smaa',
+    bloom: true,
+    maxLights: 16,
+    shadowLights: 2,
+    environment: true,
+    blobShadows: false,
+    maxWindowLights: 10,
   },
   high: {
     shadows: true,
-    shadowMapSize: 2048,
+    shadowMapSize: 4096,
+    shadowType: 'soft',
     antialias: true,
     dpr: [1, 2],
-    ao: true,
-    maxLights: 12,
-    shadowLights: 2,
+    ao: 'full',
+    aa: 'smaa',
+    bloom: true,
+    maxLights: 32,
+    shadowLights: 4,
     environment: true,
+    blobShadows: false,
+    maxWindowLights: 14,
   },
 };
 

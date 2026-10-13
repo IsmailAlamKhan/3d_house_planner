@@ -133,6 +133,43 @@ program* `powershell.exe`, arguments
 `-ExecutionPolicy Bypass -File "C:\path\to\project\scripts\backup.ps1"`, *Start in* `C:\path\to\project`. Copy the
 `backups` folder to another disk or cloud drive now and then.
 
+### Optional: AI image enhancement with ComfyUI ("Enhance render")
+
+The **Present** panel in the 3D view can turn a presentation render into a photoreal mood image with **Stable Diffusion
+XL + ControlNet** running in **ComfyUI**, on the same GPU as Ollama. It is optional: without it the app works exactly
+as before and the *Enhance* button says how to switch it on.
+
+```powershell
+docker compose --profile render up -d      # builds ComfyUI, downloads about 12 GB of models once, then starts it
+docker compose --profile render logs -f comfyui-init    # watch the download; it logs the disk used at the end
+```
+
+- The `comfyui` service is built from `docker/comfyui/Dockerfile` (CUDA PyTorch base image, ComfyUI pinned to release
+  v0.9.2) and has **no published port**: only the app container reaches it (`COMFYUI_URL=http://comfyui:8188`).
+- `comfyui-init` downloads the models into the `comfyui-models` volume (resumable, sizes verified, revisions pinned to
+  exact commits of the official repositories) and exits.
+- **One GPU at a time.** A 14 B language model (about 9–10 GB) and SDXL (about 7–9 GB) do not fit together on a 16 GB
+  card. The app server keeps one queue for AI design jobs and render jobs: before a render it unloads the language model
+  (`keep_alive: 0`), after it it asks ComfyUI to free its memory, and the app shows who is ahead of you in the queue.
+- The enhancement always works on the render **without labels**; crisp room labels and the badge "AI-enhanced mood
+  image — not to scale" are drawn on top afterwards. Results (with their prompt, seed and settings) are kept in the
+  `app-data` volume with the project.
+- To stop it and free the disk: `docker compose --profile render down` (models stay in the volume) or
+  `docker volume rm <project>_comfyui-models`.
+
+**Model and software licenses** (personal use is fine; you are responsible for checking them for any other use):
+
+| Component | Source | License |
+| --- | --- | --- |
+| Stable Diffusion XL base 1.0 (`sd_xl_base_1.0.safetensors`, 6.9 GB) | `stabilityai/stable-diffusion-xl-base-1.0` on Hugging Face | CreativeML Open RAIL++-M |
+| SDXL depth ControlNet (`controlnet-depth-sdxl-1.0`, fp16, 2.5 GB) | `diffusers/controlnet-depth-sdxl-1.0` | CreativeML Open RAIL++-M |
+| SDXL canny ControlNet (optional edge pass, fp16, 2.5 GB) | `diffusers/controlnet-canny-sdxl-1.0` | CreativeML Open RAIL++-M |
+| ComfyUI v0.9.2 | `comfyanonymous/ComfyUI` | GPL-3.0 |
+| `three-gpu-pathtracer` (the in-browser path-traced still, prompt 15) | npm | MIT |
+
+The Open RAIL++-M license allows use and redistribution of the model and its outputs but forbids certain uses (for
+example illegal, harmful or deceptive ones); read it at huggingface.co before using images commercially.
+
 ### Firewall and remote access
 
 Allow inbound TCP on the app port for **Private** networks only; never Public; never open 11434 (it is not published

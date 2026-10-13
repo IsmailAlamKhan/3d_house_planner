@@ -4,7 +4,8 @@ export default defineConfig({
   // CI runs once, without retries hiding flaky tests, and keeps the report for failures.
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  // Software GL makes every 3D test CPU-hungry: three at a time keeps the timing-based ones stable.
+  workers: process.env.CI ? 2 : 3,
   testDir: './e2e',
   use: {
     baseURL: 'http://localhost:4173',

@@ -23,6 +23,8 @@ export interface ModelState {
   setActiveLevel: (id: string) => void;
   setTool: (tool: Tool) => void;
   setViewMode: (mode: ViewMode) => void;
+  /** Switches lights on/off. Saved with the project but never an undo step. */
+  setLights: (fn: (lights: Project['lights']) => void) => void;
 }
 
 export const NO_SELECTION: Selection = { type: null, ids: [] };
@@ -57,6 +59,18 @@ export const useModel = create<ModelState>()(
       setActiveLevel: (activeLevelId) => set({ activeLevelId }),
       setTool: (tool) => set({ tool }),
       setViewMode: (viewMode) => set({ viewMode }),
+      setLights: (fn) => {
+        const history = useModel.temporal.getState();
+        history.pause();
+        try {
+          set((state) => {
+            fn(state.project.lights);
+            state.project.updatedAt = new Date().toISOString();
+          });
+        } finally {
+          history.resume();
+        }
+      },
     })),
     {
       // Undo/redo covers project mutations only — never selection, tool, camera or view.
@@ -70,12 +84,23 @@ export const useModel = create<ModelState>()(
 /** Shorthand for running an edit outside React. */
 export const edit = <T>(fn: (draft: Project) => T): T => useModel.getState().apply(fn);
 
+/** Undo/redo restore an older project; the lamp switches stay as they are now (they are not design edits). */
+function keepingLights(step: () => void): void {
+  const lights = useModel.getState().project.lights;
+  step();
+  useModel.getState().setLights((l) => {
+    l.master = lights.master;
+    l.rooms = { ...lights.rooms };
+    l.items = { ...lights.items };
+  });
+}
+
 export const undo = (): void => {
-  useModel.temporal.getState().undo();
+  keepingLights(() => useModel.temporal.getState().undo());
   fixupAfterHistory();
 };
 export const redo = (): void => {
-  useModel.temporal.getState().redo();
+  keepingLights(() => useModel.temporal.getState().redo());
   fixupAfterHistory();
 };
 

@@ -1,44 +1,49 @@
 # Architecture
 
 ## Stack
+
 Vite + React 18 + TypeScript (strict, `noUncheckedIndexedAccess`). 3D: `three` + `@react-three/fiber` + `drei`.
 State: `zustand` + `immer`, undo/redo via `zundo` (wired in prompt 2). Validation: `zod`. Styling: Tailwind CSS 3 + `lucide-react`.
 Persistence: `idb-keyval` (IndexedDB). Tests: Vitest + Testing Library (unit), Playwright (e2e smoke, runs against `vite preview` on :4173).
 Path alias `@/` → `src/`.
 
 ## Single source of truth
+
 The **project JSON** (data model, prompt 2) is the only design state. The 2D plan, 3D scene, exports and AI features
 read from it or write to it through store actions (all undoable). The 3D scene never holds design state of its own.
 Ephemeral UI state (view mode, active tab, drawers) lives in `src/ui/uiStore.ts` and is never saved in the project.
 
 ## Units
+
 Lengths are stored in **meters**, angles in **radians**. Conversion to metric/feet-inches happens only in the UI layer.
 
 ## Module map (final)
-| Folder | Purpose |
-|---|---|
-| `src/app` | Shell: `App`, `TopBar`, sidebars, panels, dialogs, `ErrorBoundary`, `HistoryPanel` |
-| `src/model` | Zod schemas/types, `store` (zustand + immer + zundo), `ops/*` (every edit), migration, sample project |
-| `src/geometry` | Pure 2D math: polygons, wall joins, room detection (`rooms.ts`), snapping |
-| `src/plan2d` | SVG plan editor: interaction state machine, hit-testing, symbols |
-| `src/scene3d` | Pure generators → `SceneBuilder` (cached parts) → R3F scene; `camera/` (orbit, walk, top, sections, isolation, measure, minimap); `clipping.ts` |
-| `src/catalog` | 49 procedural items with 2D/3D builders, placement rules, library panel |
-| `src/materials` | Material library, procedural textures, picker helpers |
-| `src/ai` | Provider abstraction, schemas, pipeline (validate + repair + fallback), layout solver, offline generator, edit ops |
-| `src/checks` | Constraint rules (stairs, reachability, windows, drains, areas, door swings), area schedule |
-| `src/wizard`, `src/templates` | New-project wizard and the four starter templates |
-| `src/export` | PDF/SVG/DXF/GLB/OBJ/PNG/BOM/snapshot builders and the export dialog |
-| `src/viewer` | Second Vite entry: the read-only snapshot viewer (built to `public/viewer/`) |
-| `src/notes`, `src/options` | Pinned notes; design options and comparison |
-| `src/commands`, `src/onboarding` | Command palette, shortcut sheet; first-run tour |
-| `src/prefs`, `src/i18n`, `src/theme.css` | Language/theme/motion preferences; English + Bengali; colour tokens |
-| `src/persistence` | IndexedDB repo, autosave, 20-version history, bootstrap |
-| `src/pwa`, `src/platform` | Service worker registration/install prompt; browser file-download adapter |
-| `src/perf` | Stress project and performance budgets (tests) |
-| `src/ui` | `Modal`, `Drawer`, `PopoverMenu`, units, `uiStore` |
-| `server/` | `/api/ai` proxy to the user's local model (dev and preview servers) |
+
+| Folder                                   | Purpose                                                                                                                                         |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app`                                | Shell: `App`, `TopBar`, sidebars, panels, dialogs, `ErrorBoundary`, `HistoryPanel`                                                              |
+| `src/model`                              | Zod schemas/types, `store` (zustand + immer + zundo), `ops/*` (every edit), migration, sample project                                           |
+| `src/geometry`                           | Pure 2D math: polygons, wall joins, room detection (`rooms.ts`), snapping                                                                       |
+| `src/plan2d`                             | SVG plan editor: interaction state machine, hit-testing, symbols                                                                                |
+| `src/scene3d`                            | Pure generators → `SceneBuilder` (cached parts) → R3F scene; `camera/` (orbit, walk, top, sections, isolation, measure, minimap); `clipping.ts` |
+| `src/catalog`                            | 49 procedural items with 2D/3D builders, placement rules, library panel                                                                         |
+| `src/materials`                          | Material library, procedural textures, picker helpers                                                                                           |
+| `src/ai`                                 | Provider abstraction, schemas, pipeline (validate + repair + fallback), layout solver, offline generator, edit ops                              |
+| `src/checks`                             | Constraint rules (stairs, reachability, windows, drains, areas, door swings), area schedule                                                     |
+| `src/wizard`, `src/templates`            | New-project wizard and the four starter templates                                                                                               |
+| `src/export`                             | PDF/SVG/DXF/GLB/OBJ/PNG/BOM/snapshot builders and the export dialog                                                                             |
+| `src/viewer`                             | Second Vite entry: the read-only snapshot viewer (built to `public/viewer/`)                                                                    |
+| `src/notes`, `src/options`               | Pinned notes; design options and comparison                                                                                                     |
+| `src/commands`, `src/onboarding`         | Command palette, shortcut sheet; first-run tour                                                                                                 |
+| `src/prefs`, `src/i18n`, `src/theme.css` | Language/theme/motion preferences; English + Bengali; colour tokens                                                                             |
+| `src/persistence`                        | IndexedDB repo, autosave, 20-version history, bootstrap                                                                                         |
+| `src/pwa`, `src/platform`                | Service worker registration/install prompt; browser file-download adapter                                                                       |
+| `src/perf`                               | Stress project and performance budgets (tests)                                                                                                  |
+| `src/ui`                                 | `Modal`, `Drawer`, `PopoverMenu`, units, `uiStore`                                                                                              |
+| `server/`                                | `/api/ai` proxy to the user's local model (dev and preview servers)                                                                             |
 
 ## Data flow
+
 ```mermaid
 flowchart LR
   subgraph Inputs
@@ -65,14 +70,17 @@ Rules that keep this tidy: only `model/ops` mutate the project; the AI never wri
 3D scene and exports only read; transient state (camera, tool, dialogs) lives outside the project and is never undone.
 
 ## Layout
+
 Top bar (name, undo/redo, 2D/3D/Split, export) · left sidebar (Library/Levels/AI tabs) · center viewport(s) ·
 right Properties panel · bottom status bar. Below the `lg` breakpoint sidebars become drawers (`ui/Drawer`).
 
 ## Adding modules
+
 New features add a folder-scoped module that reads the project via selectors and mutates via store actions; add i18n
 keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 
 ## Data model & store (prompt 2)
+
 - `model/schemas.ts` (Zod) is the source of truth for types (`model/types.ts` infers them). `SCHEMA_VERSION` = 1; `migrate.ts` upgrades by `schemaVersion` then validates.
 - Coordinates: plan `(x, y)` → world `(x, elevation, y)`. Level `elevation` = top of that level's floor, derived by `recomputeLevels` (below.elevation + below.floorToCeiling + this.slab).
 - Stair: `position` = bottom-center of first step, `rotation` = ascent direction (0 = +x, π/2 = +y).
@@ -86,6 +94,7 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - UI: `app/LevelsPanel`, `app/ProjectsDialog`, `app/useShortcuts` (Ctrl/Cmd+Z, +Shift+Z, Ctrl+Y). `ui/uiStore` keeps only ephemeral UI state.
 
 ## 2D plan editor (prompt 3)
+
 - `geometry/walls.ts` `computeWallPolygons(walls, {join, miterLimit})`: wall outlines with mitred (or butt) joins at shared endpoints. Reused by 3D.
 - `geometry/rooms.ts`: `detectRoomPolygons(segments)` splits centerlines at crossings/T-junctions and traces minimal faces; `matchRooms` pairs detected faces with existing rooms by overlap (IoU) so names/types survive edits. Room areas are measured on wall **centerlines**; islands (a closed loop fully inside another room) do not cut a hole in the outer room.
 - `geometry/snap.ts`: endpoint → midpoint → angle (0/45/90 + parallel/perpendicular to walls) → grid snapping.
@@ -95,6 +104,7 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - `app/PropertiesPanel.tsx`: wall/room fields incl. multi-selection ("Mixed"); `ui/units.ts`: format/parse lengths and areas (metric or ft/in). Project `settings` now only holds `defaultWallThickness`.
 
 ## 3D generation (prompt 4)
+
 - Geometry is generated per entity by pure functions in `scene3d/generators/*` (model → `Part`s = `BufferGeometry` + material keys + the entity a click selects). Parts are in **level-local** coordinates: plan `(x, y)` → `(x, height above the level's floor, y)`; the scene places each level group at `level.elevation`.
 - Walls: wall elevation `Shape` (+ holes; doors are notches in the outline, no CSG) extruded by thickness, ends slid to the shared mitre from `computeWallPolygons`. Material groups: `[leftFace, rightFace, edges]`; for exterior walls the left/right faces are mapped to inside/outside by testing against the shell footprint.
 - `generators/voids.ts`: slab openings = stair voids (only where headroom < 2 m, from `layoutStair`), `void` roofs, and doubleHeight rooms on the level below. Boolean work on plan polygons uses `polygon-clipping` (`subtractPolygons`).
@@ -104,6 +114,7 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - `materials/index.ts` resolves material keys to render specs (full library comes in a later prompt).
 
 ## Component library (prompt 5)
+
 - `catalog/` is a typed registry (`CATALOG`, `getEntry`, `entriesByCategory`, `openingStyles`). Each `CatalogEntry`: `catalogId`, `nameKey` (i18n), `category`, `placement` (`wall` | `floor` | `wall-mounted` | `ceiling`), `defaultSize {w,d,h}`, `props` (schema of adjustable properties) + `defaults`, `build3D(props, size, ctx)` (procedural three.js `Group`, origin bottom-centre, front = +z) and `draw2D(props, size, ctx)` (SVG symbol in metres). 49 entries in `entries/openings.tsx`, `furniture.tsx`, `kitchenBath.tsx` — all built from primitives, no assets.
 - Doors/windows are `Opening`s (new `props` field for style options such as frame colour; `catalogId` is the style). Everything else is an `Item` whose size is `defaultSize × scale` (x = width, y = height, z = depth) and whose `props` hold colours/variants. Unknown ids fall back to the default style for the opening kind.
 - Doors and windows in 3D are catalog models positioned on the wall (`generators/openings.ts`); furniture is `generators/items.ts`. Both produce `ObjectPart`s (a positioned `Object3D`) next to the baked-geometry `Part`s; selection tint / clipping create shared material variants (`scene3d/objectView.ts`).
@@ -114,6 +125,7 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - `window.__duplex.getProject()` is a read-only debug hook used by e2e tests.
 
 ## Materials, textures & lighting (prompt 6)
+
 - `materials/library.ts`: `MATERIALS` (id, `nameKey`, categories floor/wall/ceiling/surface, colour, procedural `texture` kind, `textureScale` = metres covered by one repeat, roughness/metalness). Custom paint is any id of the form `paint:#rrggbb`. Generator keys (`slab`, `frame`, …) are internal ids. `resolveDef/resolveMaterial` map any id (incl. unknown → flat grey) to a render spec; `project.materials` overrides still apply.
 - `materials/textures.ts`: canvas-painted, seamless, seeded textures (wood planks light/dark, herringbone-style parquet, square/subway/large tiles, marble, concrete, carpet, brick, slats, wallpaper stripes/damask/dots, laminate, brushed metal), cached; `repeat = 1 / textureScale`. No canvas (tests) → flat colour.
 - **Real-world UVs**: generators emit UVs in metres (ShapeGeometry/ExtrudeGeometry coordinates for floors, ceilings, slabs and wall faces; `boxProjectUV` for furniture), so a tile is the same size on every wall/room (tested).
@@ -123,6 +135,7 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - Quality (`scene3d/quality.ts`): Low (no shadows/AA/AO, 4 lamps), Medium (1024 shadows, env, 8 lamps), High (2048 shadows, SSAO via lazy `AmbientOcclusion` chunk, 12 lamps, 2 shadow lamps); `Auto` uses `detectQuality` (GPU string, cores, memory, touch). Changing quality remounts the canvas (AA is fixed at context creation). Optional FPS readout in the Light & quality popover.
 
 ## AI assistant (prompt 7)
+
 - **Never raw geometry.** The model only produces a `DesignIntent` (levels → rooms with type, name, target area, min width, adjacency `door|open`, exterior-wall preference, plumbing, `above`) or an `EditResponse` (list of `EditOperation`s). Both are Zod schemas in `ai/schemas.ts`; `jsonSchemaOf` uses Zod 4's built-in `z.toJSONSchema` (so `zod-to-json-schema` is not needed) and is passed to Ollama as `format` / OpenAI `response_format`.
 - **Providers** (`ai/provider.ts`): `LLMProvider.generate(req) → text`. Ollama (default `qwen3:14b`, `/api/chat`, `stream:false`, `think:false`, temperature 0.2, `num_ctx` 8192) and OpenAI-compatible (LM Studio / llama.cpp) both go through the app's own `POST /api/ai`; the browser never contacts Ollama. `server/aiProxy.ts` (Node handler, reused by prompt 13's server) takes an envelope `{target, baseUrl?, path, method?, body?}`, allow-lists `/api/chat` `/api/tags` (Ollama) and `/chat/completions` `/models` (OpenAI-compatible, private hosts only), limits bodies to 1 MB, 180 s timeout, and queues generations one at a time. A small Vite plugin mounts it on dev and preview servers. Settings (provider, model, base URL) are in `ai/provider.ts` (`useAiSettings`, localStorage) with a "Test connection" that lists installed models.
 - **Pipeline** (`ai/pipeline.ts`): compact prompt (`ai/prompts.ts`: rules + 2 examples + project summary from `ai/summary.ts`, never the project JSON) → model → strip fences/`<think>` → Zod validate → on failure ONE repair round-trip with the errors → otherwise fall back. `ProviderUnreachable`/`ProviderError`/`AiOutputError` all end in the offline generator (or the rule-based edit reader) with a plain-language note; abort is propagated, never turned into a fallback. Unvalidated output never reaches the project.
@@ -132,6 +145,7 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - **UI** (`ai/AiPanel.tsx`, `aiStore.ts`, `AiSettingsPanel.tsx`, `PlanThumb.tsx`): provider/model status, Design | Edit modes, example chips, "Add furniture", Generate / "Generate 3 variations" (sequential, each result appears when ready; a dead model is not retried for the remaining variations), elapsed time + Cancel, option cards with level thumbnails, notes and Apply / Discard; edit preview with Apply / Discard.
 
 ## Duplex features (prompt 8)
+
 - `src/wizard/shell.ts` (pure): `footprintOf`, `validateFootprint`, `planHeights`, `projectFromConfig`, `addFacadeWindows` (locked openings from `shell.windows`); `ShellWizard.tsx` is the 4-step UI opened from "New project" (`uiStore.wizardOpen`); `finish.ts` lays a template into the shell.
 - `src/templates/`: four `DesignIntent`s solved by `solveLayout` (so they adapt to any shell).
 - `src/checks/`: pure `runChecks(project)` → `CheckIssue[]`; `areaSchedule`; `focusIssue` selects, switches level/view and flashes the target; `isVoidRoom` excludes "Open to below" pseudo-rooms from all rules and areas.
@@ -139,6 +153,7 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - Double height: `Room.doubleHeight` → `doubleHeightVoids` (slab opening above) + `generateVoidBalustrade`; `copyWallsFromBelow` op; stairs have a 2D symbol on both levels.
 
 ## Camera & inspection (prompt 9)
+
 - `scene3d/camera/cameraStore.ts` (transient zustand, never in the project): mode, fly request, live pose, walker, section, isolation, x-ray, measurements. Only `project.views` (saved views, with thumbnail and section) is persisted.
 - Pure modules: `views.ts` (presets, top pose, easing), `walk.ts` (walk world from walls/columns/stairs/voids; `moveWalker`, `floorAt`, `spawnWalker`), `section.ts` (planes and analytic caps), `focus.ts`, `isolation.ts`, `measure.ts`, `minimapFrame.ts`.
 - React/three: `CameraSystem` (orbit/top rigs, transitions, capture), `WalkRig`, `SectionRig` (caps + drag handle), `MeasureOverlay`, DOM overlays `CameraToolbar`, `SavedViewsStrip`, `Minimap`, `WalkHud`.
@@ -147,12 +162,14 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - `window.__duplex.getCamera()` is a read-only test hook like `getProject()`.
 
 ## Export & sharing (prompt 10)
+
 - `src/export/`: pure builders — `planSvg.tsx` (static per-level SVG in plan metres, paper-sized strokes; reuses the editor's symbols via `renderToStaticMarkup`), `pdf.ts` (jsPDF; `Placement` records every drawing's size in mm), `dxf.ts`, `model3d.ts` (GLB via GLTFExporter, OBJ/MTL writer), `bom.ts` (quantities, pricing, CSV), `snapshot.ts` (self-contained HTML).
 - `bridge.tsx` registers a capture function from inside the Canvas; `scene.ts` opens the 3D view if needed (`withScene`) and takes the hero picture; `flags.ts` switches presentation/transparent looks.
 - `ExportDialog.tsx` (tabs: Images, PDF plans, 3D model, Plan files, Costs, Share). Unit costs live in `project.costs` and change through `setUnitCost`/`setCurrency` ops (undoable, saved with the project).
 - Snapshot viewer: `src/viewer/` is a second Vite entry (`vite.viewer.config.ts`, IIFE + CSS) built into `public/viewer/`; `fetchViewerBundle()` loads it at export time and `buildSnapshotHtml` inlines it with the project JSON.
 
 ## Polish & accessibility (prompt 11)
+
 - `src/prefs/prefsStore.ts`: language/theme/motion/tourSeen (localStorage) applied to `<html>` (`lang`, `data-theme`, `data-motion`). Colours are CSS variables in `src/theme.css`, mapped into Tailwind in `tailwind.config.js`.
 - `src/ui/Modal.tsx` is the one accessible dialog (used by every dialog and the drawers/bottom sheets); `modalOpen()` makes global shortcuts stand down.
 - `src/commands/`: command registry + palette, shortcut sheet data, key formatting. `src/onboarding/`: tour.
@@ -160,9 +177,10 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - i18n: `bn.ts` must contain every `en.ts` key; `ModelError` carries a translation key so `e.message` follows the language; `fmtNum` formats numbers per locale.
 
 ## Villa & site mode (prompt 15)
+
 - Model: `project.kind` (`apartment` | `villa`, default `apartment`) and `project.site` = `{ plot, gates, zones, setback }`. Both have Zod defaults, so older files load unchanged (no schema-version bump; covered by a migration test). A zone is `{ id, name, type, polygon, material, covered }`; a gate is `{ id, kind, position, direction, width }`. In a villa `shell.footprint` is the **building outline** inside the plot; items may stand anywhere on the plot (`model/integrity.ts: itemArea`).
 - Ops: `model/ops/site.ts` (`setPlot`, zone/gate add/update/delete, `snapToPlot`, `buildingWithinSetback`); delete/duplicate/notes cover `zone` and `gate`. All inside `store.apply`, so undo/redo works.
-- 2D: `plan2d/SiteLayer.tsx` draws the plot, zones (type colours, name + area) and gates *beneath* the building; the Levels panel has a "Site" row to hide/lock it; tools `plot`, `zone`, `gate` in `PlanToolbar` + `interaction.ts` (snapping like walls); `fitToShell` frames the whole plot for villas.
+- 2D: `plan2d/SiteLayer.tsx` draws the plot, zones (type colours, name + area) and gates _beneath_ the building; the Levels panel has a "Site" row to hide/lock it; tools `plot`, `zone`, `gate` in `PlanToolbar` + `interaction.ts` (snapping like walls); `fitToShell` frames the whole plot for villas.
 - 3D: `scene3d/generators/site.ts` (pure): ground (grass, with the pools cut out) and a lower surround, zone surfaces, pool (water below the rim, tiled basin, coping), pergola / roof for covered zones, plot fence with gaps and pillars at the gates, gate leaves. `SceneBuilder.build` returns the level scenes plus `.site` (cached in `PartCache`); `ModelScene` renders it; `export/model3d.ts` adds it to GLB/OBJ.
 - Catalog: category `outdoor` (`catalog/entries/outdoor.tsx`): trees, shrub, hedge, flower bed, lounge/dining sets, sun lounger, trampoline, play frame, fountain, pergola, parasol, BBQ, car, garden light (lamp), pool ladder, car-bay marking; interiors: treadmill, gym bench, squat rack, sauna bench, hot tub, gaming desk, theatre sofa + screen, closet shelving. Materials: grass, water, paving stone, decking, gravel, pool tile (`ground` category).
 - Look: lighting preset **Marketing render** (golden hour, every lamp on; lamps beyond the point-light cap still glow emissively) and camera preset **Plan view** (near top-down + dollhouse).
@@ -170,3 +188,30 @@ keys to `en.ts`; add unit tests for pure logic; extend `e2e/` for UI flows.
 - AI: `DesignIntent` gained `strategy` (`duplex` | `wings`) and `site` (zones with a `side` relative to the entrance, `cars`). `ai/offlineVilla.ts` reads villa briefs; the solver's **wings strategy** (`solve.ts: wingsCandidate`) fixes a foyer at the front and a central hall and tiles the rest into two wings; bedrooms with an attached bath/closet are laid out as one block and split (`groupSuites`/`expandSuites`). `ai/layout/site.ts: planSite` places zones in the strips around the building (path + pedestrian gate on the entrance axis, vehicle gate by the parking zone) and furnishes them; `applyPlan` writes the zones/gates/items. Template `VILLA_TEMPLATE` ("Luxury villa") in `templates/`.
 - Wizard: "Apartment / duplex" or "Villa on a plot" (plot size, rectangle/L/U/custom building, 1–3 storeys); the building is placed towards the back of the plot, the entrance faces the front, and a pedestrian gate + path are created.
 
+## Presentation renders (prompt 15)
+
+- `src/present/` is transient UI state plus pure helpers; nothing in it is saved in the project except what the actions change (items from auto-decorate, parapet wall heights).
+  - `presentStore.ts` (zustand; look, accent, effects and label style persist in localStorage), `presets.ts` (`cutawayPose` frames one level for the top-down and 3/4 cutaways; `lightingFor` maps Dusk / Daylight / Night to lighting modes), `actions.ts` (`enterPresent` sets dollhouse + cut walls + level isolation, flies the camera and remembers what to restore; `exitPresent`).
+  - Labels: `labels.ts` (pure: `roomLabels`, `roomDimensions` in feet-inches or metres, `projectLabels` with a camera's projection × view matrix, `drawLabels` on a 2D canvas). Labels are a **vector overlay** (`LabelsOverlay`, fed by `LabelsProjector` inside the Canvas) and are composited again on exported pictures (`render.ts: composePicture`), never part of the 3D scene.
+  - Look: `PresentationFx` (postprocessing: SSAO, bloom on emissive lamps, ACES tone mapping, vignette, SMAA; shared with exports through `fxBridge`), `AccentLights` (soft ceiling glow in rooms without a lamp, under wall cabinets, path lights; within the quality light budget), lighting preset `dusk` (blue hour, all lamps on).
+  - Stills: `export/bridge.tsx` `captureScene` takes `fx` (render through the composer) and `pathTrace` (progressive `three-gpu-pathtracer`, `present/pathTrace.ts`; cancellable; any failure falls back to the normal render and says so). `three-mesh-bvh` is pinned to 0.9.16 through an npm `overrides` entry because the path tracer needs ≥ 0.9.15 and drei asks for 0.7.
+  - Export: `render.ts` captures at 1×/2×/4×, optional transparent background, labels on/off, and always draws the footer "Design render — indicative only".
+- Decor catalog (`catalog/entries/decor.tsx`, category `decor`, plus `outdoor` additions): plants in 3 sizes × 4 species, wall art, table lamp, vase/bowl, TV wall unit, spa tub, planter box, small tree, grass patch, fire pit, plunge pool (organic/rect), balustrade, pedestrian and sliding vehicle gates; rugs gained patterns.
+- Room type `outdoor` (terrace, balcony, garden): no ceiling (`generateRoomCeiling`), outdoor floor materials, and `setRoomParapet` turns the walls around it into a 1 m parapet (undoable).
+- `present/decorate.ts: autoDecorateProject` places decor per room through the normal placement rules (clearances respected, skips rooms that already have each kind) inside one `apply`, so it is one undo step.
+
+## AI image enhancement with ComfyUI (prompt 16)
+
+- Server: `server/gpuQueue.ts` is the **one GPU queue** for both AI design jobs (`/api/ai`, `aiProxy.ts`) and render jobs; strictly one at a time. A render is preceded by `unloadOllama` (`/api/ps` + `keep_alive: 0`) and followed by ComfyUI `/free`. `server/render/` holds `comfy.ts` (the only ComfyUI endpoints used: `/upload/image`, `/prompt`, `/history`, `/view`, `/free`, `/interrupt`, `/system_stats` and the progress websocket — opened _before_ the prompt is queued), `workflow.ts` (fills the versioned template `server/comfy/workflows/enhance_sdxl.json`: img2img + depth ControlNet, optional canny ControlNet and 1.5× second pass), `renderApi.ts` (`/api/render/enhance`, `/jobs/:id`, `/results[...]`, re-run). `/api/health` reports `render: {configured, reachable}`.
+- Storage: `<DATA_DIR>/renders/<id>/{meta.json, before.png, depth.png, edge.png, result.png}` (parameters, seed, camera and labels in `meta.json`).
+- Browser (`src/render/`): `protocol.ts` (Zod schemas shared with the server), `promptBuilder.ts` (+ 5 style presets), `enhance.ts` (renders colour/depth/edge passes of the _same camera_ through `captureScene({pass, longSide})`; `present/passes.ts` swaps materials for a normalised-depth or normal material while keeping each mesh's clipping planes), `edges.ts` (Sobel on normals + depth), `compose.ts` (re-applies vector labels with the stored camera matrix and the "AI-enhanced" badge), `enhanceStore.ts`, `EnhanceDialog.tsx` (prompt editor, queue/progress, gallery with a before/after slider, re-run with a new seed, download, delete).
+- Docker: optional compose profile `render` (`comfyui`, `comfyui-init`, volume `comfyui-models`, no published port).
+
+## Render pipeline and lighting (prompt 17)
+
+- **One colour pipeline for every tier** (`scene3d/RenderPipeline.tsx`): the Canvas is `flat` (renderer tone mapping off) because three.js only tone-maps when drawing to the screen; the pipeline is scene (linear, half-float) → N8AO (world-space radius 0.5 m; none / half / full resolution by tier) → bloom (emissive only) → exposure (EV slider) → **AgX tone mapping exactly once** → vignette (presentation) → FXAA (Low) / SMAA. Exports and the path tracer's fallback render through the same composer (`export/bridge.tsx`).
+- **Quality tiers** (`scene3d/quality.ts`) change cost, not look: shadows on everywhere (sun map 1024 / 2048 / 4096), lamps 8 / 16 / 32 with 0 / 2 / 4 shadow-casting, window skylights 6 / 10 / 14, AO none (blobs under furniture, `ContactBlobs`) / half / full. Quality changes apply live (no remount).
+- **Realistic vs design lighting** (`sceneStore.lightStyle`, `auto` = design in the split view, realistic otherwise; `L` / "Work light"): realistic interiors only get daylight through windows and lamps that are on. Mechanism: `scene3d/skyMix.ts` patches every standard material so hemisphere and environment light are multiplied by `uSkyMix` — 1 for outdoor materials (`@out` suffix on material keys: exterior wall faces, roofs, the site, garden items) and the shared _night visibility_ (default 2 %) for everything indoors; sun and lamps are untouched. Window skylights are one `RectAreaLight` per exterior window facing into its room (`windowLightSpecs`, strength from the sun's height). Ceilings, upper slabs and roofs hidden from the camera (dollhouse, cutaway, hidden levels) are drawn as **shadow-only meshes** in `ModelScene`, so they still block the sun.
+- **Light fixtures**: catalog `lamp` = `{y, lumens, kelvin, beam?}`; items override `lumens` / `kelvin` / `beam` in their props. `project.lights = {master: auto|on|off, rooms, items}` is saved with the project but changed through `setLights`, which pauses undo history (and undo/redo keep the current switches). `scene3d/lights.ts` resolves item → room → master → preset (evening: living areas on, bedrooms off). Only the nearest `maxLights` emit; the rest glow. Clicking a lamp's glowing part, the room bulb button (`RoomLightButtons`), the Properties switches and "All on/off" all call `setLights`.
+- **Whites**: `capAlbedo` caps linear albedo at 0.88 for library and catalog materials; warm / cool / oak whites; catalog boxes are `RoundedBoxGeometry` with ~1.4 cm bevels.
+- **Debug**: `?debug=render` shows `debug/RenderDebugPanel.tsx` (every effect and light type on/off, renderer colour space / tone mapping / exposure / pipeline chain). `window.__duplex` gained `stores`, `measureLuminance` and `worldToScreen` for the visual tests (`e2e/lighting.spec.ts`, reference pictures in `tests/visual/`).

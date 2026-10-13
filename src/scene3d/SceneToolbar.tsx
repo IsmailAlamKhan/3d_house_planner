@@ -1,6 +1,9 @@
-import { DoorOpen, Home, Maximize, Move3d, Pipette, Rotate3d } from 'lucide-react';
+import { DoorOpen, Home, Lightbulb, Maximize, Move3d, Pipette, Rotate3d } from 'lucide-react';
 import { EyedropperHint } from '../app/EyedropperHint';
 import { LightingPanel } from './LightingPanel';
+import { useLightStyle } from './SceneLights';
+import { toggleWorkLight } from './SceneCanvas';
+import { PresentPanel } from '../present/PresentPanel';
 import { CameraToolbar } from './camera/CameraToolbar';
 import { useModel } from '../model/store';
 import type { ReactNode } from 'react';
@@ -65,6 +68,7 @@ export function SceneToolbar() {
   const setTool = useModel((s) => s.setTool);
   const { levelFilter, dollhouse, wallMode, doorsOpen, gizmoMode, setPref, resetCamera } =
     useSceneStore();
+  const style = useLightStyle();
   return (
     <div className="pointer-events-none absolute left-2 top-2 flex max-w-[calc(100%-1rem)] flex-col items-start gap-1">
       <div
@@ -126,7 +130,11 @@ export function SceneToolbar() {
         >
           <Pipette size={18} />
         </Toggle>
+        <Toggle active={style === 'design'} label={t('light.workLight')} onClick={toggleWorkLight}>
+          <Lightbulb size={18} />
+        </Toggle>
         <LightingPanel />
+        <PresentPanel />
         <Toggle active={false} label={t('view3d.resetCamera')} onClick={resetCamera}>
           <Maximize size={18} />
         </Toggle>

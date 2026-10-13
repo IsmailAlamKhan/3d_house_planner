@@ -4,6 +4,8 @@ export interface ServerConfig {
   port: number;
   host: string;
   ollamaUrl: string;
+  /** Where ComfyUI listens (the optional image service); null = not configured. */
+  comfyUrl: string | null;
   /** The model the app suggests by default (users can still pick another in AI settings). */
   model: string;
   /** If set, the whole app asks for this password first. */
@@ -44,6 +46,7 @@ export function loadConfig(
     port: Number.isInteger(port) && port > 0 && port < 65536 ? port : 8080,
     host: get('HOST') || '0.0.0.0',
     ollamaUrl: (get('OLLAMA_URL') || 'http://127.0.0.1:11434').replace(/\/+$/, ''),
+    comfyUrl: get('COMFYUI_URL') ? get('COMFYUI_URL')!.replace(/\/+$/, '') : null,
     model: get('OLLAMA_MODEL') || 'qwen3:14b',
     password: get('APP_PASSWORD') ? String(get('APP_PASSWORD')) : null,
     distDir,

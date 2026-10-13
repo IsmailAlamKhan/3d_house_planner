@@ -1,0 +1,7 @@
+# Where ComfyUI looks for models: the "comfyui-models" volume mounted at /models.
+duplex:
+  base_path: /models
+  checkpoints: checkpoints
+  controlnet: controlnet
+  vae: vae
+  upscale_models: upscale_models

@@ -21,15 +21,15 @@ npm install
 npm run dev          # http://localhost:5173
 ```
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Development server (also builds the snapshot viewer first) |
-| `npm run build` | Type-check and produce the production build in `dist/` |
-| `npm run preview` | Serve `dist/` locally (the end-to-end tests use this) |
-| `npm run typecheck` / `lint` | TypeScript (strict) and ESLint |
-| `npm test` | Unit tests (Vitest) |
-| `npm run test:coverage` | Unit tests with coverage for `model/`, `geometry/`, `ai/` (≥ 80 % enforced) |
-| `npm run test:e2e` | Playwright end-to-end tests (builds and serves the app itself) |
+| Command                             | What it does                                                                |
+| ----------------------------------- | --------------------------------------------------------------------------- |
+| `npm run dev`                       | Development server (also builds the snapshot viewer first)                  |
+| `npm run build`                     | Type-check and produce the production build in `dist/`                      |
+| `npm run preview`                   | Serve `dist/` locally (the end-to-end tests use this)                       |
+| `npm run typecheck` / `lint`        | TypeScript (strict) and ESLint                                              |
+| `npm test`                          | Unit tests (Vitest)                                                         |
+| `npm run test:coverage`             | Unit tests with coverage for `model/`, `geometry/`, `ai/` (≥ 80 % enforced) |
+| `npm run test:e2e`                  | Playwright end-to-end tests (builds and serves the app itself)              |
 
 First run of the end-to-end tests: `npx playwright install chromium`.
 
@@ -40,11 +40,14 @@ First run of the end-to-end tests: `npx playwright install chromium`.
   entrance and existing facade windows (locked); then start empty, from one of four templates, or with the AI.
 - **2D plan** — walls with typed lengths, rooms detected automatically, snapping, dimensions, undo/redo for everything.
 - **Library** — 77 doors, windows, furniture, outdoor and fitness pieces; drag and drop (or tap, then tap) into the plan or the 3D view.
+- **Lighting** — realistic (dark unless daylight comes in or a light is on) or even design lighting (`L`), light fixtures with brightness / colour temperature and per-fixture, per-room and global switches, exposure and night-visibility controls, three graphics tiers that look the same and differ only in cost.
 - **Materials & light** — 46 procedural materials (incl. grass, water, paving, decking), paint colours, eyedropper, time of day, evening/night/marketing looks.
 - **3D** — orbit, **walkthrough** (WASD, collision, stairs), top view, section cuts, isolate a room, x-ray, measure,
   minimap, saved views.
 - **Checks** — headroom on stairs, unreachable rooms, missing windows, drains, minimum areas, door swings; click a
   problem to see it. Area schedule included.
+- **Present** — one click to a magazine-style render: cutaway top-down or 3/4 views at dusk with warm lights, plants and decor, crisp room labels (name and size), auto-decorate, PNG export at 1×–4×, and an optional path-traced high-quality still.
+- **Enhance with AI** (optional) — turn a presentation render into a photoreal mood image with Stable Diffusion XL + ControlNet in a local ComfyUI container (`docker compose --profile render up -d`); labels are re-applied crisply afterwards.
 - **Notes** pinned to the plan, **design options** (Option A/B/C) with a synced side-by-side comparison.
 - **Export** — images (1×/2×/4×), PDF plan set to scale (1:50/1:100), GLB and OBJ, SVG and DXF per level, bill of
   materials with your own unit costs (CSV), and a **read-only snapshot** `.html` that opens offline anywhere.
@@ -61,7 +64,7 @@ Open the **AI Assistant** tab.
   study"), **Preview change** shows exactly what will change, **Apply** or **Discard**.
 
 For a villa, start a **Villa on a plot** project (New project → "Villa on a plot", enter the plot and building size),
-then open the AI tab and write e.g. *"luxury villa with pool, garden, 2-car garage, gym and sauna"* — the design has a
+then open the AI tab and write e.g. _"luxury villa with pool, garden, 2-car garage, gym and sauna"_ — the design has a
 foyer and a central hall with two wings of rooms and the outdoor areas around it. The **Luxury villa** template in the
 wizard does the same without typing.
 
@@ -100,12 +103,12 @@ running Ollama on Windows? `docker compose -f docker-compose.yml -f docker-compo
 
 The production build registers a service worker that caches the app shell, every lazily loaded screen, the fonts and
 the snapshot viewer. After the first load everything except the AI model works with no network. Chrome/Edge show an
-**Install app** button; on iOS use *Share → Add to Home Screen*.
+**Install app** button; on iOS use _Share → Add to Home Screen_.
 
 ## Deployment
 
 - **GitHub Pages** (included): `.github/workflows/ci.yml` runs lint, type-check, tests, build and the end-to-end tests
-  on every push, and on `main` publishes to Pages. Enable *Settings → Pages → Source: GitHub Actions*. The build uses
+  on every push, and on `main` publishes to Pages. Enable _Settings → Pages → Source: GitHub Actions_. The build uses
   `BASE_PATH=/<repo>/` so the app works under `https://<user>.github.io/<repo>/`.
 - **Netlify**: connect the repo; `netlify.toml` has the build settings.
 - Any static host works: `BASE_PATH=/sub/ npm run build` and upload `dist/`.

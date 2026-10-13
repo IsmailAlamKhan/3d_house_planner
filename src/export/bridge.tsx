@@ -2,6 +2,10 @@ import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { Vec3 } from '../scene3d/camera/views';
+import { Matrix4 } from 'three';
+import { getComposer } from '../present/fxBridge';
+import { type RenderPass, applyPass } from '../present/passes';
+import { type PathTraceOptions, pathTraceInto } from '../present/pathTrace';
 import { useExportFlags } from './flags';
 
 export interface CaptureOptions {
@@ -12,6 +16,14 @@ export interface CaptureOptions {
   transparent: boolean;
   /** Hide the grid, helpers, selection and measurements. */
   presentation: boolean;
+  /** Render a guide pass instead of the colour picture: normalised depth (near = white) or surface normals. Same camera and size as the colour render. */
+  pass?: RenderPass;
+  /** Make the longer side this many pixels (overrides `scale`; used for the enhancement inputs). */
+  longSide?: number;
+  /** Render through the presentation post-processing (bloom, SSAO, tone mapping) when it is on. */
+  fx?: boolean;
+  /** Path-trace the picture (progressively) instead of rasterizing it. Falls back to a normal render when it cannot run. */
+  pathTrace?: Omit<PathTraceOptions, 'background'> & { background: string };
   /** Look from here instead of where the camera is now (orbit mode). */
   pose?: { position: Vec3; target: Vec3 };
 }
@@ -22,6 +34,11 @@ export interface CaptureResult {
   height: number;
   /** The scale actually used (may be lower than asked when the GPU limit was reached). */
   scale: number;
+  /** The camera's projection × view matrix at the moment of capture (for projecting labels onto the picture). */
+  viewProjection: number[];
+  /** `cancelled`: the path tracer was stopped (the picture is partial). `fallback`: why the normal render was used. */
+  pathTraced?: 'done' | 'cancelled';
+  fallback?: string;
 }
 
 type CaptureFn = (o: CaptureOptions) => Promise<CaptureResult>;
@@ -70,24 +87,61 @@ export function ExportBridge() {
           controls?.update();
         }
         const limit = Math.min(gl.capabilities.maxTextureSize, 8192);
-        const scale = Math.max(
-          1,
-          Math.min(o.scale, Math.floor(limit / Math.max(size.width, size.height, 1))),
-        );
+        const scale = o.longSide
+          ? Math.min(o.longSide, limit) / Math.max(size.width, size.height, 1)
+          : Math.max(
+              1,
+              Math.min(o.scale, Math.floor(limit / Math.max(size.width, size.height, 1))),
+            );
         const ratio = gl.getPixelRatio();
         gl.setPixelRatio(scale);
         gl.setSize(size.width, size.height, false);
+        let restorePass: (() => void) | null = null;
         try {
-          gl.render(scene, camera);
+          restorePass = o.pass ? applyPass(scene, camera, o.pass) : null;
+          // The pipeline is the picture (tone mapping lives in it), so every colour capture goes through it.
+          const composer = o.pass ? null : getComposer();
+          let pathTraced: 'done' | 'cancelled' | undefined;
+          let fallback: string | undefined;
+          if (o.pathTrace) {
+            try {
+              get().setFrameloop('never');
+              pathTraced = await pathTraceInto(gl, scene, camera, o.pathTrace);
+            } catch (e) {
+              fallback = e instanceof Error ? e.message : String(e);
+              gl.render(scene, camera);
+            } finally {
+              get().setFrameloop('always');
+            }
+          } else if (composer) {
+            composer.setSize(size.width, size.height, false);
+            composer.render();
+          } else gl.render(scene, camera);
+          restorePass?.();
+          restorePass = null;
+          camera.updateMatrixWorld();
+          const viewProjection = new Matrix4()
+            .multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)
+            .toArray();
           const blob = await toBlob(
             gl.domElement,
             o.format === 'png' ? 'image/png' : 'image/jpeg',
             o.format === 'jpeg' ? 0.92 : undefined,
           );
-          return { blob, width: gl.domElement.width, height: gl.domElement.height, scale };
+          return {
+            blob,
+            width: gl.domElement.width,
+            height: gl.domElement.height,
+            scale,
+            viewProjection,
+            pathTraced,
+            fallback,
+          };
         } finally {
+          restorePass?.();
           gl.setPixelRatio(ratio);
           gl.setSize(size.width, size.height, false);
+          getComposer()?.setSize(size.width, size.height, false);
         }
       } finally {
         camera.position.copy(from.position);

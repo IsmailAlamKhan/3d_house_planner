@@ -13,6 +13,8 @@ services:
       OLLAMA_URL: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:14b}
       APP_PASSWORD: ${APP_PASSWORD:-}
+      # Optional "Enhance render" service (profile "render"); when it is not running the app says how to start it.
+      COMFYUI_URL: http://comfyui:8188
     volumes:
       - app-data:/data
     depends_on:
@@ -51,6 +53,39 @@ services:
       OLLAMA_HOST: http://ollama:11434
     entrypoint: ["ollama", "pull", "${OLLAMA_MODEL:-qwen3:14b}"]
 
+  # ── Optional: AI image enhancement (ComfyUI + Stable Diffusion XL + ControlNet) ───────────────────────────────────
+  # Start with:  docker compose --profile render up -d      (about 12 GB of models are downloaded once)
+  # The language model and the image model do not fit on a 16 GB GPU together: the app server runs both kinds of job
+  # one at a time and unloads the other model first.
+  comfyui:
+    profiles: ["render"]
+    build: ./docker/comfyui
+    image: duplex-designer-comfyui:local
+    restart: unless-stopped
+    # No "ports": reachable only from the app on the internal compose network.
+    volumes:
+      - comfyui-models:/models
+    depends_on:
+      comfyui-init:
+        condition: service_completed_successfully
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  comfyui-init:
+    profiles: ["render"]
+    image: alpine:3.20.3
+    restart: "no"
+    volumes:
+      - comfyui-models:/models
+      - ./docker/comfyui/download-models.sh:/download-models.sh:ro
+    entrypoint: ["/bin/sh", "-c", "apk add --no-cache curl >/dev/null && sh /download-models.sh"]
+
 volumes:
   app-data:
   ollama-data:
+  comfyui-models:

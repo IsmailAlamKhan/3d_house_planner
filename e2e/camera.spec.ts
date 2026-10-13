@@ -62,7 +62,19 @@ test('walkthrough: starts at the entrance, WASD moves, walls stop you, Esc exits
 test('walkthrough: walk through the door, up the stairs and arrive on the upper level', async ({
   page,
 }) => {
-  test.setTimeout(120_000); // software rendering can be slow; the walk is frame-based
+  test.setTimeout(180_000); // software rendering can be slow; the walk is frame-based
+  // The walk is about movement, not light: even design lighting keeps frames cheap on software GL.
+  await page.evaluate(() =>
+    (
+      window as unknown as {
+        __duplex: {
+          stores: { scene: { getState: () => { setPref: (k: string, v: unknown) => void } } };
+        };
+      }
+    ).__duplex.stores.scene
+      .getState()
+      .setPref('lightStyle', 'design'),
+  );
   // Start just north of the stair hall door, facing south (yaw π), then walk forward.
   await page.evaluate(() =>
     (
@@ -78,7 +90,7 @@ test('walkthrough: walk through the door, up the stairs and arrive on the upper 
   await page.keyboard.down('w');
   try {
     await expect
-      .poll(async () => (await cam(page)).walker!.floor, { timeout: 60_000, intervals: [500] })
+      .poll(async () => (await cam(page)).walker!.floor, { timeout: 120_000, intervals: [500] })
       .toBeGreaterThan(2.8);
   } finally {
     await page.keyboard.up('w');

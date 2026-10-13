@@ -469,6 +469,7 @@ function furnishRoom(f: RoomFurnisher, type: PlannedRoom['type']): void {
       f.ceilingLight();
       break;
     }
+    case 'outdoor':
     case 'balcony':
       f.at('plant', f.center());
       break;

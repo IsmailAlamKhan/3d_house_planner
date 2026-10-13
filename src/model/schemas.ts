@@ -36,6 +36,8 @@ export const ROOM_TYPES = [
   'home-theatre',
   'prayer',
   'outdoor-dining',
+  // Balcony, terrace or garden: no ceiling, optional parapet, outdoor floors.
+  'outdoor',
   'other',
 ] as const;
 export const ZONE_TYPES = [
@@ -308,6 +310,17 @@ export const SiteSchema = z.object({
 
 export const PROJECT_KINDS = ['apartment', 'villa'] as const;
 
+/**
+ * Which light fixtures are switched on. Saved with the project but NOT part of undo/redo (switching a lamp is not a
+ * design edit). `master`: all on / all off / `auto` (follow the lighting preset: dusk and night switch lamps on).
+ * An item's own switch beats its room's switch, which beats `master`.
+ */
+export const LightsSchema = z.object({
+  master: z.enum(['auto', 'on', 'off']).default('auto'),
+  rooms: z.record(z.string(), z.boolean()).default({}),
+  items: z.record(z.string(), z.boolean()).default({}),
+});
+
 /** What the user fills in to price the bill of materials. Keys are the BOM line keys (see `export/bom.ts`). */
 export const CostsSchema = z.object({
   currency: z.string().min(1).default('USD'),
@@ -334,6 +347,7 @@ export const ProjectSchema = z.object({
   /** Other designs of the same home ("Option A", "Option B" …) kept aside while one is being edited. */
   options: z.array(DesignOptionSchema).default([]),
   kind: z.enum(PROJECT_KINDS).default('apartment'),
+  lights: LightsSchema.default({ master: 'auto', rooms: {}, items: {} }),
   site: SiteSchema.default({ plot: [], gates: [], zones: [], setback: 1.5 }),
   currentOption: OptionMetaSchema.default({ id: 'main', letter: null, name: null }),
   costs: CostsSchema.default({ currency: 'USD', unitCosts: {} }),

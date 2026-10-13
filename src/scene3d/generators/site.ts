@@ -263,5 +263,6 @@ export function generateSite(project: Project): Part[] {
     if (z.type === 'pool' || z.type === 'water-feature') parts.push(...generatePool(z));
     else parts.push(...generateSurface(z));
   }
-  return parts;
+  // Everything outdoors takes the sky light (`@out`) even under realistic lighting.
+  return parts.map((p) => ({ ...p, materials: p.materials.map((m) => `${m}@out`) }));
 }

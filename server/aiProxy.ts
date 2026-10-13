@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { GpuQueue } from './gpuQueue';
 
 /**
  * Same-origin proxy for local language models, so the browser never talks to Ollama / LM Studio directly.
@@ -18,6 +19,8 @@ export interface AiProxyOptions {
   timeoutMs?: number;
   /** Allow `openai` targets on any host (default: loopback and private-network hosts only). */
   allowAnyHost?: boolean;
+  /** The shared GPU queue (design and render jobs take turns). A private one is used when omitted. */
+  queue?: GpuQueue;
 }
 
 export const OLLAMA_PATHS = ['/api/chat', '/api/tags'] as const;
@@ -81,16 +84,9 @@ export function createAiProxy(options: AiProxyOptions = {}) {
   ).replace(/\/+$/, '');
   const maxBody = options.maxBody ?? 1024 * 1024;
   const timeoutMs = options.timeoutMs ?? 180_000;
-  // One generation at a time (queued FIFO); cheap listing calls skip the queue.
-  let tail: Promise<unknown> = Promise.resolve();
-  /** Jobs running or waiting (so a newcomer knows how many are ahead of it). */
-  let pending = 0;
-  const enqueue = <T>(job: () => Promise<T>): Promise<T> => {
-    pending++;
-    const run = tail.then(job, job);
-    tail = run.catch(() => undefined).finally(() => void pending--);
-    return run;
-  };
+  // One generation at a time (queued FIFO, shared with the render jobs); cheap listing calls skip the queue.
+  const queue = options.queue ?? new GpuQueue();
+  const enqueue = <T>(job: () => Promise<T>): Promise<T> => queue.run('design', job);
 
   return async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
     if (req.method !== 'POST') return send(res, 405, { error: 'Use POST /api/ai' });
@@ -155,7 +151,7 @@ export function createAiProxy(options: AiProxyOptions = {}) {
       res.setHeader('Content-Type', 'application/x-ndjson');
       res.setHeader('Cache-Control', 'no-store');
       const line = (o: unknown) => !res.writableEnded && res.write(JSON.stringify(o) + '\n');
-      if (pending > 0) line({ type: 'queued', ahead: pending });
+      if (queue.pending > 0) line({ type: 'queued', ahead: queue.pending });
       const callStream = async () => {
         const ctl = new AbortController();
         const timer = setTimeout(() => ctl.abort(), timeoutMs);

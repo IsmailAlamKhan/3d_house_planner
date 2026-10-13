@@ -95,10 +95,28 @@ describe('presets', () => {
 
 describe('quality', () => {
   it('Low drops shadows/AA, High adds AO', () => {
-    expect(QUALITY.low.shadows).toBe(false);
+    // Every tier has shadows and reflections: tiers change cost and detail, not the look.
+    for (const q of Object.values(QUALITY)) {
+      expect(q.shadows).toBe(true);
+      expect(q.environment).toBe(true);
+    }
     expect(QUALITY.low.antialias).toBe(false);
-    expect(QUALITY.medium.ao).toBe(false);
-    expect(QUALITY.high.ao).toBe(true);
+    expect(QUALITY.low.ao).toBe('none');
+    expect(QUALITY.medium.ao).toBe('half');
+    expect(QUALITY.high.ao).toBe('full');
+    expect([QUALITY.low.maxLights, QUALITY.medium.maxLights, QUALITY.high.maxLights]).toEqual([
+      8, 16, 32,
+    ]);
+    expect([
+      QUALITY.low.shadowLights,
+      QUALITY.medium.shadowLights,
+      QUALITY.high.shadowLights,
+    ]).toEqual([0, 2, 4]);
+    expect([
+      QUALITY.low.shadowMapSize,
+      QUALITY.medium.shadowMapSize,
+      QUALITY.high.shadowMapSize,
+    ]).toEqual([1024, 2048, 4096]);
     expect(QUALITY.high.maxLights).toBeGreaterThan(QUALITY.low.maxLights);
     expect(QUALITY.high.dpr[1]).toBeGreaterThan(QUALITY.medium.dpr[1]);
   });

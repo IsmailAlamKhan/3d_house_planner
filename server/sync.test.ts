@@ -16,6 +16,7 @@ async function setup() {
     port: 0,
     host: '127.0.0.1',
     ollamaUrl: 'http://127.0.0.1:9',
+    comfyUrl: null,
     model: 'm',
     password: null,
     distDir: 'dist',

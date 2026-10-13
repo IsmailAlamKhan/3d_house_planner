@@ -25,6 +25,7 @@ export type Design = z.infer<typeof S.DesignSchema>;
 export type OptionMeta = z.infer<typeof S.OptionMetaSchema>;
 export type DesignOption = z.infer<typeof S.DesignOptionSchema>;
 export type Note = z.infer<typeof S.NoteSchema>;
+export type Lights = z.infer<typeof S.LightsSchema>;
 export type Costs = z.infer<typeof S.CostsSchema>;
 export type Project = z.infer<typeof S.ProjectSchema>;
 

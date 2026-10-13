@@ -49,6 +49,14 @@ export const TYPE_DEFAULTS: Record<RoomType, TypeDefaults> = {
     floor: 'floor-tile-grey',
     growth: 0.5,
   },
+  outdoor: {
+    minWidth: 1.5,
+    maxScale: 1.6,
+    window: false,
+    wet: false,
+    floor: 'decking',
+    growth: 0.6,
+  },
   balcony: {
     minWidth: 1.2,
     maxScale: 1.5,
@@ -210,7 +218,9 @@ export function floorFor(type: RoomType, style: DesignIntent['style']): string {
   const base = TYPE_DEFAULTS[type].floor;
   const chosen = style?.floor ? FLOOR_STYLE[style.floor] : undefined;
   if (!chosen) return base;
-  return type === 'bathroom' || type === 'utility' || type === 'balcony' ? base : chosen;
+  return type === 'bathroom' || type === 'utility' || type === 'balcony' || type === 'outdoor'
+    ? base
+    : chosen;
 }
 
 export const wallFor = (style: DesignIntent['style']): string =>

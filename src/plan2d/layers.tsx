@@ -14,6 +14,7 @@ export const ROOM_FILL: Record<RoomType, string> = {
   study: '#ddd6fe',
   utility: '#e5e7eb',
   balcony: '#d9f99d',
+  outdoor: '#bef264',
   corridor: '#f1f5f9',
   stair: '#fbcfe8',
   foyer: '#fde68a',

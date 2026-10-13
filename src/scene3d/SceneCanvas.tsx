@@ -1,17 +1,17 @@
 import { Canvas } from '@react-three/fiber';
 import { Grid } from '@react-three/drei';
-import { Suspense, lazy, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useModel } from '../model/store';
 import { validateStair } from './generators/stairs';
 import { ModelScene } from './ModelScene';
 import { DropTarget } from './DropTarget';
 import { FpsMeter } from './FpsMeter';
-import { InteriorLights, SceneLights } from './SceneLights';
+import { InteriorLights, SceneLights, WindowLights } from './SceneLights';
 import { QUALITY, resolveQuality } from './quality';
 import { carriedId, useCatalogDrag } from '../catalog/dragStore';
 import { SceneToolbar } from './SceneToolbar';
 import { selectFrom3d } from './select';
-import { useSceneStore } from './sceneStore';
+import { effectiveLightStyle, useSceneStore } from './sceneStore';
 import { CameraSystem } from './camera/CameraSystem';
 import { useCamera } from './camera/cameraStore';
 import { MeasureOverlay } from './camera/MeasureOverlay';
@@ -23,9 +23,15 @@ import { ExportBridge } from '../export/bridge';
 import { NotePins3D } from '../notes/NotePins3D';
 import { useExportFlags } from '../export/flags';
 import { modalOpen } from '../ui/modalOpen';
+import { AccentLights } from '../present/AccentLights';
+import { LabelsOverlay } from '../present/LabelsOverlay';
+import { LabelsProjector } from '../present/LabelsProjector';
+import RenderPipeline from './RenderPipeline';
+import { RenderDebugPanel } from '../debug/RenderDebugPanel';
+import { ContactBlobs } from './ContactBlobs';
+import { RoomLightButtons } from './RoomLightButtons';
 
 // Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
-const AmbientOcclusion = lazy(() => import('./AmbientOcclusion'));
 
 function StairWarnings() {
   const project = useModel((s) => s.project);
@@ -77,7 +83,19 @@ const typing = (t: EventTarget | null) =>
     t.tagName === 'SELECT' ||
     t.isContentEditable);
 
-/** F focuses the selection; Esc stops measuring. */
+/** L (or the "Work light" button): switch between realistic and even design lighting. */
+export function toggleWorkLight(): void {
+  const scene = useSceneStore.getState();
+  const style = effectiveLightStyle(
+    scene.lightStyle,
+    useModel.getState().viewMode,
+    useCamera.getState().mode === 'walk',
+    false,
+  );
+  scene.setPref('lightStyle', style === 'realistic' ? 'design' : 'realistic');
+}
+
+/** F focuses the selection; L toggles the work light; Esc stops measuring. */
 function useCameraShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -86,6 +104,7 @@ function useCameraShortcuts() {
       const cam = useCamera.getState();
       if (e.key === 'Escape' && cam.measuring) cam.setMeasuring(false);
       else if ((e.key === 'f' || e.key === 'F') && cam.mode !== 'walk') cam.requestFocus();
+      else if (e.key === 'l' || e.key === 'L') toggleWorkLight();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -103,19 +122,20 @@ export function SceneCanvas() {
   useCameraShortcuts();
   return (
     <div data-testid="scene-canvas" className="relative h-full w-full bg-slate-200">
-      {/* Antialiasing is fixed when the GL context is created, so a quality change remounts the canvas. */}
+      {/* Quality changes apply live (anti-aliasing is done by the render pipeline, not the GL context). */}
       <Canvas
-        key={quality}
-        shadows={q.shadows}
+        flat
+        shadows={q.shadowType}
         dpr={q.dpr}
         camera={{ position: [15, 14, 20], fov: 45, near: 0.1, far: 800 }}
-        gl={{ localClippingEnabled: true, antialias: q.antialias }}
+        gl={{ localClippingEnabled: true, antialias: false }}
         onPointerMissed={(e) => {
           if (!useCatalogDrag.getState().armedId) selectFrom3d(undefined, e.shiftKey);
         }}
       >
         <SceneLights quality={quality} />
         <InteriorLights quality={quality} />
+        <WindowLights quality={quality} />
         {!presentation && (
           <Grid
             position={[0, -0.25, 0]}
@@ -129,19 +149,21 @@ export function SceneCanvas() {
           />
         )}
         <ModelScene />
+        <ContactBlobs quality={quality} />
         <DropTarget />
         <SectionRig />
         {!presentation && <MeasureOverlay />}
         <ExportBridge />
         <NotePins3D />
+        <RoomLightButtons />
         <CameraSystem />
         {showFps && <FpsMeter />}
-        {q.ao && (
-          <Suspense fallback={null}>
-            <AmbientOcclusion />
-          </Suspense>
-        )}
+        <AccentLights quality={quality} />
+        <LabelsProjector />
+        <RenderPipeline quality={quality} />
       </Canvas>
+      <LabelsOverlay />
+      <RenderDebugPanel />
       <SceneToolbar />
       <SavedViewsStrip />
       <Minimap />
