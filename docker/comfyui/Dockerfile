@@ -18,11 +18,13 @@ RUN git init . \
 
 # Models live in the shared "comfyui-models" volume (downloaded once by the comfyui-init service).
 COPY extra_model_paths.yaml /opt/ComfyUI/extra_model_paths.yaml
+COPY start.sh /opt/start.sh
 
 RUN useradd --create-home --uid 10001 comfy && chown -R comfy:comfy /opt/ComfyUI
 USER comfy
 EXPOSE 8188
-HEALTHCHECK --interval=15s --timeout=5s --start-period=60s --retries=10 \
+# The first start waits for the model download (up to hours on a slow line), so the start period is long.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=6h --retries=10 \
   CMD curl -fsS http://127.0.0.1:8188/system_stats >/dev/null || exit 1
 # No published port in docker-compose.yml: only the app server (same compose network) talks to ComfyUI.
-CMD ["python", "main.py", "--listen", "0.0.0.0", "--port", "8188", "--disable-auto-launch"]
+CMD ["sh", "/opt/start.sh"]

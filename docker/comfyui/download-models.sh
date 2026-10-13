@@ -12,11 +12,15 @@ fetch() { # url, destination, expected size in bytes
     return
   fi
   echo "download $dest ($((size / 1048576)) MB)"
-  curl -fL --retry 5 --retry-delay 5 -C - -o "$dest" "$url"
-  if [ "$(wc -c < "$dest")" -ne "$size" ]; then
-    echo "ERROR: $dest has the wrong size — delete it and run again" >&2
+  # Download into <name>.part and rename only when complete, so ComfyUI never sees a half-downloaded model.
+  # (A partial file from an older run is picked up and resumed.)
+  if [ -f "$dest" ]; then mv "$dest" "$dest.part"; fi
+  curl -fL --retry 5 --retry-delay 5 -C - -o "$dest.part" "$url"
+  if [ "$(wc -c < "$dest.part")" -ne "$size" ]; then
+    echo "ERROR: $dest.part has the wrong size — delete it and run again" >&2
     exit 1
   fi
+  mv "$dest.part" "$dest"
 }
 
 # Stable Diffusion XL base 1.0 (Stability AI, CreativeML Open RAIL++-M)

@@ -1,0 +1,6 @@
+# Files that run inside Linux containers or under sh/bash must keep LF line endings, even when Git on Windows
+# converts text files to CRLF on checkout (a CRLF in a shell script fails with "set: illegal option -").
+*.sh text eol=lf
+Dockerfile text eol=lf
+docker/** text eol=lf
+*.yml text eol=lf

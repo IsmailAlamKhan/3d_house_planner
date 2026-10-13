@@ -65,9 +65,8 @@ services:
     # No "ports": reachable only from the app on the internal compose network.
     volumes:
       - comfyui-models:/models
-    depends_on:
-      comfyui-init:
-        condition: service_completed_successfully
+    # No depends_on: the container starts at once and waits for the models itself (docker/comfyui/start.sh), so
+    # "docker compose up -d" returns immediately even on the first start.
     deploy:
       resources:
         reservations:
