@@ -300,3 +300,18 @@ State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Wind
 - `e2e/lighting.spec.ts`: with the default software GL two tests fail (`rooms are dark unless daylight enters...`, `hidden ceilings and roofs still block light...`); on the GPU they pass alone but in a full serial run one of them fails (order dependent). `white on white` was fixed by re-sizing its thresholds (see its comment). The lighting tests overwrite `tests/visual/*.png`; restore them with `git checkout -- tests/visual` after a run.
 - `offline`, `shared`, `export`, `polish`, `villa` e2e tests are flaky only when the whole suite runs under load; they pass alone.
 - Custom models are not embedded in exported project files; the feature needs the app server (hidden on a static site).
+
+## Prompt 18 — Reference Villa: Trace From the Picture and Build It 1:1 — IN PROGRESS
+
+Plan (checked off as they land):
+- [ ] A. `geometry/homography.ts`: 4-point homography (DLT), 2-point similarity, apply/invert, image rectification (+ tests)
+- [ ] B. `reference/spec.ts`: Zod `ReferenceSpec` (plot, levels, rooms rect/polygon, openings, glass partitions, zones, gates, boundary, items, lights, views, underlay, designs A/B) (+ tests)
+- [ ] C. Design options also swap outdoor zones and gates (`Design` gets `zones`, `gates`), so Option A and B can differ outdoors
+- [ ] D. `reference/build.ts`: deterministic exact builder (shared-wall graph, rooms, openings, zones, items, stairs, roof terrace, views) as one undoable batch + overlap / gap / unreachable report (+ tests)
+- [ ] E. `reference/export.ts` (project → spec), `Export → Reference spec`, `npm run reference:build -- <spec> [--out file]`, `FIDELITY.md` generator
+- [ ] F. Underlay: `project.underlay`, `/api/assets` image kind (+ IndexedDB fallback), rectification (4 corners + real size, 2-point mode), opacity/show/lock/move/rotate/send-to-back, 3D ground decal, "Measure from image"
+- [ ] G. `reference/villa.spec.json` traced from the picture: Option A "As labelled", Option B "As pictured" (+ saved views, FIDELITY.md)
+- [ ] H. "Compare with reference" view (reference image vs "Reference top-down" render, split slider)
+- [ ] I. docs/ARCHITECTURE.md, README, full verification, commit
+
+Notes: the reference image is a phone screenshot (720 × ~1600); the plot is the band y ≈ 195-1270. Options share the model's `Design`; outdoor zones/gates are added to it in step C.
