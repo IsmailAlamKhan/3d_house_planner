@@ -93,8 +93,17 @@ function levelData() {
   const stairs = project.stairs
     .filter((st) => st.fromLevelId === activeLevelId || st.toLevelId === activeLevelId)
     .map((st) => ({ id: st.id, polys: stairHitPolys(project, st, activeLevelId) }));
+  // The villa site is edited on the ground level (when shown and not locked).
+  const level0 = [...project.levels].sort((a, b) => a.index - b.index)[0];
+  const siteEditable =
+    project.kind === 'villa' &&
+    usePlanStore.getState().siteVisible &&
+    !usePlanStore.getState().siteLocked &&
+    level0?.id === activeLevelId;
   return {
     project,
+    zones: siteEditable ? project.site.zones : [],
+    gates: siteEditable ? project.site.gates : [],
     stairs,
     walls,
     rooms: project.rooms.filter((r) => r.levelId === activeLevelId),
@@ -139,6 +148,24 @@ function finishPolygonRoom(): void {
   useDraft.getState().reset();
 }
 
+/** Closes the zone / plot being drawn. */
+function finishSiteShape(tool: 'zone' | 'plot'): void {
+  const { roomPts } = useDraft.getState();
+  if (roomPts.length >= 3) {
+    if (tool === 'plot') {
+      tryEdit((p) => ops.setPlot(p, roomPts));
+      useModel.getState().setTool('select');
+    } else {
+      const type = usePlanStore.getState().zoneType;
+      const id = tryEdit((p) =>
+        ops.addZone(p, { type, polygon: roomPts, name: t(`zone.${type}` as 'zone.lawn') }),
+      );
+      if (id) useModel.getState().setSelection(sel('zone', [id]));
+    }
+  }
+  useDraft.getState().reset();
+}
+
 function commitRoom(polygon: Vec2[]): void {
   const id = tryEdit((p, level) => ops.addRoomWithWalls(p, level, polygon));
   if (id) useModel.getState().setSelection(sel('room', [id]));
@@ -149,6 +176,11 @@ export function deleteSelected(): void {
   if (!selection.type) return;
   if (selection.type === 'item' || selection.type === 'opening' || selection.type === 'stair') {
     if (ensureEditable()) deleteSelectedCatalog();
+    return;
+  }
+  if (selection.type === 'zone' || selection.type === 'gate') {
+    tryEdit((p) => void ops.deleteSelection(p, selection));
+    useModel.getState().setSelection(NO_SELECTION);
     return;
   }
   if (selection.type === 'column') return toast(t('toast.columnFixed'));
@@ -164,7 +196,13 @@ export function deleteSelected(): void {
 export function fitToShell(): void {
   const { size } = usePlanStore.getState();
   if (!size.w || !size.h) return;
-  const b = polygonBounds(useModel.getState().project.shell.footprint);
+  const project = useModel.getState().project;
+  // A villa is framed on its whole plot, so the outdoor areas are in view too.
+  const b = polygonBounds(
+    project.kind === 'villa' && project.site.plot.length >= 3
+      ? project.site.plot
+      : project.shell.footprint,
+  );
   usePlanStore.getState().setView(fitBounds(b.min, b.max, size));
 }
 
@@ -234,7 +272,7 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
   function startSelectPress(w: Vec2, raw: PointerEvent): void {
     const { selection, setSelection } = useModel.getState();
     const { view } = usePlanStore.getState();
-    const { walls, rooms, columns, items, openings, stairs } = levelData();
+    const { walls, rooms, columns, items, openings, stairs, zones, gates } = levelData();
     const hit = hitTest(w, {
       walls,
       rooms,
@@ -242,6 +280,8 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       items,
       openings,
       stairs,
+      zones,
+      gates,
       selection,
       px: 1 / view.scale,
     });
@@ -431,6 +471,21 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
         if (pts.length > 0 && dist(pt, pts[pts.length - 1]!) < MIN_WALL_LENGTH) return;
         useDraft.setState({ roomPts: [...pts, pt] });
       }
+      return;
+    }
+
+    // Site tools (villa): draw a zone or the plot as a polygon, or place a gate on the plot boundary.
+    if (tool === 'zone' || tool === 'plot') {
+      const pts = draftS.roomPts;
+      const pt = snapAt(w, { anchor: pts[pts.length - 1] }).point;
+      if (pts.length >= 3 && dist(pt, pts[0]!) < 0.2) return finishSiteShape(tool);
+      if (pts.length > 0 && dist(pt, pts[pts.length - 1]!) < 0.05) return;
+      return void useDraft.setState({ roomPts: [...pts, pt] });
+    }
+    if (tool === 'gate') {
+      const kind = usePlanStore.getState().gateKind;
+      const id = tryEdit((p) => ops.addGate(p, { kind, position: w }));
+      if (id) useModel.getState().setSelection(sel('gate', [id]));
       return;
     }
 
@@ -682,6 +737,7 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     const { tool } = useModel.getState();
     if (tool === 'wall') finishWallChain();
     else if (tool === 'room' && usePlanStore.getState().roomMode === 'poly') finishPolygonRoom();
+    else if (tool === 'zone' || tool === 'plot') finishSiteShape(tool);
   }
 
   function onPointerLeave() {
@@ -709,7 +765,8 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const tool = store.tool;
     const drawing =
-      (tool === 'wall' && draft.chain.length > 0) || (tool === 'room' && draft.roomPts.length > 0);
+      (tool === 'wall' && draft.chain.length > 0) ||
+      ((tool === 'room' || tool === 'zone' || tool === 'plot') && draft.roomPts.length > 0);
 
     // Typed exact length while drawing walls.
     if (tool === 'wall' && draft.chain.length > 0) {
@@ -741,6 +798,8 @@ export function createInteraction(getSvg: () => SVGSVGElement | null) {
       return;
     }
     if (e.key === 'Enter' && tool === 'room' && draft.roomPts.length) return finishPolygonRoom();
+    if (e.key === 'Enter' && (tool === 'zone' || tool === 'plot') && draft.roomPts.length)
+      return finishSiteShape(tool);
     const catalogSel =
       store.selection.type === 'item' ||
       store.selection.type === 'opening' ||

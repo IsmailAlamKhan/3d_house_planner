@@ -223,10 +223,12 @@ export function planOpenings(input: OpeningPlanInput): OpeningPlan {
       }
     };
     grow();
+    const failed = new Set<string>();
     while (reached.size < lr.length) {
       let pick: { a: PlannedRoom; b: PlannedRoom; score: number } | null = null;
       for (const a of lr.filter((r) => reached.has(r.key))) {
         for (const b of lr.filter((r) => !reached.has(r.key))) {
+          if (failed.has(`${a.key}|${b.key}`)) continue;
           const e = sharedEdge(a.rect, b.rect);
           if (!e || e.length < 1.0) continue;
           let score = GROUP_PRIORITY(a.type) * 3 + GROUP_PRIORITY(b.type) - e.length * 0.2;
@@ -249,7 +251,12 @@ export function planOpenings(input: OpeningPlanInput): OpeningPlan {
           if (!pick || score < pick.score) pick = { a, b, score };
         }
       }
-      if (!pick || !addConnection(pick.a, pick.b, false)) {
+      if (pick && !addConnection(pick.a, pick.b, false)) {
+        // No spot for a door there: try the next best neighbour instead of giving up.
+        failed.add(`${pick.a.key}|${pick.b.key}`);
+        continue;
+      }
+      if (!pick) {
         const stuck = lr.filter((r) => !reached.has(r.key)).map((r) => r.name);
         warnings.push(t('ai.warn.unreachable').replace('{rooms}', stuck.join(', ')));
         break;

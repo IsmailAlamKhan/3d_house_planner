@@ -1,4 +1,5 @@
 import type { Point, RoomType, StairType } from '../../model/types';
+import type { PlannedSite } from './site';
 
 /** Axis-aligned rectangle: x/y = top-left corner in plan metres. */
 export interface Rect {
@@ -82,6 +83,8 @@ export interface LayoutPlan {
   /** Lower is better; used to pick between candidate layouts. */
   score: number;
   title?: string;
+  /** Outdoor zones, gates and furniture on the plot (villa projects with a plot). */
+  site?: PlannedSite;
 }
 
 export const rectArea = (r: Rect): number => r.w * r.h;

@@ -189,3 +189,31 @@ describe('saved views', () => {
     expect(ProjectSchema.parse(old).views).toEqual([]);
   });
 });
+
+describe('plan view preset', () => {
+  it('looks almost straight down, centred on the plot of a villa', () => {
+    const villa = {
+      ...project,
+      kind: 'villa' as const,
+      site: {
+        ...project.site,
+        plot: [
+          { x: -10, y: -10 },
+          { x: 40, y: -10 },
+          { x: 40, y: 50 },
+          { x: -10, y: 50 },
+        ],
+      },
+    };
+    const m = modelBox(villa);
+    expect(m.width).toBeCloseTo(50);
+    const pose = presetPose(villa, 'plan');
+    const dir = [
+      pose.position[0] - pose.target[0],
+      pose.position[1] - pose.target[1],
+      pose.position[2] - pose.target[2],
+    ];
+    const len = Math.hypot(...dir);
+    expect(dir[1]! / len).toBeGreaterThan(0.9);
+  });
+});

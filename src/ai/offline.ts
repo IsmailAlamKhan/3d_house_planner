@@ -1,5 +1,6 @@
 import { t } from '../i18n';
 import { rng } from './layout/rect';
+import { isVillaBrief, offlineVilla } from './offlineVilla';
 import { DesignIntentSchema, type DesignIntent, type RoomIntent } from './schemas';
 
 const WORDS: Record<string, number> = {
@@ -31,7 +32,12 @@ export interface OfflineResult {
 }
 
 /** Reads a simple English brief into a DesignIntent with keyword rules and duplex templates — no model needed. */
-export function offlineIntent(brief: string, variation = 0): OfflineResult {
+export function offlineIntent(
+  brief: string,
+  variation = 0,
+  opts: { villa?: boolean } = {},
+): OfflineResult {
+  if (opts.villa || isVillaBrief(brief)) return offlineVilla(brief, variation);
   const text = ` ${brief.toLowerCase().replace(/[,;.]/g, ' ')} `;
   const understood: string[] = [];
   const has = (re: RegExp) => re.test(text);

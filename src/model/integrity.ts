@@ -41,7 +41,14 @@ export function findOverlappingOpening(
 /** An item belongs to an existing level and its center lies within the shell footprint. */
 export function isItemInBounds(project: Project, levelId: string, position: Point): boolean {
   if (!project.levels.some((l) => l.id === levelId)) return false;
-  return pointInPolygon(position, project.shell.footprint, ITEM_BOUNDS_TOLERANCE);
+  return pointInPolygon(position, itemArea(project), ITEM_BOUNDS_TOLERANCE);
+}
+
+/** Where items may stand: the shell (apartment) or the whole plot (villa with a plot drawn). */
+export function itemArea(project: Project): Point[] {
+  return project.kind === 'villa' && project.site.plot.length >= 3
+    ? project.site.plot
+    : project.shell.footprint;
 }
 
 export function wallHeight(project: Project, wall: Wall): number {

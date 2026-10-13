@@ -18,6 +18,7 @@ import { useModel } from '../model/store';
 import type { Room, Wall } from '../model/types';
 import { ItemProps, OpeningProps } from './CatalogProps';
 import { StairProps } from './StairProps';
+import { GateProps, ZoneProps } from './SiteProps';
 import { MaterialPicker, ShortcutButton } from './MaterialPicker';
 import { CommitField, Row, SelectField, shared, useEditor } from './fields';
 import {
@@ -169,6 +170,7 @@ function RoomProps({ rooms }: { rooms: Room[] }) {
         name={t('props.roomType')}
         value={shared(rooms, (r) => r.type)}
         options={[...ROOM_TYPES]}
+        labelOf={(o) => t(`roomtype.${o}` as 'roomtype.living')}
         mixed={mixed}
         onChange={(v) => patch({ type: v as Room['type'] })}
       />
@@ -266,6 +268,18 @@ export function PropertiesPanel() {
     if (stair) {
       title = t('props.stair');
       body = <StairProps key={stair.id} stair={stair} />;
+    }
+  } else if (selection.type === 'zone') {
+    const zone = project.site.zones.find((z) => z.id === selection.ids[0]);
+    if (zone) {
+      title = t('props.zone');
+      body = <ZoneProps key={zone.id} zone={zone} />;
+    }
+  } else if (selection.type === 'gate') {
+    const gate = project.site.gates.find((g) => g.id === selection.ids[0]);
+    if (gate) {
+      title = t('props.gate');
+      body = <GateProps key={gate.id} gate={gate} />;
     }
   } else if (selection.type === 'column') {
     title = t('props.column');

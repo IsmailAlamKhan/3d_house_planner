@@ -14,6 +14,9 @@ const COLLECTION: Record<EntityType, Collection> = {
   item: 'items',
   column: 'columns',
   roof: 'roofs',
+  // Site entities live under `project.site`; they are handled separately below.
+  zone: 'roofs',
+  gate: 'roofs',
 };
 
 const isLocked = (e: object): boolean => 'locked' in e && e.locked === true;
@@ -22,6 +25,13 @@ const shift = (pt: { x: number; y: number }) => ({ x: pt.x + 0.5, y: pt.y + 0.5 
 /** Deletes the selected entities. Locked entities (e.g. structural columns) are left alone. Returns deleted ids. */
 export function deleteSelection(p: Project, sel: Selection): string[] {
   if (!sel.type) return [];
+  if (sel.type === 'zone' || sel.type === 'gate') {
+    const list = sel.type === 'zone' ? p.site.zones : p.site.gates;
+    const ids = sel.ids.filter((id) => list.some((e) => e.id === id));
+    if (sel.type === 'zone') p.site.zones = p.site.zones.filter((z) => !ids.includes(z.id));
+    else p.site.gates = p.site.gates.filter((g) => !ids.includes(g.id));
+    return ids;
+  }
   const key = COLLECTION[sel.type];
   const deleted: string[] = [];
   for (const id of sel.ids) {
@@ -45,6 +55,15 @@ export function duplicate(p: Project, sel: Selection): string[] {
   for (const id of sel.ids) {
     const nid = newId();
     switch (sel.type) {
+      case 'zone': {
+        const src = p.site.zones.find((z) => z.id === id);
+        if (!src) continue;
+        p.site.zones.push({ ...clone(src), id: nid, polygon: src.polygon.map(shift) });
+        break;
+      }
+      case 'gate':
+        continue; // a gate sits on the boundary: add a new one instead
+
       case 'wall': {
         const src = p.walls.find((w) => w.id === id);
         if (!src) continue;

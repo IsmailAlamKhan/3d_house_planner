@@ -5,6 +5,7 @@ import { type TranslationKey, t, tf } from '../i18n';
 import {
   ITEM_BOUNDS_TOLERANCE,
   OPENING_END_MARGIN,
+  itemArea,
   openingsOverlap,
   wallHeight,
   wallLength,
@@ -277,7 +278,7 @@ export function placeItem(
 
   const corners = boxCorners(position, size.w, size.d, rotation);
   const inside = corners.every((c) =>
-    pointInPolygon(c, project.shell.footprint, ITEM_BOUNDS_TOLERANCE + 0.02),
+    pointInPolygon(c, itemArea(project), ITEM_BOUNDS_TOLERANCE + 0.02),
   );
   if (!inside) return { ok: false, message: t('msg.outside') };
 

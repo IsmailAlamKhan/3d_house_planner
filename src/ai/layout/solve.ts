@@ -9,6 +9,7 @@ import { type LevelContext, type LevelResult, type RoomSpec, layoutLevel } from 
 import { type ColumnBox, type DoorRequest, planOpenings } from './openings';
 import type { LayoutPlan, PlannedRoom, PlannedStair, Rect } from './plan';
 import { rectArea, rectCenter } from './plan';
+import { planSite } from './site';
 import { largestInnerRect } from './rect';
 import { wallsFromRects } from './walls';
 
@@ -18,6 +19,8 @@ export interface SolveInput {
   entrance: { position: Point; direction: number };
   plumbing: Point[];
   columns: ColumnBox[];
+  /** The plot boundary, when the project is a villa on a plot (outdoor zones are planned inside it). */
+  plot?: Point[];
   /** Slab-to-slab height available (m). */
   maxHeight: number;
   seed?: number;
@@ -34,6 +37,10 @@ interface Candidate {
   /** Penalty for how well the hall sits relative to the requested position. */
   penalty: number;
   orientation: 'x' | 'y';
+  /** Wings strategy: the rectangle the reachability search starts from (the central hall). */
+  reach?: Rect;
+  /** Wings strategy: rooms whose rectangles are decided up front. */
+  fixedRects?: { role: 'foyer' | 'hall'; rect: Rect }[];
 }
 
 const mirror = (r: Rect, shell: Rect, fx: boolean, fy: boolean): Rect => ({
@@ -282,6 +289,123 @@ function snapToColumns(
   return snapped;
 }
 
+/**
+ * The "wings" arrangement of a villa: a central open hall (with a foyer at the front) and a wing of rooms on each
+ * side. The front is the long side the entrance is on.
+ */
+function wingsCandidate(shell: Rect, entrance: Point, withFoyer: boolean): Candidate | null {
+  if (shell.w < 12 || shell.h < 8) return null;
+  const centerW = Math.min(shell.w - 7, Math.max(6, shell.w * 0.4));
+  const wingW = (shell.w - centerW) / 2;
+  const foyerD = withFoyer ? Math.min(3.4, Math.max(2.4, shell.h * 0.18)) : 0;
+  const frontIsBottom = entrance.y >= shell.y + shell.h / 2;
+  const cx = shell.x + wingW;
+  const hall: Rect = frontIsBottom
+    ? { x: cx, y: shell.y, w: centerW, h: shell.h - foyerD }
+    : { x: cx, y: shell.y + foyerD, w: centerW, h: shell.h - foyerD };
+  const foyer: Rect = frontIsBottom
+    ? { x: cx, y: shell.y + shell.h - foyerD, w: centerW, h: foyerD }
+    : { x: cx, y: shell.y, w: centerW, h: foyerD };
+  return {
+    hall: { x: shell.x, y: shell.y, w: 0, h: 0 },
+    regions: [
+      { x: shell.x, y: shell.y, w: wingW, h: shell.h },
+      { x: shell.x + wingW + centerW, y: shell.y, w: wingW, h: shell.h },
+    ],
+    penalty: 0,
+    orientation: 'x',
+    reach: hall,
+    fixedRects: [
+      ...(withFoyer ? [{ role: 'foyer' as const, rect: foyer }] : []),
+      { role: 'hall', rect: hall },
+    ],
+  };
+}
+
+interface Suite {
+  bed: RoomWish;
+  attached: RoomWish[];
+}
+
+/** Bedrooms with their own bathroom / closet are laid out as one block and split afterwards, so the rooms touch. */
+function groupSuites(wishes: RoomWish[]): { merged: RoomWish[]; suites: Suite[] } {
+  const claimed = new Set<RoomWish>();
+  const suites: Suite[] = [];
+  for (const bed of wishes.filter((w) => w.type === 'bedroom')) {
+    const attached = bed.intent.adjacency
+      .filter((a) => a.connection === 'door')
+      .map((a) => wishes.find((w) => key(w.name) === key(a.room)))
+      .filter(
+        (w): w is RoomWish =>
+          !!w && !claimed.has(w) && (w.type === 'bathroom' || w.type === 'walk-in-closet'),
+      );
+    if (!attached.length) continue;
+    attached.forEach((a) => claimed.add(a));
+    suites.push({ bed, attached });
+  }
+  const merged = wishes
+    .filter((w) => !claimed.has(w))
+    .map((w) => {
+      const s = suites.find((x) => x.bed === w);
+      if (!s) return w;
+      const area = w.intent.targetArea + s.attached.reduce((a, x) => a + x.intent.targetArea, 0);
+      const names = new Set(s.attached.map((a) => key(a.name)));
+      return {
+        ...w,
+        intent: {
+          ...w.intent,
+          targetArea: area,
+          adjacency: w.intent.adjacency.filter((a) => !names.has(key(a.room))),
+        },
+      };
+    });
+  return { merged, suites };
+}
+
+/** Splits each suite's block: the bedroom first along the long side, its bathroom / closet side by side behind it. */
+function expandSuites(
+  res: LevelResult,
+  specs: RoomSpec[],
+  suites: Suite[],
+): { res: LevelResult; specs: RoomSpec[] } {
+  const rects = new Map(res.rects);
+  const out: RoomSpec[] = [];
+  for (const spec of specs) {
+    const suite = suites.find((s) => key(s.bed.name) === key(spec.name));
+    const block = rects.get(spec.name);
+    if (!suite || !block) {
+      out.push(spec);
+      continue;
+    }
+    const bedT = suite.bed.intent.targetArea;
+    const attT = suite.attached.map((a) => a.intent.targetArea);
+    const total = bedT + attT.reduce((a, b) => a + b, 0);
+    const alongY = block.h >= block.w;
+    const long = alongY ? block.h : block.w;
+    const bedLen = Math.min(long - 1.6, Math.max(1.8, (long * bedT) / total));
+    const bedRect: Rect = alongY ? { ...block, h: bedLen } : { ...block, w: bedLen };
+    rects.set(spec.name, bedRect);
+    out.push({ ...spec, area: rectArea(bedRect) });
+    const band: Rect = alongY
+      ? { x: block.x, y: block.y + bedLen, w: block.w, h: long - bedLen }
+      : { x: block.x + bedLen, y: block.y, w: long - bedLen, h: block.h };
+    const attSum = attT.reduce((a, b) => a + b, 0);
+    let cursor = alongY ? band.x : band.y;
+    suite.attached.forEach((a, i) => {
+      const side = alongY ? band.w : band.h;
+      const len =
+        i === suite.attached.length - 1
+          ? (alongY ? band.x + band.w : band.y + band.h) - cursor
+          : (side * attT[i]!) / attSum;
+      const r: Rect = alongY ? { ...band, x: cursor, w: len } : { ...band, y: cursor, h: len };
+      cursor += len;
+      rects.set(a.name, r);
+      out.push({ ...specFor(a, rectArea(r)), fixed: undefined });
+    });
+  }
+  return { res: { ...res, rects }, specs: out };
+}
+
 const HALL_NAMES = [
   'hall',
   'entrance hall',
@@ -378,6 +502,26 @@ export function solveLayout(input: SolveInput): LayoutPlan {
     }
   });
 
+  // ── Wings strategy (villas): one level, central hall + two wings ──
+  const wingWishes = new Map<'foyer' | 'hall', RoomWish>();
+  if (intent.strategy === 'wings') {
+    const first = wishesByLevel[0]!;
+    const foyerWish = first.find((w) => w.type === 'foyer');
+    const hallWish =
+      first.find((w) => w.type === 'living') ??
+      first.slice().sort((a, b) => b.intent.targetArea - a.intent.targetArea)[0];
+    const wings =
+      nLevels === 1 && hallWish
+        ? wingsCandidate(shell, input.entrance.position, !!foyerWish && foyerWish !== hallWish)
+        : null;
+    if (wings) {
+      candidates = [wings];
+      if (foyerWish && foyerWish !== hallWish) wingWishes.set('foyer', foyerWish);
+      wingWishes.set('hall', hallWish!);
+    } else warnings.push(t('ai.warn.noWings'));
+  }
+  const fixedWishes = new Set<RoomWish>(wingWishes.values());
+
   let best: {
     cand: Candidate;
     results: LevelResult[];
@@ -403,15 +547,33 @@ export function solveLayout(input: SolveInput): LayoutPlan {
     const dhRect = dhIdx >= 0 ? cand.regions[dhIdx]! : undefined;
     if (dhWish && !dhRect) total += 40;
     const freeRegions = dhRect ? cand.regions.filter((_, i) => i !== dhIdx) : cand.regions;
+    const wingsFixed = (cand.fixedRects ?? []).filter((f) => wingWishes.has(f.role));
     for (let li = 0; li < nLevels; li++) {
       const available = freeRegions.reduce((s, r) => s + rectArea(r), 0);
-      const wishes =
-        li === 0 && dhRect ? wishesByLevel[0]!.filter((w) => w !== dhWish) : wishesByLevel[li]!;
-      const scaled = scaleAreas(wishes, available, notes, intent.levels[li]!.name).specs;
-      const specs =
+      const wishes = (
+        li === 0 && dhRect ? wishesByLevel[0]!.filter((w) => w !== dhWish) : wishesByLevel[li]!
+      ).filter((w) => !(li === 0 && fixedWishes.has(w)));
+      const grouped = li === 0 && cand.fixedRects ? groupSuites(wishes) : null;
+      const scaled = scaleAreas(
+        grouped ? grouped.merged : wishes,
+        available,
+        notes,
+        intent.levels[li]!.name,
+      ).specs;
+      const withDh =
         li === 0 && dhRect && dhWish
           ? [...scaled, { ...specFor(dhWish, rectArea(dhRect)), fixed: dhRect, doubleHeight: true }]
           : scaled;
+      const specs =
+        li === 0
+          ? [
+              ...withDh,
+              ...wingsFixed.map((f) => ({
+                ...specFor(wingWishes.get(f.role)!, rectArea(f.rect)),
+                fixed: f.rect,
+              })),
+            ]
+          : withDh;
       if (specs.filter((s) => !s.fixed).length < freeRegions.length) {
         total += 1000;
         results.push({
@@ -434,18 +596,27 @@ export function solveLayout(input: SolveInput): LayoutPlan {
       if (below) for (const [name, r] of below.rects) roomsBelow.set(key(name), r);
       const ctx: LevelContext = {
         shell,
-        hall: cand.hall,
+        hall: cand.reach ?? cand.hall,
         regions: freeRegions,
         plumbing: input.plumbing,
         wetBelow,
         roomsBelow,
       };
-      const res = layoutLevel(specs, ctx, seed * 131 + li * 17, tries);
-      total += res.score;
-      results.push(res);
-      specsPerLevel.push(specs);
-      below = res;
-      belowSpecs = specs;
+      const laid = layoutLevel(
+        specs,
+        ctx,
+        seed * 131 + li * 17,
+        cand.fixedRects ? Math.max(tries, 240) : tries,
+      );
+      const expanded =
+        grouped && grouped.suites.length
+          ? expandSuites(laid, specs, grouped.suites)
+          : { res: laid, specs };
+      total += laid.score;
+      results.push(expanded.res);
+      specsPerLevel.push(expanded.specs);
+      below = expanded.res;
+      belowSpecs = expanded.specs;
     }
     if (!best || total < best.score)
       best = { cand, results, specs: specsPerLevel, score: total, notes, dh: dhRect };
@@ -460,7 +631,11 @@ export function solveLayout(input: SolveInput): LayoutPlan {
   for (let li = 0; li < nLevels; li++) {
     const hasHall = chosen.cand.hall.w > 0;
     const rectsByName = new Map(chosen.results[li]!.rects);
-    const fixed = [...(hasHall ? [chosen.cand.hall] : []), ...(chosen.dh ? [chosen.dh] : [])];
+    const fixed = [
+      ...(hasHall ? [chosen.cand.hall] : []),
+      ...(chosen.dh ? [chosen.dh] : []),
+      ...(chosen.cand.fixedRects ?? []).map((f) => f.rect),
+    ];
     const minW = new Map(chosen.specs[li]!.map((s) => [s.name, s.minWidth]));
     const snapped = snapToColumns(rectsByName, fixed, shell, columns, minW);
     if (snapped)
@@ -567,8 +742,16 @@ export function solveLayout(input: SolveInput): LayoutPlan {
         }
       }
     }
+    if (li === 0 && wingWishes.has('foyer') && wingWishes.has('hall'))
+      list.push({
+        a: wingWishes.get('foyer')!.name,
+        b: wingWishes.get('hall')!.name,
+        connection: 'open',
+      });
     requests.set(li, list);
   });
+  const wingsHall = wingWishes.get('hall');
+  if (wingsHall && chosen.cand.fixedRects) hallKey.set(0, `L0:${wingsHall.name}`);
   const plan = planOpenings({
     rooms,
     shell,
@@ -583,6 +766,16 @@ export function solveLayout(input: SolveInput): LayoutPlan {
     ? furnishPlan({ rooms, openings: plan.openings, columns, shell, floorToCeiling: ftc })
     : [];
 
+  const site =
+    input.plot && input.plot.length >= 3 && intent.site
+      ? planSite({
+          intent: intent.site,
+          plot: input.plot,
+          building: shell,
+          entrance: input.entrance,
+        })
+      : undefined;
+  if (site) warnings.push(...site.warnings);
   return {
     shell,
     levelNames: intent.levels.map((l) => l.name),
@@ -595,6 +788,7 @@ export function solveLayout(input: SolveInput): LayoutPlan {
     warnings: [...new Set(warnings)],
     score: chosen.score,
     title: intent.title,
+    site,
   };
 }
 

@@ -118,9 +118,12 @@ export interface ShellInfo {
   width: number;
   depth: number;
   levels?: number;
+  /** The project is a villa on a plot: ask for the one-level wings design and outdoor zones. */
+  villa?: boolean;
 }
 
 export function generateSystemPrompt(shell: ShellInfo): string {
+  if (shell.villa) return generateVillaSystemPrompt(shell);
   const perLevel = Math.round(shell.width * shell.depth - 7);
   return `You are an architect's assistant. Design a duplex home as ONE JSON object that matches the given schema. Reply with JSON only — no prose, no markdown.
 
@@ -183,3 +186,84 @@ export const editUserPrompt = (summary: string, command: string): string =>
 
 export const repairPrompt = (errors: string[]): string =>
   `Your reply was not valid:\n${errors.map((e) => `- ${e}`).join('\n')}\nReply again with ONLY the corrected JSON object.`;
+
+const VILLA_EXAMPLE = {
+  title: 'Luxury villa with pool, garden and 2-car parking',
+  strategy: 'wings',
+  levels: [
+    {
+      name: 'Ground floor',
+      rooms: [
+        { type: 'foyer', name: 'Foyer', targetArea: 7 },
+        {
+          type: 'living',
+          name: 'Living & Dining',
+          targetArea: 48,
+          exteriorWall: 'required',
+          adjacency: [{ room: 'Kitchen', connection: 'open' }],
+        },
+        { type: 'kitchen', name: 'Kitchen', targetArea: 16, needsPlumbing: true },
+        {
+          type: 'bedroom',
+          name: 'Master bedroom',
+          targetArea: 24,
+          exteriorWall: 'required',
+          adjacency: [
+            { room: 'Master bath', connection: 'door' },
+            { room: 'Walk-in closet', connection: 'door' },
+          ],
+        },
+        {
+          type: 'bathroom',
+          name: 'Master bath',
+          targetArea: 9,
+          needsPlumbing: true,
+          exteriorWall: 'none',
+        },
+        { type: 'walk-in-closet', name: 'Walk-in closet', targetArea: 7, exteriorWall: 'none' },
+        { type: 'bedroom', name: 'Bedroom 2', targetArea: 15, exteriorWall: 'required' },
+        {
+          type: 'bathroom',
+          name: 'Bath 2',
+          targetArea: 5.5,
+          needsPlumbing: true,
+          exteriorWall: 'none',
+        },
+        { type: 'gym', name: 'Gym', targetArea: 16 },
+        { type: 'sauna', name: 'Sauna', targetArea: 5, needsPlumbing: true, exteriorWall: 'none' },
+      ],
+    },
+  ],
+  site: {
+    cars: 2,
+    zones: [
+      { type: 'parking', side: 'front', covered: true },
+      { type: 'garden', side: 'front' },
+      { type: 'pool', side: 'back' },
+      { type: 'deck', side: 'back' },
+      { type: 'patio', side: 'back', covered: true, name: 'Outdoor dining' },
+      { type: 'lawn', side: 'back' },
+      { type: 'play', side: 'left' },
+    ],
+  },
+  style: { floor: 'herringbone', walls: 'cream' },
+  furnish: true,
+};
+
+function generateVillaSystemPrompt(shell: ShellInfo): string {
+  return `You are an architect's assistant. Design a single-storey villa on a plot as ONE JSON object that matches the given schema. Reply with JSON only — no prose, no markdown.
+
+Rules:
+- Set "strategy": "wings" and give exactly ONE level ("Ground floor"). The plan is: a "Foyer" at the front, a central open "Living & Dining" hall (type "living"), and the other rooms split between a left and a right wing.
+- Room "type" is one of: ${ROOM_TYPES.join(', ')}. "name" must be unique.
+- "targetArea" is in square metres. Typical: living & dining 40-55, kitchen 14-18, master bedroom 22-26, bedroom 13-16, bathroom 5-9, walk-in-closet 6-8, gym 14-18, sauna 4-6, spa 8-10, game-room 14-18, home-theatre 16-20, foyer 6-8.
+- The building is about ${shell.width.toFixed(1)} m × ${shell.depth.toFixed(1)} m = ${Math.round(shell.width * shell.depth)} m². The rooms should add up to about ${Math.round(shell.width * shell.depth * 0.9)} m².
+- Do NOT add corridors or stairs. Never more than 18 rooms.
+- "adjacency": names of rooms that must share a wall. Put a bathroom next to its bedroom (connection "door"). Kitchen is "open" to Living & Dining.
+- Kitchen, bathrooms, sauna and spa need plumbing ("needsPlumbing": true).
+- "site.zones": outdoor areas, each with "type" (garden, lawn, pool, deck, patio, parking, play, water-feature) and "side" (front, back, left, right; the front faces the entrance). Parking goes at the front with "covered": true; the pool and deck at the back. Set "site.cars" to the number of cars.
+- Honour counts in the brief ("3 bedrooms" = three rooms of type "bedroom").
+
+Example brief: "luxury villa with pool, garden, 2-car garage, gym and sauna"
+${JSON.stringify(VILLA_EXAMPLE)}`;
+}

@@ -3,14 +3,30 @@ import { pointInPolygon, polygonArea } from '../geometry/polygon';
 import { type Vec2, dist, projectOnSegment } from '../geometry/vec';
 import { fmtNum, t } from '../i18n';
 import { createEmptyProject } from '../model/project';
-import { addColumn, addLevel, addOpening, addWall, syncRooms, updateLevel } from '../model/ops';
+import {
+  addColumn,
+  addGate,
+  addLevel,
+  addOpening,
+  addWall,
+  addZone,
+  setPlot,
+  syncRooms,
+  updateLevel,
+} from '../model/ops';
 import type { Beam, FacadeWindow, Point, Project } from '../model/types';
 import { produce } from 'immer';
 
-export type ShapeKind = 'rectangle' | 'L' | 'custom';
+export type ShapeKind = 'rectangle' | 'L' | 'U' | 'custom';
 
 export interface ShellConfig {
   name: string;
+  /** `villa`: a building on a plot with outdoor areas; `apartment`: the usual duplex shell. */
+  kind: 'apartment' | 'villa';
+  /** Villa: plot size (m) and number of storeys (1–3). */
+  plotW: number;
+  plotD: number;
+  storeys: number;
   shape: ShapeKind;
   width: number;
   depth: number;
@@ -34,6 +50,10 @@ export const SLAB = 0.2;
 
 export const defaultConfig = (): ShellConfig => ({
   name: 'My Duplex Home',
+  kind: 'apartment',
+  plotW: 30,
+  plotD: 38,
+  storeys: 1,
   shape: 'rectangle',
   width: 10,
   depth: 12,
@@ -63,6 +83,20 @@ export function footprintOf(c: ShellConfig): Point[] {
     ];
   const nw = Math.min(c.notchW, w - 1);
   const nd = Math.min(c.notchD, d - 1);
+  if (c.shape === 'U') {
+    // A courtyard open to the back (top) of the plan.
+    const a = (w - nw) / 2;
+    return [
+      { x: 0, y: 0 },
+      { x: a, y: 0 },
+      { x: a, y: nd },
+      { x: a + nw, y: nd },
+      { x: a + nw, y: 0 },
+      { x: w, y: 0 },
+      { x: w, y: d },
+      { x: 0, y: d },
+    ];
+  }
   switch (c.notchCorner) {
     case 'ne':
       return [
@@ -192,8 +226,44 @@ export function snapToOutline(
   return { point: best.point, edge: best.edge, offset: best.offset, direction: best.direction };
 }
 
+/** Moves a polygon by (dx, dy). */
+const shifted = (poly: Point[], dx: number, dy: number): Point[] =>
+  poly.map((q) => ({ x: q.x + dx, y: q.y + dy }));
+
+/** Villa: the building sits in the middle of the plot's width, towards the back, with the entrance on the front (+y) side. */
+export function villaConfigPlaced(c: ShellConfig): ShellConfig {
+  const base = footprintOf({ ...c, shape: c.shape === 'custom' ? 'custom' : c.shape });
+  const b = polygonBoundsOf(base);
+  const w = b.max.x - b.min.x;
+  const d = b.max.y - b.min.y;
+  const dx = (c.plotW - w) / 2 - b.min.x;
+  const dy = Math.max(2, (c.plotD - d) * 0.35) - b.min.y;
+  return {
+    ...c,
+    shape: 'custom',
+    custom: shifted(base, dx, dy),
+    entrance: { position: { x: b.min.x + dx + w / 2, y: b.max.y + dy }, direction: Math.PI / 2 },
+    columns: c.columns.map((col) => ({
+      ...col,
+      position: { x: col.position.x + dx, y: col.position.y + dy },
+    })),
+    plumbing: shifted(c.plumbing, dx, dy),
+    windows: c.windows,
+  };
+}
+
+const polygonBoundsOf = (poly: Point[]) => {
+  const xs = poly.map((q) => q.x);
+  const ys = poly.map((q) => q.y);
+  return {
+    min: { x: Math.min(...xs), y: Math.min(...ys) },
+    max: { x: Math.max(...xs), y: Math.max(...ys) },
+  };
+};
+
 /** A fresh project from the wizard: shell, two levels, exterior walls, locked facade windows and fixed elements. */
 export function projectFromConfig(c: ShellConfig): Project {
+  if (c.kind === 'villa') return villaFromConfig(c);
   const poly = footprintOf(c);
   const heights = planHeights(c.totalHeight, c.groundHeight);
   const base = createEmptyProject(c.name);
@@ -276,3 +346,55 @@ export function addFacadeWindows(p: Project, levelId: string, wallIds?: string[]
 }
 
 export const newId = (): string => nanoid(10);
+
+/** A villa on a plot: 1–3 storeys, the plot boundary, a pedestrian gate and a path to the entrance. */
+export function villaFromConfig(c: ShellConfig): Project {
+  const placed = villaConfigPlaced(c);
+  const poly = placed.custom;
+  const n = Math.min(3, Math.max(1, Math.round(c.storeys)));
+  const h = Math.max(2.4, c.groundHeight);
+  const base = createEmptyProject(c.name);
+  return produce(base, (p) => {
+    p.kind = 'villa';
+    p.shell.footprint = poly;
+    p.shell.maxHeight = n * h + (n - 1) * SLAB;
+    p.shell.entrance = placed.entrance;
+    p.shell.fixedPlumbingPoints = placed.plumbing;
+    p.shell.beams = [];
+    p.shell.windows = [];
+    setPlot(p, [
+      { x: 0, y: 0 },
+      { x: c.plotW, y: 0 },
+      { x: c.plotW, y: c.plotD },
+      { x: 0, y: c.plotD },
+    ]);
+    const ids = [p.levels[0]!.id];
+    updateLevel(p, ids[0]!, { floorToCeiling: h, name: t('level.ground') });
+    for (let i = 1; i < n; i++) {
+      const id = addLevel(p, { name: i === 1 ? t('level.upper') : `${t('level.upper')} ${i}` });
+      updateLevel(p, id, { floorToCeiling: h });
+      ids.push(id);
+    }
+    for (const lvl of ids) {
+      for (const col of placed.columns)
+        addColumn(p, { levelId: lvl, position: col.position, size: { w: col.size, d: col.size } });
+      addShellWalls(p, lvl);
+      syncRooms(p, lvl);
+    }
+    for (const r of p.rooms)
+      r.name = r.levelId === ids[0] ? t('room.openSpace') : t('room.openSpaceUpper');
+    // Entrance path and pedestrian gate on the front boundary.
+    const e = placed.entrance.position;
+    addZone(p, {
+      type: 'path',
+      name: t('zone.path'),
+      polygon: [
+        { x: e.x - 0.8, y: e.y },
+        { x: e.x + 0.8, y: e.y },
+        { x: e.x + 0.8, y: c.plotD },
+        { x: e.x - 0.8, y: c.plotD },
+      ],
+    });
+    addGate(p, { kind: 'pedestrian', position: { x: e.x, y: c.plotD } });
+  });
+}

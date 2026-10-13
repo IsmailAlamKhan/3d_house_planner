@@ -15,6 +15,7 @@ import { fmtNum, useT } from '../../i18n';
 import { useModel } from '../../model/store';
 import { type CameraMode, useCamera } from './cameraStore';
 import { PRESETS, type Preset, modelBox, presetPose } from './views';
+import { useSceneStore } from '../sceneStore';
 
 const btn = (active: boolean) =>
   `inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs ${active ? 'bg-sky-100 text-sky-700' : 'text-slate-600 hover:bg-slate-100'}`;
@@ -287,6 +288,7 @@ export function CameraToolbar({ readOnly = false }: { readOnly?: boolean }) {
     const el = document.querySelector('[data-testid="scene-canvas"]');
     const aspect = el ? el.clientWidth / Math.max(el.clientHeight, 1) : 1.6;
     if (mode !== 'orbit') setMode('orbit');
+    if (p === 'plan') useSceneStore.getState().setPref('dollhouse', true);
     flyTo(presetPose(useModel.getState().project, p, aspect));
   };
   const modes: { id: CameraMode; label: string; icon: ReactNode }[] = [

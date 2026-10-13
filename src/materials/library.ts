@@ -1,6 +1,6 @@
 import type { TranslationKey } from '../i18n';
 
-export type MaterialCategory = 'floor' | 'wall' | 'ceiling' | 'surface';
+export type MaterialCategory = 'floor' | 'wall' | 'ceiling' | 'surface' | 'ground';
 
 export type TextureKind =
   | 'wood-planks'
@@ -17,7 +17,13 @@ export type TextureKind =
   | 'wallpaper-damask'
   | 'wallpaper-dots'
   | 'laminate'
-  | 'metal-brushed';
+  | 'metal-brushed'
+  | 'grass'
+  | 'water'
+  | 'paving-stone'
+  | 'decking'
+  | 'gravel'
+  | 'pool-tile';
 
 export interface MaterialDef {
   id: string;
@@ -203,6 +209,74 @@ export const MATERIALS: MaterialDef[] = [
     texture: 'marble',
     textureScale: 1.6,
     roughness: 0.25,
+    metalness: 0,
+  }),
+  // ── Outdoors (site zones) ──
+  def({
+    id: 'grass',
+    nameKey: 'mat.grass',
+    categories: ['ground'],
+    color: '#4d8f3a',
+    accent: '#3b7a2c',
+    texture: 'grass',
+    textureScale: 2,
+    roughness: 1,
+    metalness: 0,
+  }),
+  def({
+    id: 'water',
+    nameKey: 'mat.water',
+    categories: ['ground'],
+    color: '#2aa7d6',
+    accent: '#7fd6f0',
+    texture: 'water',
+    textureScale: 2,
+    roughness: 0.05,
+    metalness: 0.1,
+    opacity: 0.78,
+  }),
+  def({
+    id: 'paving-stone',
+    nameKey: 'mat.paving-stone',
+    categories: ['ground', 'floor'],
+    color: '#8c8f94',
+    accent: '#6b6e73',
+    texture: 'paving-stone',
+    textureScale: 1.2,
+    roughness: 0.85,
+    metalness: 0,
+  }),
+  def({
+    id: 'decking',
+    nameKey: 'mat.decking',
+    categories: ['ground', 'floor'],
+    color: '#9a6a3f',
+    accent: '#7a502d',
+    texture: 'decking',
+    textureScale: 1.2,
+    roughness: 0.7,
+    metalness: 0,
+  }),
+  def({
+    id: 'gravel',
+    nameKey: 'mat.gravel',
+    categories: ['ground'],
+    color: '#b9b2a3',
+    accent: '#8f887a',
+    texture: 'gravel',
+    textureScale: 1,
+    roughness: 1,
+    metalness: 0,
+  }),
+  def({
+    id: 'pool-tile',
+    nameKey: 'mat.pool-tile',
+    categories: ['ground', 'floor'],
+    color: '#2f9fc9',
+    accent: '#e6f6fb',
+    texture: 'pool-tile',
+    textureScale: 0.9,
+    roughness: 0.3,
     metalness: 0,
   }),
   // ── Floors ──

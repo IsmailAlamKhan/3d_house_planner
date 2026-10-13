@@ -32,6 +32,9 @@ export interface HitScene {
   columns: Column[];
   items?: ItemBox[];
   openings?: OpeningBox[];
+  /** Villa site (only when it is shown and editable). */
+  zones?: { id: string; polygon: Vec2[] }[];
+  gates?: { id: string; position: Vec2; width: number }[];
   /** Stairs visible on this level (their plan polygons). */
   stairs?: { id: string; polys: Vec2[][] }[];
   selection: Selection;
@@ -106,6 +109,12 @@ export function hitTest(p: Vec2, s: HitScene): Hit | null {
     .filter((r) => pointInPolygon(p, r.polygon))
     .sort((a, b) => polygonArea(a.polygon) - polygonArea(b.polygon));
   if (rooms[0]) return { type: 'room', id: rooms[0].id };
+  for (const g of s.gates ?? [])
+    if (dist(p, g.position) <= Math.max(g.width / 2, 8 * s.px)) return { type: 'gate', id: g.id };
+  const zones = (s.zones ?? [])
+    .filter((z) => pointInPolygon(p, z.polygon))
+    .sort((a, b) => polygonArea(a.polygon) - polygonArea(b.polygon));
+  if (zones[0]) return { type: 'zone', id: zones[0].id };
   return null;
 }
 

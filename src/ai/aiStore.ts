@@ -72,7 +72,7 @@ function shellInputs(project: Project) {
   const { rect } = largestInnerRect(project.shell.footprint);
   const levels = project.levels[0]?.id;
   return {
-    shell: { width: rect.w, depth: rect.h },
+    shell: { width: rect.w, depth: rect.h, villa: project.kind === 'villa' },
     solver: {
       footprint: project.shell.footprint,
       entrance: project.shell.entrance,
@@ -81,6 +81,7 @@ function shellInputs(project: Project) {
         .filter((c) => c.levelId === levels)
         .map((c) => ({ position: c.position, size: c.size })),
       maxHeight: project.shell.maxHeight,
+      plot: project.kind === 'villa' ? project.site.plot : undefined,
     },
   };
 }

@@ -4,7 +4,15 @@ import type { TranslationKey } from '../i18n';
 import type { OpeningKind } from '../model/types';
 
 export type CatalogCategory =
-  'doors' | 'windows' | 'living' | 'dining' | 'bedroom' | 'kitchen' | 'bathroom' | 'other';
+  | 'doors'
+  | 'windows'
+  | 'living'
+  | 'dining'
+  | 'bedroom'
+  | 'kitchen'
+  | 'bathroom'
+  | 'outdoor'
+  | 'other';
 
 export const CATEGORIES: CatalogCategory[] = [
   'doors',
@@ -14,6 +22,7 @@ export const CATEGORIES: CatalogCategory[] = [
   'bedroom',
   'kitchen',
   'bathroom',
+  'outdoor',
   'other',
 ];
 

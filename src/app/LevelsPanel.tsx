@@ -4,6 +4,7 @@ import { useT } from '../i18n';
 import { useModel } from '../model/store';
 import { addLevel, copyWallsFromBelow, updateLevel } from '../model/ops';
 import { toast } from '../catalog/actions';
+import { usePlanStore } from '../plan2d/planStore';
 import { OptionsPanel } from '../options/OptionsPanel';
 import { fmtNum, tf } from '../i18n';
 
@@ -13,6 +14,8 @@ export function LevelsPanel() {
   const activeId = useModel((s) => s.activeLevelId);
   const { apply, setActiveLevel } = useModel.getState();
   const [editing, setEditing] = useState<string | null>(null);
+  const kind = useModel((s) => s.project.kind);
+  const { siteVisible, siteLocked, setPref } = usePlanStore();
   const sorted = [...levels].sort((a, b) => b.index - a.index);
 
   return (
@@ -92,6 +95,30 @@ export function LevelsPanel() {
           </button>
         );
       })()}
+      {kind === 'villa' && (
+        <div
+          data-testid="site-level-row"
+          className="flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-2 py-1.5 text-slate-800"
+        >
+          <button
+            aria-label={siteVisible ? t('levels.hideSite') : t('levels.showSite')}
+            aria-pressed={siteVisible}
+            onClick={() => setPref('siteVisible', !siteVisible)}
+            className="rounded p-1 text-slate-600 hover:bg-emerald-100"
+          >
+            {siteVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+          </button>
+          <span className="min-w-0 flex-1 truncate text-sm font-medium">{t('levels.site')}</span>
+          <button
+            aria-label={siteLocked ? t('levels.unlockSite') : t('levels.lockSite')}
+            aria-pressed={siteLocked}
+            onClick={() => setPref('siteLocked', !siteLocked)}
+            className="rounded p-1 text-slate-600 hover:bg-emerald-100"
+          >
+            {siteLocked ? <Lock size={16} /> : <Unlock size={16} />}
+          </button>
+        </div>
+      )}
       <button
         onClick={() => {
           const id = apply((p) => addLevel(p));

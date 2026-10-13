@@ -23,6 +23,9 @@ export function entityLevelId(project: Project, e: Entity): string | undefined {
       return project.roofs.find((x) => x.id === e.id)?.levelId;
     case 'stair':
       return project.stairs.find((x) => x.id === e.id)?.fromLevelId;
+    case 'zone':
+    case 'gate':
+      return undefined;
   }
 }
 

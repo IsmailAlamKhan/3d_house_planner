@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { SnapResult } from '../geometry/snap';
 import type { Vec2 } from '../geometry/vec';
+import type { ZoneType } from '../model/types';
 import type { View } from './view';
 
 export type RoomMode = 'rect' | 'poly';
@@ -14,6 +15,11 @@ interface Prefs {
   showGhosts: boolean;
   showAllDimensions: boolean;
   roomMode: RoomMode;
+  /** Villa: what the zone tool draws and what the gate tool places. */
+  zoneType: ZoneType;
+  gateKind: 'pedestrian' | 'vehicle';
+  siteVisible: boolean;
+  siteLocked: boolean;
 }
 
 const defaults: Prefs = {
@@ -22,6 +28,10 @@ const defaults: Prefs = {
   showGhosts: true,
   showAllDimensions: false,
   roomMode: 'rect',
+  zoneType: 'lawn',
+  gateKind: 'pedestrian',
+  siteVisible: true,
+  siteLocked: false,
 };
 
 function loadPrefs(): Prefs {
@@ -73,7 +83,27 @@ export const usePlanStore = create<PlanState>((set, get) => ({
   setToast: (toast) => set({ toast }),
   setPref: (key, value) => {
     set({ [key]: value } as Pick<Prefs, typeof key>);
-    const { snapEnabled, gridSize, showGhosts, showAllDimensions, roomMode } = get();
-    savePrefs({ snapEnabled, gridSize, showGhosts, showAllDimensions, roomMode });
+    const {
+      snapEnabled,
+      gridSize,
+      showGhosts,
+      showAllDimensions,
+      roomMode,
+      zoneType,
+      gateKind,
+      siteVisible,
+      siteLocked,
+    } = get();
+    savePrefs({
+      snapEnabled,
+      gridSize,
+      showGhosts,
+      showAllDimensions,
+      roomMode,
+      zoneType,
+      gateKind,
+      siteVisible,
+      siteLocked,
+    });
   },
 }));

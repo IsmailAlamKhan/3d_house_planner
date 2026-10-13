@@ -18,6 +18,7 @@ export function planTemplate(project: Project, template: DuplexTemplate, seed = 
       .filter((c) => c.levelId === first)
       .map((c) => ({ position: c.position, size: c.size })),
     maxHeight: project.shell.maxHeight,
+    plot: project.kind === 'villa' ? project.site.plot : undefined,
     seed,
   });
 }

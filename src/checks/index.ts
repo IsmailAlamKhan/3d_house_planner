@@ -1,4 +1,5 @@
 import type { Project } from '../model/types';
+import { siteRules } from './site';
 import { doorRules, placementRules, reachabilityRules, roomRules, stairRules } from './rules';
 import type { CheckIssue } from './types';
 
@@ -14,6 +15,7 @@ export function runChecks(project: Project): CheckIssue[] {
     ...roomRules(project),
     ...placementRules(project),
     ...doorRules(project),
+    ...siteRules(project),
   ];
   return issues.sort((a, b) => Number(b.severity === 'error') - Number(a.severity === 'error'));
 }

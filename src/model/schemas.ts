@@ -23,8 +23,33 @@ export const ROOM_TYPES = [
   'balcony',
   'corridor',
   'stair',
+  // Villa rooms
+  'foyer',
+  'walk-in-closet',
+  'gym',
+  'sauna',
+  'spa',
+  'game-room',
+  'garage',
+  'laundry',
+  'pantry',
+  'home-theatre',
+  'prayer',
+  'outdoor-dining',
   'other',
 ] as const;
+export const ZONE_TYPES = [
+  'garden',
+  'lawn',
+  'pool',
+  'deck',
+  'patio',
+  'parking',
+  'play',
+  'path',
+  'water-feature',
+] as const;
+export const GATE_KINDS = ['pedestrian', 'vehicle'] as const;
 export const STAIR_TYPES = ['straight', 'L', 'U', 'spiral'] as const;
 export const COLUMN_SHAPES = ['rect', 'round'] as const;
 export const ROOF_KINDS = ['flat', 'skylight', 'void'] as const;
@@ -222,7 +247,7 @@ export const NoteSchema = z.object({
   /** The wall, room, door, window, furniture … the note is about. The pin follows it when it moves. */
   entity: z
     .object({
-      type: z.enum(['wall', 'opening', 'room', 'stair', 'item', 'column', 'roof']),
+      type: z.enum(['wall', 'opening', 'room', 'stair', 'item', 'column', 'roof', 'zone', 'gate']),
       id,
     })
     .optional(),
@@ -251,6 +276,38 @@ export const OptionMetaSchema = z.object({
 /** A design that is not currently showing (the one being edited lives in the project's own fields). */
 export const DesignOptionSchema = OptionMetaSchema.extend({ design: DesignSchema });
 
+/** An outdoor area on the plot (lawn, pool, deck, parking …), drawn like a room but on the ground around the building. */
+export const SiteZoneSchema = z.object({
+  id,
+  name: z.string(),
+  type: z.enum(ZONE_TYPES),
+  polygon: z.array(PointSchema).min(3),
+  /** Surface material key (grass, paving, decking, gravel, water, pool tile …). */
+  material: z.string(),
+  /** Roofed over (a covered car bay, a pergola). */
+  covered: z.boolean().default(false),
+});
+
+/** A gate in the plot boundary. `direction` is the outward normal (radians). */
+export const GateSchema = z.object({
+  id,
+  kind: z.enum(GATE_KINDS),
+  position: PointSchema,
+  direction: num,
+  width: positive.default(1.2),
+});
+
+/** The plot the building stands on (villa projects). Empty `plot` = no site (apartments). */
+export const SiteSchema = z.object({
+  plot: z.array(PointSchema).default([]),
+  gates: z.array(GateSchema).default([]),
+  zones: z.array(SiteZoneSchema).default([]),
+  /** Minimum distance between the building and the plot boundary (m). */
+  setback: z.number().nonnegative().default(1.5),
+});
+
+export const PROJECT_KINDS = ['apartment', 'villa'] as const;
+
 /** What the user fills in to price the bill of materials. Keys are the BOM line keys (see `export/bom.ts`). */
 export const CostsSchema = z.object({
   currency: z.string().min(1).default('USD'),
@@ -276,6 +333,8 @@ export const ProjectSchema = z.object({
   notes: z.array(NoteSchema).default([]),
   /** Other designs of the same home ("Option A", "Option B" …) kept aside while one is being edited. */
   options: z.array(DesignOptionSchema).default([]),
+  kind: z.enum(PROJECT_KINDS).default('apartment'),
+  site: SiteSchema.default({ plot: [], gates: [], zones: [], setback: 1.5 }),
   currentOption: OptionMetaSchema.default({ id: 'main', letter: null, name: null }),
   costs: CostsSchema.default({ currency: 'USD', unitCosts: {} }),
   createdAt: z.string(),

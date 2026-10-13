@@ -88,6 +88,14 @@ export function notePin(project: Project, note: Note): { levelId: string; positi
       const c = project.columns.find((x) => x.id === e.id);
       return c ? { levelId: c.levelId, position: c.position } : fallback;
     }
+    case 'zone': {
+      const z = project.site.zones.find((x) => x.id === e.id);
+      return z ? { levelId: note.levelId, position: labelPoint(z.polygon) } : fallback;
+    }
+    case 'gate': {
+      const g = project.site.gates.find((x) => x.id === e.id);
+      return g ? { levelId: note.levelId, position: g.position } : fallback;
+    }
     case 'roof': {
       const r = project.roofs.find((x) => x.id === e.id);
       return r ? { levelId: r.levelId, position: labelPoint(r.polygon) } : fallback;

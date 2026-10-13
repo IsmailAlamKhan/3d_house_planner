@@ -23,7 +23,11 @@ const levelName = (project: Project, id: string) =>
   project.levels.find((l) => l.id === id)?.name ?? '';
 
 /** The two rooms a door/window connects (undefined = outside / no room on that side). */
-function sidesOf(project: Project, wall: Wall, o: Opening): [Room | undefined, Room | undefined] {
+export function sidesOf(
+  project: Project,
+  wall: Wall,
+  o: Opening,
+): [Room | undefined, Room | undefined] {
   const dx = wall.end.x - wall.start.x;
   const dy = wall.end.y - wall.start.y;
   const len = Math.hypot(dx, dy) || 1;

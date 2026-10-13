@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ROOM_TYPES, STAIR_TYPES } from '../model/schemas';
+import { ROOM_TYPES, STAIR_TYPES, ZONE_TYPES } from '../model/schemas';
 
 /** Everything the language model may say is validated against these schemas before anything touches the project. */
 
@@ -36,7 +36,7 @@ export const RoomIntentSchema = z.object({
 
 export const LevelIntentSchema = z.object({
   name: nonEmpty,
-  rooms: z.array(RoomIntentSchema).min(1).max(14),
+  rooms: z.array(RoomIntentSchema).min(1).max(20),
 });
 
 export const STAIR_POSITIONS = ['near-entrance', 'back', 'left', 'right', 'center'] as const;
@@ -71,6 +71,26 @@ export const StyleIntentSchema = z.object({
   mood: z.string().max(80).optional(),
 });
 
+export const SITE_SIDES = ['front', 'back', 'left', 'right'] as const;
+export type SiteSide = (typeof SITE_SIDES)[number];
+
+/** An outdoor area to create around the building (villa mode). */
+export const SiteZoneIntentSchema = z.object({
+  type: z.enum(ZONE_TYPES),
+  name: z.string().trim().min(1).max(60).optional(),
+  /** Which side of the building it goes on (the entrance side is the front). */
+  side: z.enum(SITE_SIDES).default('back'),
+  covered: z.boolean().optional(),
+});
+
+export const SiteIntentSchema = z.object({
+  zones: z.array(SiteZoneIntentSchema).max(12).default([]),
+  /** Cars the parking area must hold (default 2 when there is a parking zone). */
+  cars: z.coerce.number().int().min(0).max(6).optional(),
+});
+
+export const LAYOUT_STRATEGIES = ['duplex', 'wings'] as const;
+
 export const DesignIntentSchema = z.object({
   title: z.string().max(80).optional(),
   /** Ground level first. */
@@ -79,11 +99,17 @@ export const DesignIntentSchema = z.object({
   style: StyleIntentSchema.optional(),
   /** Add default furniture to every room. */
   furnish: z.boolean().default(true),
+  /** `wings`: one level with a central open hall and a wing of rooms on each side (villas). */
+  strategy: z.enum(LAYOUT_STRATEGIES).default('duplex'),
+  /** Outdoor zones to create on the plot (villa projects). */
+  site: SiteIntentSchema.optional(),
 });
 
 export type RoomIntent = z.infer<typeof RoomIntentSchema>;
 export type LevelIntent = z.infer<typeof LevelIntentSchema>;
 export type DesignIntent = z.infer<typeof DesignIntentSchema>;
+export type SiteIntent = z.infer<typeof SiteIntentSchema>;
+export type SiteZoneIntent = z.infer<typeof SiteZoneIntentSchema>;
 export type StairIntent = z.infer<typeof StairIntentSchema>;
 
 // ───────────────────────── Edit operations ─────────────────────────

@@ -2,8 +2,8 @@ import { polygonBounds } from '../../geometry/polygon';
 import type { Project } from '../../model/types';
 
 export type Vec3 = [number, number, number];
-export type Preset = 'front' | 'back' | 'left' | 'right' | 'iso';
-export const PRESETS: Preset[] = ['front', 'back', 'left', 'right', 'iso'];
+export type Preset = 'front' | 'back' | 'left' | 'right' | 'iso' | 'plan';
+export const PRESETS: Preset[] = ['front', 'back', 'left', 'right', 'iso', 'plan'];
 
 export interface CamPose {
   position: Vec3;
@@ -14,7 +14,11 @@ export const FOV = 45;
 
 /** Centre of the footprint, its largest horizontal span and the top of the building. */
 export function modelBox(project: Project) {
-  const b = polygonBounds(project.shell.footprint);
+  const b = polygonBounds(
+    project.kind === 'villa' && project.site.plot.length >= 3
+      ? project.site.plot
+      : project.shell.footprint,
+  );
   const top = Math.max(
     project.shell.maxHeight,
     ...project.levels.map((l) => l.elevation + l.floorToCeiling),
@@ -40,6 +44,8 @@ const DIRECTIONS: Record<Preset, Vec3> = {
   back: [0, 0, -1],
   left: [-1, 0, 0],
   right: [1, 0, 0],
+  // Nearly top-down, a little from the front: reads like a model seen from above (use with the dollhouse view).
+  plan: [0.12, 1, 0.34],
   iso: [
     Math.cos((35 * Math.PI) / 180) * Math.SQRT1_2,
     Math.sin((35 * Math.PI) / 180),

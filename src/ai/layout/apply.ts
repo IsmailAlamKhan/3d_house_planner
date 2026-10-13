@@ -147,6 +147,21 @@ export function applyPlan(
     }
   }
 
+  // Outdoors (villa on a plot): zones, gates and garden furniture replace the old site design.
+  if (plan.site && p.kind === 'villa' && p.site.plot.length >= 3) {
+    p.site.zones = [];
+    p.site.gates = [];
+    for (const z of plan.site.zones) ops.addZone(p, z);
+    for (const g of plan.site.gates) ops.addGate(p, g);
+    for (const it of plan.site.items) {
+      try {
+        ops.addItem(p, { levelId: levelId(0), ...it, elevation: 0 });
+      } catch (e) {
+        if (!(e instanceof ModelError)) throw e;
+      }
+    }
+  }
+
   const top = n - 1;
   ops.addRoof(p, { levelId: levelId(top), kind: 'flat', polygon: p.shell.footprint });
   return { warnings };

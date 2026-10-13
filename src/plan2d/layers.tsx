@@ -16,6 +16,18 @@ export const ROOM_FILL: Record<RoomType, string> = {
   balcony: '#d9f99d',
   corridor: '#f1f5f9',
   stair: '#fbcfe8',
+  foyer: '#fde68a',
+  'walk-in-closet': '#e9d5ff',
+  gym: '#bbf7d0',
+  sauna: '#fed7aa',
+  spa: '#a5f3fc',
+  'game-room': '#c7d2fe',
+  garage: '#d4d4d8',
+  laundry: '#e5e7eb',
+  pantry: '#fef9c3',
+  'home-theatre': '#ddd6fe',
+  prayer: '#fce7f3',
+  'outdoor-dining': '#d9f99d',
   other: '#f1f5f9',
 };
 

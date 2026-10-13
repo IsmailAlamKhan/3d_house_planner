@@ -2,7 +2,9 @@ import type { TranslationKey } from '../i18n';
 import { DesignIntentSchema, type DesignIntent } from '../ai/schemas';
 
 export interface DuplexTemplate {
-  id: 'compact-2br' | 'family-3br' | 'open-double-height' | 'home-office';
+  id: 'compact-2br' | 'family-3br' | 'open-double-height' | 'home-office' | 'luxury-villa';
+  /** Which kind of project it suits. */
+  kind?: 'villa';
   nameKey: TranslationKey;
   descKey: TranslationKey;
   intent: DesignIntent;
@@ -166,5 +168,73 @@ export const TEMPLATES: DuplexTemplate[] = [
   },
 ];
 
+/** Villa starting point modelled on the reference plan: foyer, central hall, two wings, gym / sauna / spa, outdoor living. */
+export const VILLA_TEMPLATE: DuplexTemplate = {
+  id: 'luxury-villa',
+  kind: 'villa',
+  nameKey: 'tpl.villa',
+  descKey: 'tpl.villaDesc',
+  intent: DesignIntentSchema.parse({
+    title: 'Luxury villa',
+    strategy: 'wings',
+    levels: [
+      {
+        name: 'Ground floor',
+        rooms: [
+          room('foyer', 'Foyer', 7, { needsWindow: false }),
+          room('living', 'Living & Dining', 50, {
+            exteriorWall: 'required',
+            adjacency: [{ room: 'Kitchen', connection: 'open' }],
+          }),
+          room('kitchen', 'Kitchen', 16, { needsPlumbing: true }),
+          room('laundry', 'Laundry', 6, { needsPlumbing: true, exteriorWall: 'none' }),
+          room('bedroom', 'Master bedroom', 24, {
+            exteriorWall: 'required',
+            adjacency: [
+              { room: 'Master bath', connection: 'door' },
+              { room: 'Walk-in closet', connection: 'door' },
+            ],
+          }),
+          room('bathroom', 'Master bath', 9, { needsPlumbing: true, exteriorWall: 'none' }),
+          room('walk-in-closet', 'Walk-in closet', 7, { exteriorWall: 'none' }),
+          room('bedroom', 'Bedroom 2', 15, {
+            exteriorWall: 'required',
+            adjacency: [{ room: 'Bath 2', connection: 'door' }],
+          }),
+          room('bathroom', 'Bath 2', 5.5, { needsPlumbing: true, exteriorWall: 'none' }),
+          room('bedroom', 'Bedroom 3', 15, {
+            exteriorWall: 'required',
+            adjacency: [{ room: 'Bath 3', connection: 'door' }],
+          }),
+          room('bathroom', 'Bath 3', 5.5, { needsPlumbing: true, exteriorWall: 'none' }),
+          room('game-room', 'Game room', 16),
+          room('bedroom', 'Guest room', 14, {
+            exteriorWall: 'required',
+            adjacency: [{ room: 'Guest bath', connection: 'door' }],
+          }),
+          room('bathroom', 'Guest bath', 5, { needsPlumbing: true, exteriorWall: 'none' }),
+          room('gym', 'Gym', 16, { adjacency: [{ room: 'Sauna', connection: 'door' }] }),
+          room('sauna', 'Sauna', 5, { needsPlumbing: true, exteriorWall: 'none' }),
+          room('spa', 'Spa', 9, { needsPlumbing: true, exteriorWall: 'none' }),
+        ],
+      },
+    ],
+    site: {
+      cars: 2,
+      zones: [
+        { type: 'parking', side: 'front', covered: true, name: 'Covered parking' },
+        { type: 'garden', side: 'front', name: 'Front garden' },
+        { type: 'pool', side: 'back', name: 'Infinity pool' },
+        { type: 'deck', side: 'back', name: 'Pool deck' },
+        { type: 'patio', side: 'back', covered: true, name: 'Outdoor dining' },
+        { type: 'lawn', side: 'back', name: 'Garden lounge' },
+        { type: 'play', side: 'left', name: 'Kids play area' },
+        { type: 'garden', side: 'right' },
+      ],
+    },
+    style: { floor: 'herringbone', walls: 'cream' },
+  }),
+};
+
 export const getTemplate = (id: DuplexTemplate['id']): DuplexTemplate =>
-  TEMPLATES.find((t) => t.id === id)!;
+  [...TEMPLATES, VILLA_TEMPLATE].find((t) => t.id === id)!;

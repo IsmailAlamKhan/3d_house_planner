@@ -16,6 +16,7 @@ import { generateStair } from './generators/stairs';
 import { doubleHeightVoids, levelAbove, slabVoids } from './generators/voids';
 import { generateVoidBalustrade } from './generators/balustrade';
 import { generateWall } from './generators/walls';
+import { generateSite } from './generators/site';
 
 export type WallMode = 'up' | 'cut' | 'transparent';
 
@@ -37,7 +38,7 @@ export interface LevelScene {
 export class SceneBuilder {
   readonly cache = new PartCache();
 
-  build(project: Project, opts: BuildOptions): LevelScene[] {
+  build(project: Project, opts: BuildOptions): LevelScene[] & { site: AnyPart[] } {
     const c = this.cache;
     c.begin();
     const footprint = project.shell.footprint;
@@ -176,8 +177,13 @@ export class SceneBuilder {
       }
       result.push({ level, parts });
     }
+    // The plot, its zones, fence and gates (villas): not part of any level.
+    const site: AnyPart[] =
+      project.kind === 'villa'
+        ? c.get('site', [project.site, project.kind], () => generateSite(project))
+        : [];
     c.sweep();
-    return result;
+    return Object.assign(result, { site });
   }
 
   dispose(): void {

@@ -30,12 +30,15 @@ export function SelectField({
   options,
   onChange,
   mixed,
+  labelOf,
 }: {
   name: string;
   value: string | undefined;
   options: string[];
   onChange: (v: string) => void;
   mixed: string;
+  /** Translated text for an option (default: the key, prettified). */
+  labelOf?: (o: string) => string;
 }) {
   return (
     <Row name={name}>
@@ -47,7 +50,7 @@ export function SelectField({
         )}
         {options.map((o) => (
           <option key={o} value={o}>
-            {label(o)}
+            {labelOf ? labelOf(o) : label(o)}
           </option>
         ))}
       </select>

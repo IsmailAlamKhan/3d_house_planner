@@ -77,6 +77,19 @@ export function buildExportGroup(
     }
     group.add(g);
   }
+  // The plot: ground, zones, fence and gates (villas). Left out of a single-level export.
+  if (!opts.levelId && levels.site.length) {
+    const g = new Group();
+    g.name = 'Site';
+    for (const part of levels.site as AnyPart[]) {
+      if (isObjectPart(part)) continue;
+      const mats = part.materials.map(material);
+      const mesh = new Mesh(part.geometry, mats.length === 1 ? mats[0]! : mats);
+      mesh.name = part.id;
+      g.add(mesh);
+    }
+    group.add(g);
+  }
   return {
     group,
     dispose: () => {

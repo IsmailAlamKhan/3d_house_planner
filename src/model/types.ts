@@ -16,6 +16,11 @@ export type Roof = z.infer<typeof S.RoofSchema>;
 export type MaterialOverride = z.infer<typeof S.MaterialOverrideSchema>;
 export type Settings = z.infer<typeof S.SettingsSchema>;
 export type SavedView = z.infer<typeof S.SavedViewSchema>;
+export type SiteZone = z.infer<typeof S.SiteZoneSchema>;
+export type Gate = z.infer<typeof S.GateSchema>;
+export type Site = z.infer<typeof S.SiteSchema>;
+export type ProjectKind = (typeof S.PROJECT_KINDS)[number];
+export type ZoneType = (typeof S.ZONE_TYPES)[number];
 export type Design = z.infer<typeof S.DesignSchema>;
 export type OptionMeta = z.infer<typeof S.OptionMetaSchema>;
 export type DesignOption = z.infer<typeof S.DesignOptionSchema>;
@@ -30,7 +35,8 @@ export type RoomType = (typeof S.ROOM_TYPES)[number];
 export type StairType = (typeof S.STAIR_TYPES)[number];
 
 /** Entity collections on the project that can be selected, duplicated and deleted. */
-export type EntityType = 'wall' | 'opening' | 'room' | 'stair' | 'item' | 'column' | 'roof';
+export type EntityType =
+  'wall' | 'opening' | 'room' | 'stair' | 'item' | 'column' | 'roof' | 'zone' | 'gate';
 
 export interface Selection {
   type: EntityType | null;
@@ -38,4 +44,15 @@ export interface Selection {
 }
 
 export type Tool =
-  'select' | 'wall' | 'room' | 'opening' | 'item' | 'stair' | 'measure' | 'eyedropper' | 'note';
+  | 'select'
+  | 'wall'
+  | 'room'
+  | 'opening'
+  | 'item'
+  | 'stair'
+  | 'measure'
+  | 'eyedropper'
+  | 'note'
+  | 'zone'
+  | 'gate'
+  | 'plot';

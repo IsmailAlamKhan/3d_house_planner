@@ -23,7 +23,7 @@ import { roomFocus } from './camera/isolation';
 import { interiorLightsOn } from './lighting';
 
 /** Builds (and memoizes) the renderable model for the current project and view options. */
-export function useSceneModel(): LevelScene[] {
+export function useSceneModel(): LevelScene[] & { site: AnyPart[] } {
   const project = useSceneProject();
   const wallModePref = useSceneStore((s) => s.wallMode);
   const walking = useCamera((s) => s.mode === 'walk');
@@ -240,6 +240,18 @@ export function ModelScene() {
 
   return (
     <>
+      <group>
+        {levels.site.map((p) => (
+          <PartMesh
+            key={p.id}
+            part={p as Part}
+            overrides={overrides}
+            ghost={false}
+            clip={undefined}
+            selected={!!p.entity && selected.has(`${p.entity.type}:${p.entity.id}`)}
+          />
+        ))}
+      </group>
       {levels
         .filter(({ level }) => {
           if (!level.visible) return false;

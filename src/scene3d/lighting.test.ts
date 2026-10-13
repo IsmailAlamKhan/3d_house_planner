@@ -71,6 +71,7 @@ describe('presets', () => {
     expect(timeOf({ mode: 'custom', time: 15.5 })).toBe(15.5);
     expect(interiorLightsOn({ mode: 'night', time: 0 })).toBe(true);
     expect(interiorLightsOn({ mode: 'evening', time: 0 })).toBe(true);
+    expect(interiorLightsOn({ mode: 'marketing', time: 0 })).toBe(true);
     expect(interiorLightsOn({ mode: 'noon', time: 0 })).toBe(false);
     expect(interiorLightsOn({ mode: 'morning', time: 0 })).toBe(false);
     expect(interiorLightsOn({ mode: 'custom', time: 19 })).toBe(true);

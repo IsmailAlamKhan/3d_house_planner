@@ -153,7 +153,7 @@ export async function generateIntent(brief: string, opts: GenerateOptions): Prom
   const provider = opts.provider !== undefined ? opts.provider : providerFor(opts.settings);
   const variation = opts.variation ?? 0;
   const offline = (fellBack?: IntentResult['fellBack'], extra?: string): IntentResult => {
-    const r = offlineIntent(brief, variation);
+    const r = offlineIntent(brief, variation, { villa: opts.shell.villa });
     const notes = [...(extra ? [extra] : []), ...(fellBack ? [] : [])];
     return { intent: r.intent, source: 'offline', notes: [...notes, ...r.understood], fellBack };
   };

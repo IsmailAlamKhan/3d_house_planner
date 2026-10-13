@@ -36,10 +36,11 @@ First run of the end-to-end tests: `npx playwright install chromium`.
 
 ## What you can do
 
-- **New project wizard** — rectangle, L-shape or any polygon; ceiling heights; columns, beams, plumbing points, the
+- **Villa mode** — design a house on a plot: draw the plot, add a pool, deck, lawn, garden, patio, parking and play areas, place gates, and see a landscaped 3D ground with trees, a pool, a pergola, a fence and garden lights. 12 extra room types (foyer, gym, sauna, spa, game room, home theatre …), a **Luxury villa** template, villa checks (setbacks, gates, parking, pool safety) and a **Marketing render** look.
+- **New project wizard** — apartment or villa on a plot; rectangle, L-shape, U-shape or any polygon; ceiling heights; columns, beams, plumbing points, the
   entrance and existing facade windows (locked); then start empty, from one of four templates, or with the AI.
 - **2D plan** — walls with typed lengths, rooms detected automatically, snapping, dimensions, undo/redo for everything.
-- **Library** — 49 doors, windows and furniture pieces; drag and drop (or tap, then tap) into the plan or the 3D view.
+- **Library** — 77 doors, windows, furniture, outdoor and fitness pieces; drag and drop (or tap, then tap) into the plan or the 3D view.
 - **Materials & light** — 40 procedural materials, paint colours, eyedropper, time of day, evening/night looks.
 - **3D** — orbit, **walkthrough** (WASD, collision, stairs), top view, section cuts, isolate a room, x-ray, measure,
   minimap, saved views.
@@ -59,6 +60,11 @@ Open the **AI Assistant** tab.
   one undo step. The solver — not the model — draws the walls, so layouts always fit your shell.
 - **Edit**: say what to change ("make the kitchen 1 meter wider", "paint the living room sage", "add a plant to the
   study"), **Preview change** shows exactly what will change, **Apply** or **Discard**.
+
+For a villa, start a **Villa on a plot** project (New project → "Villa on a plot", enter the plot and building size),
+then open the AI tab and write e.g. *"luxury villa with pool, garden, 2-car garage, gym and sauna"* — the design has a
+foyer and a central hall with two wings of rooms and the outdoor areas around it. The **Luxury villa** template in the
+wizard does the same without typing.
 
 ### Setting up a model (all optional, all local)
 

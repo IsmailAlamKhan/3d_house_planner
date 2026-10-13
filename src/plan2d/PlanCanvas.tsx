@@ -17,6 +17,7 @@ import { getEntry, itemSize } from '../catalog';
 import { rotateHandlePos } from './hit';
 import { usePlanStore } from './planStore';
 import { NotesLayer } from '../notes/NotesLayer';
+import { SiteLayer } from './SiteLayer';
 import { useUiStore } from '../ui/uiStore';
 
 const WALL_FILL = { exterior: '#334155', interior: '#475569', partition: '#64748b' } as const;
@@ -157,8 +158,8 @@ export function PlanCanvas() {
   const draftWallPolys = [...computeWallPolygons(draftSegs).values()];
 
   const roomDraft: Vec2[] =
-    tool === 'room' && roomPts.length && hover
-      ? roomMode === 'rect'
+    (tool === 'room' || tool === 'zone' || tool === 'plot') && roomPts.length && hover
+      ? tool === 'room' && roomMode === 'rect'
         ? [
             roomPts[0]!,
             { x: hover.point.x, y: roomPts[0]!.y },
@@ -168,6 +169,8 @@ export function PlanCanvas() {
         : [...roomPts, hover.point]
       : [];
 
+  const siteVisible = usePlanStore((s) => s.siteVisible);
+  const groundId = [...project.levels].sort((a, b) => a.index - b.index)[0]?.id;
   const px = 1 / view.scale;
   const handleWalls = selection.type === 'wall' ? walls.filter((w) => selectedIds.has(w.id)) : [];
   const dimWalls = showAllDimensions
@@ -345,6 +348,17 @@ export function PlanCanvas() {
       >
         <g transform={`translate(${view.tx} ${view.ty}) scale(${view.scale})`}>
           <Grid view={view} size={size} />
+          {project.kind === 'villa' && siteVisible && (
+            <SiteLayer
+              project={project}
+              view={view}
+              selected={
+                selection.type === 'zone' || selection.type === 'gate' ? selectedIds : new Set()
+              }
+              dim={groundId !== activeLevelId}
+              draft={tool === 'zone' || tool === 'plot' ? roomDraft : []}
+            />
+          )}
           <ShellLayer footprint={project.shell.footprint} />
 
           {ghostPolys.map(({ poly, below }, i) => (

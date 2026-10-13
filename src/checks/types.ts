@@ -13,7 +13,12 @@ export type RuleId =
   | 'column-obstructed'
   | 'min-area'
   | 'door-swing'
-  | 'beam-headroom';
+  | 'beam-headroom'
+  | 'setback'
+  | 'gate-parking'
+  | 'gate-path'
+  | 'pool-safety'
+  | 'garage-exterior';
 
 /** Where an issue is, so the panel can jump to it and highlight it. */
 export interface IssueTarget {
@@ -41,4 +46,13 @@ export const DEFAULT_MIN_AREAS: Partial<Record<RoomType, number>> = {
   dining: 6,
   study: 5,
   utility: 1.5,
+  foyer: 3,
+  'walk-in-closet': 3,
+  gym: 9,
+  sauna: 3,
+  spa: 4,
+  'game-room': 10,
+  garage: 12,
+  laundry: 2,
+  'home-theatre': 10,
 };

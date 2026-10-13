@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { fmtNum, useT } from '../i18n';
 import { useModel } from '../model/store';
 import { saveProject } from '../persistence/repo';
-import { TEMPLATES } from '../templates';
+import { TEMPLATES, VILLA_TEMPLATE } from '../templates';
 import { Modal } from '../ui/Modal';
 import { useUiStore } from '../ui/uiStore';
 import { projectWithTemplate } from './finish';
@@ -74,7 +74,17 @@ export function ShellWizard() {
     [c, customText],
   );
   const poly = useMemo(() => footprintOf(config), [config]);
-  const errors = useMemo(() => validateFootprint(poly), [poly]);
+  const errors = useMemo(() => {
+    const list = validateFootprint(poly);
+    if (c.kind === 'villa' && poly.length >= 3) {
+      const xs = poly.map((q) => q.x);
+      const ys = poly.map((q) => q.y);
+      const w = Math.max(...xs) - Math.min(...xs);
+      const d = Math.max(...ys) - Math.min(...ys);
+      if (w + 3 > c.plotW || d + 3 > c.plotD) list.push(t('wiz.err.plot'));
+    }
+    return list;
+  }, [poly, c.kind, c.plotW, c.plotD, t]);
   const heights = planHeights(c.totalHeight, c.groundHeight);
 
   if (!open) return null;
@@ -82,7 +92,7 @@ export function ShellWizard() {
   const finish = async (choice: 'empty' | 'ai' | string) => {
     let project = projectFromConfig(config);
     if (choice !== 'empty' && choice !== 'ai') {
-      const tpl = TEMPLATES.find((x) => x.id === choice);
+      const tpl = [...TEMPLATES, VILLA_TEMPLATE].find((x) => x.id === choice);
       if (tpl) project = projectWithTemplate(project, tpl);
     }
     await saveProject(useModel.getState().project);
@@ -101,20 +111,21 @@ export function ShellWizard() {
     return { x: a.x + ((b.x - a.x) / len) * offset, y: a.y + ((b.y - a.y) / len) * offset };
   };
 
-  const canNext = step === 1 ? errors.length === 0 : step === 2 ? heights.ok : true;
+  const canNext =
+    step === 1 ? errors.length === 0 : step === 2 ? c.kind === 'villa' || heights.ok : true;
 
   return (
     <Modal
       open
       onClose={() => setOpen(false)}
-      label={t('wiz.title')}
+      label={t(c.kind === 'villa' ? 'wiz.titleVilla' : 'wiz.title')}
       className="max-w-xl"
       placement="sheet"
     >
       <>
         <div className="flex items-center border-b border-slate-200 px-4 py-3">
           <h2 className="flex-1 font-semibold">
-            {t('wiz.title')} — {step}/4{' '}
+            {t(c.kind === 'villa' ? 'wiz.titleVilla' : 'wiz.title')} — {step}/4{' '}
             {[t('wiz.step1'), t('wiz.step2'), t('wiz.step3'), t('wiz.step4')][step - 1]}
           </h2>
           <button
@@ -136,8 +147,35 @@ export function ShellWizard() {
                   onChange={(e) => set({ name: e.target.value })}
                 />
               </label>
+              <div className="flex gap-2" role="radiogroup" aria-label={t('wiz.kind')}>
+                {(['apartment', 'villa'] as const).map((k) => (
+                  <button
+                    key={k}
+                    role="radio"
+                    aria-checked={c.kind === k}
+                    data-testid={`kind-${k}`}
+                    className={`${btn} ${c.kind === k ? 'bg-slate-200' : ''}`}
+                    onClick={() =>
+                      set(
+                        k === 'villa'
+                          ? { kind: k, name: c.name === 'My Duplex Home' ? 'My Villa' : c.name }
+                          : { kind: k, name: c.name === 'My Villa' ? 'My Duplex Home' : c.name },
+                      )
+                    }
+                  >
+                    {k === 'villa' ? t('wiz.villa') : t('wiz.apartment')}
+                  </button>
+                ))}
+              </div>
+              {c.kind === 'villa' && (
+                <>
+                  <Num label={t('wiz.plotW')} value={c.plotW} onChange={(v) => set({ plotW: v })} />
+                  <Num label={t('wiz.plotD')} value={c.plotD} onChange={(v) => set({ plotD: v })} />
+                  <p className="text-xs text-slate-500">{t('wiz.plotHelp')}</p>
+                </>
+              )}
               <div className="flex gap-2" role="radiogroup">
-                {(['rectangle', 'L', 'custom'] as const).map((k) => (
+                {(['rectangle', 'L', 'U', 'custom'] as const).map((k) => (
                   <button
                     key={k}
                     role="radio"
@@ -145,7 +183,13 @@ export function ShellWizard() {
                     className={`${btn} ${c.shape === k ? 'bg-slate-200' : ''}`}
                     onClick={() => set({ shape: k })}
                   >
-                    {k === 'rectangle' ? t('wiz.rect') : k === 'L' ? t('wiz.L') : t('wiz.custom')}
+                    {k === 'rectangle'
+                      ? t('wiz.rect')
+                      : k === 'L'
+                        ? t('wiz.L')
+                        : k === 'U'
+                          ? t('wiz.U')
+                          : t('wiz.custom')}
                   </button>
                 ))}
               </div>
@@ -155,7 +199,7 @@ export function ShellWizard() {
                   <Num label={t('wiz.depth')} value={c.depth} onChange={(v) => set({ depth: v })} />
                 </>
               )}
-              {c.shape === 'L' && (
+              {(c.shape === 'L' || c.shape === 'U') && (
                 <>
                   <Num
                     label={t('wiz.notchW')}
@@ -167,20 +211,22 @@ export function ShellWizard() {
                     value={c.notchD}
                     onChange={(v) => set({ notchD: v })}
                   />
-                  <label className="flex items-center justify-between text-sm">
-                    {t('wiz.corner')}
-                    <select
-                      className="rounded border border-slate-300 px-1 py-0.5"
-                      value={c.notchCorner}
-                      onChange={(e) =>
-                        set({ notchCorner: e.target.value as ShellConfig['notchCorner'] })
-                      }
-                    >
-                      {['ne', 'nw', 'se', 'sw'].map((k) => (
-                        <option key={k}>{k}</option>
-                      ))}
-                    </select>
-                  </label>
+                  {c.shape === 'L' && (
+                    <label className="flex items-center justify-between text-sm">
+                      {t('wiz.corner')}
+                      <select
+                        className="rounded border border-slate-300 px-1 py-0.5"
+                        value={c.notchCorner}
+                        onChange={(e) =>
+                          set({ notchCorner: e.target.value as ShellConfig['notchCorner'] })
+                        }
+                      >
+                        {['ne', 'nw', 'se', 'sw'].map((k) => (
+                          <option key={k}>{k}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                 </>
               )}
               {c.shape === 'custom' && (
@@ -200,7 +246,36 @@ export function ShellWizard() {
               ))}
             </>
           )}
-          {step === 2 && (
+          {step === 2 && c.kind === 'villa' && (
+            <>
+              <label className="flex items-center justify-between text-sm">
+                {t('wiz.storeys')}
+                <select
+                  className="rounded border border-slate-300 px-1 py-0.5"
+                  data-testid="wiz-storeys"
+                  value={c.storeys}
+                  onChange={(e) => set({ storeys: Number(e.target.value) })}
+                >
+                  {[1, 2, 3].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <Num
+                label={t('wiz.ceiling')}
+                value={c.groundHeight}
+                onChange={(v) => set({ groundHeight: v })}
+              />
+              {c.groundHeight < 2.4 && (
+                <p role="alert" className="text-sm text-amber-700">
+                  {t('wiz.warn.ground').replace('{h}', fmtNum(c.groundHeight, 2))}
+                </p>
+              )}
+            </>
+          )}
+          {step === 2 && c.kind !== 'villa' && (
             <>
               <Num
                 label={t('wiz.total')}
@@ -518,7 +593,7 @@ export function ShellWizard() {
                 <b>{t('wiz.ai')}</b>
                 <div className="text-xs text-slate-500">{t('wiz.aiDesc')}</div>
               </button>
-              {TEMPLATES.map((tp) => (
+              {(c.kind === 'villa' ? [VILLA_TEMPLATE] : TEMPLATES).map((tp) => (
                 <button
                   key={tp.id}
                   className={`${btn} text-left`}

@@ -18,7 +18,7 @@ import type { Vec2 } from '../../geometry/vec';
 import type { EntityType } from '../../model/types';
 
 export type Layer =
-  'wall' | 'frame' | 'slab' | 'floor' | 'ceiling' | 'column' | 'stair' | 'roof' | 'item';
+  'wall' | 'frame' | 'slab' | 'floor' | 'ceiling' | 'column' | 'stair' | 'roof' | 'item' | 'site';
 
 /**
  * One renderable piece of the model. Geometry is in LEVEL-LOCAL coordinates:

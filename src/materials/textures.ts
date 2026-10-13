@@ -342,7 +342,110 @@ function brushed(p: Paint): void {
   ctx.globalAlpha = 1;
 }
 
+function grass({ ctx, size, base, accent, rnd }: Paint): void {
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, size, size);
+  for (let i = 0; i < size * 5; i++) {
+    const x = rnd() * size;
+    const y = rnd() * size;
+    ctx.strokeStyle =
+      rnd() > 0.5 ? shade(accent, 0.8 + rnd() * 0.5) : shade(base, 0.8 + rnd() * 0.5);
+    ctx.lineWidth = 1 + rnd();
+    wrapped(size, (dx, dy) => {
+      ctx.beginPath();
+      ctx.moveTo(x + dx, y + dy);
+      ctx.lineTo(x + dx + (rnd() - 0.5) * 4, y + dy - 3 - rnd() * 6);
+      ctx.stroke();
+    });
+  }
+}
+
+function water({ ctx, size, base, accent, rnd }: Paint): void {
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, size, size);
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 28; i++) {
+    const x = rnd() * size;
+    const y = rnd() * size;
+    const w = 20 + rnd() * 60;
+    ctx.strokeStyle = shade(accent, 0.9 + rnd() * 0.3);
+    wrapped(size, (dx, dy) => {
+      ctx.beginPath();
+      ctx.moveTo(x + dx, y + dy);
+      ctx.quadraticCurveTo(x + dx + w / 2, y + dy - 6, x + dx + w, y + dy);
+      ctx.stroke();
+    });
+  }
+}
+
+function pavingStone(p: Paint): void {
+  const { ctx, size, base, accent, rnd } = p;
+  ctx.fillStyle = accent;
+  ctx.fillRect(0, 0, size, size);
+  const rows = 4;
+  const h = size / rows;
+  const gap = Math.max(3, size / 90);
+  for (let r = 0; r < rows; r++) {
+    const cols = r % 2 ? 3 : 2;
+    const w = size / cols;
+    for (let c = 0; c < cols; c++) {
+      ctx.fillStyle = shade(base, 0.88 + rnd() * 0.24);
+      wrapped(size, (dx, dy) =>
+        ctx.fillRect(c * w + dx + gap / 2, r * h + dy + gap / 2, w - gap, h - gap),
+      );
+    }
+  }
+}
+
+function decking({ ctx, size, base, accent, rnd }: Paint): void {
+  const boards = 8;
+  const h = size / boards;
+  for (let i = 0; i < boards; i++) {
+    ctx.fillStyle = shade(base, 0.88 + rnd() * 0.24);
+    ctx.fillRect(0, i * h, size, h - 3);
+    ctx.fillStyle = accent;
+    ctx.fillRect(0, i * h + h - 3, size, 3);
+    ctx.strokeStyle = shade(base, 0.8);
+    ctx.lineWidth = 1;
+    for (let g = 0; g < 4; g++) {
+      const y = i * h + 4 + rnd() * (h - 10);
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(size, y + (rnd() - 0.5) * 2);
+      ctx.stroke();
+    }
+  }
+}
+
+function gravel({ ctx, size, base, accent, rnd }: Paint): void {
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, size, size);
+  for (let i = 0; i < size * 4; i++) {
+    const x = rnd() * size;
+    const y = rnd() * size;
+    const r = 1 + rnd() * 3;
+    ctx.fillStyle =
+      rnd() > 0.5 ? shade(accent, 0.8 + rnd() * 0.5) : shade(base, 0.85 + rnd() * 0.4);
+    wrapped(size, (dx, dy) => {
+      ctx.beginPath();
+      ctx.arc(x + dx, y + dy, r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+}
+
+function poolTile(p: Paint): void {
+  // Small square mosaic tiles with pale grout.
+  tiles(p, 8, 8, false);
+}
+
 const PAINTERS: Record<TextureKind, (p: Paint) => void> = {
+  grass,
+  water,
+  'paving-stone': pavingStone,
+  decking,
+  gravel,
+  'pool-tile': poolTile,
   'wood-planks': planks,
   herringbone,
   'tiles-square': (p) => tiles(p, 2, 2, false),

@@ -1,6 +1,6 @@
 /** Pure sun / sky maths for the 3D scene (no three.js, so it is easy to test). */
 
-export type LightingPreset = 'morning' | 'noon' | 'evening' | 'night';
+export type LightingPreset = 'morning' | 'noon' | 'evening' | 'night' | 'marketing';
 export type LightingMode = LightingPreset | 'custom';
 
 export const DAY_START = 6;
@@ -13,6 +13,8 @@ export const PRESET_TIME: Record<LightingPreset, number> = {
   noon: 13,
   evening: 19,
   night: 22,
+  /** Golden hour with every interior and garden light on — for showing a design off. */
+  marketing: 17.8,
 };
 
 export interface LightingState {
@@ -106,6 +108,16 @@ export function skyFor(state: LightingState, sun: Sun): Sky {
       environment: 0.12,
     };
   }
+  if (state.mode === 'marketing') {
+    // Warm dusk with the garden still readable: the lit house stands out against a brighter sky and lawn.
+    return {
+      top: '#3d4c80',
+      horizon: '#ffb384',
+      ground: '#5a5348',
+      ambient: 1.3,
+      environment: 0.7,
+    };
+  }
   const k = clamp01(sun.elevation / ((40 * Math.PI) / 180));
   return {
     top: mix('#46517f', '#6fa8dc', k),
@@ -121,6 +133,7 @@ export function interiorLightsOn(state: LightingState): boolean {
   return (
     state.mode === 'night' ||
     state.mode === 'evening' ||
+    state.mode === 'marketing' ||
     (state.mode === 'custom' && state.time >= 18.5)
   );
 }

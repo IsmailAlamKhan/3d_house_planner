@@ -15,12 +15,13 @@ import { useSceneStore } from './sceneStore';
 
 const PRESETS: {
   id: LightingPreset;
-  label: 'light.morning' | 'light.noon' | 'light.evening' | 'light.night';
+  label: 'light.morning' | 'light.noon' | 'light.evening' | 'light.night' | 'light.marketing';
 }[] = [
   { id: 'morning', label: 'light.morning' },
   { id: 'noon', label: 'light.noon' },
   { id: 'evening', label: 'light.evening' },
   { id: 'night', label: 'light.night' },
+  { id: 'marketing', label: 'light.marketing' },
 ];
 
 const QUALITIES: {
@@ -101,7 +102,7 @@ export function LightingPanel() {
           aria-label={t('light.title')}
           className="absolute right-0 top-full z-20 mt-1 w-64 max-w-[calc(100vw-1rem)] space-y-3 rounded-lg border border-slate-200 bg-white p-3 shadow-lg"
         >
-          <div role="group" aria-label={t('light.presets')} className="grid grid-cols-4 gap-1">
+          <div role="group" aria-label={t('light.presets')} className="grid grid-cols-3 gap-1">
             {PRESETS.map((p) => (
               <button
                 key={p.id}
