@@ -1,8 +1,9 @@
-import { useT } from '../i18n';
+import { tf, useT } from '../i18n';
 import { useSync } from '../persistence/syncStore';
 import { useModel } from '../model/store';
 import { GRID_SIZES, usePlanStore } from '../plan2d/planStore';
 import { formatLength } from '../ui/units';
+import { planToPicture } from '../underlay/matrix';
 
 export function StatusBar() {
   const t = useT();
@@ -10,6 +11,8 @@ export function StatusBar() {
   const units = useModel((s) => s.project.units);
   const apply = useModel((s) => s.apply);
   const { snapEnabled, gridSize, cursor, setPref } = usePlanStore();
+  const underlay = useModel((s) => [...s.project.underlays].reverse().find((u) => u.visible));
+  const onPicture = cursor && underlay ? planToPicture(underlay, cursor) : null;
   return (
     <footer className="flex items-center gap-4 border-t border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">
       <button
@@ -48,6 +51,11 @@ export function StatusBar() {
           className={sync === 'offline' ? 'text-amber-700' : ''}
         >
           {t(`sync.${sync}` as 'sync.synced')}
+        </span>
+      )}
+      {onPicture && (
+        <span data-testid="underlay-readout" className="tabular-nums">
+          {tf('underlay.readout', { x: Math.round(onPicture.x), y: Math.round(onPicture.y) })}
         </span>
       )}
       <span className="ml-auto tabular-nums">

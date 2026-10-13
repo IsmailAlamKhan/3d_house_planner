@@ -21,6 +21,7 @@ import { ProjectsDialog } from './ProjectsDialog';
 import { useUndoRedoShortcuts } from './useShortcuts';
 import { RightSidebar } from './RightSidebar';
 import { StatusBar } from './StatusBar';
+import { UnderlaySetupDialog } from '../underlay/SetupDialog';
 import { TopBar } from './TopBar';
 
 // Heavy, rarely-needed screens load on demand so the first paint stays fast.
@@ -95,6 +96,7 @@ export function App() {
         </aside>
       </div>
       <StatusBar />
+      <UnderlaySetupDialog />
       <ProjectsDialog />
       <Suspense fallback={null}>
         {wizardOpen && <ShellWizard />}

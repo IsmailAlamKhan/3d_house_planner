@@ -225,6 +225,24 @@ export function projectToSpec(project: Project): ReferenceSpecInput {
     return [...count.entries()].sort((a, b) => b[1] - a[1])[0]![0];
   };
 
+  // The picture the plan was traced from, when it can be named by a path (a picture kept as an upload cannot).
+  const pic = project.underlays.find(
+    (u) => u.source.kind === 'url' && u.setup?.mode === 'corners' && u.setup.points.length === 4,
+  );
+  const underlay =
+    pic && pic.source.kind === 'url' && pic.setup
+      ? {
+          image: pic.source.url,
+          corners: pic.setup.points.map(
+            (q) => [Math.round(q.x * 100) / 100, Math.round(q.y * 100) / 100] as Pt,
+          ),
+          size: [n(pic.setup.size[0] ?? 1), n(pic.setup.size[1] ?? 1)] as [number, number],
+          imageSize: [pic.imageWidth, pic.imageHeight] as [number, number],
+          origin: pt(pic.setup.origin),
+          opacity: pic.opacity,
+        }
+      : undefined;
+
   return {
     version: 1,
     name: project.name,
@@ -246,6 +264,7 @@ export function projectToSpec(project: Project): ReferenceSpecInput {
       target: v.target.map((x) => n(x)) as [number, number, number],
       ...(v.zoom !== undefined ? { zoom: v.zoom } : {}),
     })),
+    ...(underlay ? { underlay } : {}),
     designs,
   };
 }

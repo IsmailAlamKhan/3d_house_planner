@@ -1,3 +1,5 @@
+import { UnderlayLayer } from '../underlay/UnderlayLayer';
+import { UnderlayPanel } from '../underlay/UnderlayPanel';
 import { beamPolygon } from '../checks/rules';
 import { useEffect, useMemo, useRef } from 'react';
 import { useT } from '../i18n';
@@ -348,6 +350,7 @@ export function PlanCanvas() {
       >
         <g transform={`translate(${view.tx} ${view.ty}) scale(${view.scale})`}>
           <Grid view={view} size={size} />
+          <UnderlayLayer project={project} levelId={activeLevelId} onTop={false} />
           {project.kind === 'villa' && siteVisible && (
             <SiteLayer
               project={project}
@@ -465,6 +468,8 @@ export function PlanCanvas() {
                 }
               />
             ))}
+
+          <UnderlayLayer project={project} levelId={activeLevelId} onTop />
 
           {flash && (
             <rect
@@ -691,6 +696,7 @@ export function PlanCanvas() {
       </svg>
 
       <PlanToolbar />
+      <UnderlayPanel />
 
       {tool === 'select' && walls.every((w) => w.type === 'exterior') && !items.length && (
         <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center px-6">

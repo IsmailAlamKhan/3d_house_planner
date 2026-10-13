@@ -2,6 +2,7 @@ import {
   DoorClosed,
   Fence,
   Trees,
+  ImageUp,
   Layers,
   Maximize,
   MousePointer2,
@@ -22,6 +23,7 @@ import type { Tool } from '../model/types';
 import { deleteSelected, fitToShell } from './interaction';
 import { EyedropperHint } from '../app/EyedropperHint';
 import { usePlanStore } from './planStore';
+import { useUnderlayUi } from '../underlay/uiStore';
 
 function Btn({
   active,
@@ -72,6 +74,8 @@ export function PlanToolbar() {
   const hasSelection = useModel((s) => s.selection.ids.length > 0);
   const { showGhosts, showAllDimensions, roomMode, setPref, zoneType, gateKind } = usePlanStore();
   const villa = useModel((s) => s.project.kind === 'villa');
+  const underlayOpen = useUnderlayUi((s) => s.panelOpen);
+  const setUnderlayOpen = useUnderlayUi((s) => s.setPanelOpen);
   return (
     <div className="pointer-events-none absolute left-2 top-2 flex flex-col gap-1">
       <div
@@ -108,6 +112,13 @@ export function PlanToolbar() {
           onClick={() => setPref('showAllDimensions', !showAllDimensions)}
         >
           <MoveHorizontal size={18} />
+        </Btn>
+        <Btn
+          active={underlayOpen}
+          label={t('underlay.open')}
+          onClick={() => setUnderlayOpen(!underlayOpen)}
+        >
+          <ImageUp size={18} />
         </Btn>
         <Btn label={t('tool.fit')} onClick={fitToShell}>
           <Maximize size={18} />

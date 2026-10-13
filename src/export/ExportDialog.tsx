@@ -3,6 +3,7 @@ import { type ReactNode, useMemo, useState } from 'react';
 import { toast } from '../catalog/actions';
 import { useT } from '../i18n';
 import { exportProjectJson } from '../model/io';
+import { projectToSpec } from '../reference/export';
 import { setCurrency, setUnitCost } from '../model/ops';
 import { useModel } from '../model/store';
 import { Modal } from '../ui/Modal';
@@ -162,6 +163,12 @@ export function ExportDialog() {
     downloadBlob(
       new Blob([exportProjectJson(project)], { type: 'application/json' }),
       `${base}.json`,
+    );
+
+  const referenceSpec = () =>
+    downloadBlob(
+      new Blob([JSON.stringify(projectToSpec(project), null, 2)], { type: 'application/json' }),
+      `${base}.spec.json`,
     );
 
   const levelOptions = (
@@ -398,6 +405,9 @@ export function ExportDialog() {
                 </button>
                 <button className={btn} onClick={json}>
                   <Download size={14} /> {t('export.projectJson')}
+                </button>
+                <button className={btn} onClick={referenceSpec}>
+                  <Download size={14} /> {t('export.referenceSpec')}
                 </button>
               </div>
             </>

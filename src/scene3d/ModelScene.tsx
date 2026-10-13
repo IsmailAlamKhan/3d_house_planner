@@ -1,3 +1,4 @@
+import { UnderlayDecals } from '../underlay/Decal3D';
 import { type ThreeEvent } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { EdgesGeometry, Plane, Vector3 } from 'three';
@@ -289,6 +290,7 @@ export function ModelScene() {
           />
         ))}
       </group>
+      <UnderlayDecals />
       {levels.map(({ level, parts }) => {
         const shown = (() => {
           if (!level.visible) return false;

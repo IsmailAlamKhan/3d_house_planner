@@ -2,6 +2,7 @@ import polygonClipping from 'polygon-clipping';
 import { produce } from 'immer';
 import { getEntry } from '../catalog';
 import { runChecks } from '../checks';
+import { rectifyFromCorners } from '../geometry/homography';
 import { polygonArea } from '../geometry/polygon';
 import { type Vec2, projectOnSegment } from '../geometry/vec';
 import {
@@ -594,6 +595,27 @@ export function buildProject(input: unknown, opts: { id?: string } = {}): BuildR
         ...(vw.zoom !== undefined ? { zoom: vw.zoom } : {}),
       };
       ops.addView(p, view);
+    }
+    if (spec.underlay) {
+      const u = spec.underlay;
+      const corners = u.corners.map(([x, y]) => ({ x, y }));
+      const transform = rectifyFromCorners(corners, u.size[0] * k, u.size[1] * k, v(u.origin));
+      if (!transform)
+        throw new Error('The reference picture corners cannot be used (they are in a line).');
+      ops.addUnderlay(p, {
+        name: 'Reference picture',
+        source: { kind: 'url', url: u.image },
+        imageWidth: u.imageSize[0],
+        imageHeight: u.imageSize[1],
+        transform,
+        opacity: u.opacity,
+        setup: {
+          mode: 'corners',
+          points: corners,
+          size: [u.size[0] * k, u.size[1] * k],
+          origin: v(u.origin),
+        },
+      });
     }
     p.schemaVersion = SCHEMA_VERSION;
   });

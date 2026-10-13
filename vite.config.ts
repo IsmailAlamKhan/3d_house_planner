@@ -56,6 +56,8 @@ export default defineConfig({
       workbox: {
         // The app shell, every lazy chunk, fonts, icons and the snapshot viewer (needed to export a share file offline).
         globPatterns: ['**/*.{js,css,html,woff2,png,svg,webmanifest}', 'viewer/*.{js,css}'],
+        // The big reference photo is fetched only when a project shows it.
+        globIgnores: ['reference/**'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
         navigateFallback: `${base}index.html`,
         // Local AI calls go to the user's own machine: never cached, never answered from the cache.

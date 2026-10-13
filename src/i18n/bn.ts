@@ -1028,6 +1028,7 @@ export const bn: Translations = {
   'err.windowKeep': 'ওই জানালা বিদ্যমান ভবনের অংশ, তাই সরানো যাবে না।',
   'err.roomCorners': 'একটি ঘরের কমপক্ষে ৩টি কোণ ও কিছু ক্ষেত্রফল লাগে',
   'err.stairLevels': 'সিঁড়ি দুটি আলাদা তলাকে জোড়া লাগাতে হবে',
+  'export.referenceSpec': 'রেফারেন্স স্পেক (.json)',
   'underlay.title': 'রেফারেন্স ছবি',
   'underlay.open': 'রেফারেন্স ছবি (ছবির ওপর নকশা আঁকুন)',
   'underlay.import': 'ছবি আনুন…',

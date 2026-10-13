@@ -182,6 +182,8 @@ export const UnderlaySpecSchema = z.object({
   /** The four picture pixels (top-left, top-right, bottom-right, bottom-left) of a rectangle whose real size is `size`. */
   corners: z.array(PtSchema).length(4),
   size: z.tuple([num.positive(), num.positive()]),
+  /** Pixel size of the picture. */
+  imageSize: z.tuple([z.number().int().positive(), z.number().int().positive()]),
   /** Where the rectangle's top-left corner is on the plan. */
   origin: PtSchema.default([0, 0]),
   opacity: z.number().min(0).max(1).default(0.5),

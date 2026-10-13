@@ -878,6 +878,7 @@ export const en = {
   'err.windowKeep': 'That window is part of the existing building and cannot be removed.',
   'err.roomCorners': 'A room needs at least 3 corners and some area',
   'err.stairLevels': 'A stair must connect two different levels',
+  'export.referenceSpec': 'Reference spec (.json)',
   'underlay.title': 'Reference picture',
   'underlay.open': 'Reference picture (trace a plan over a photo)',
   'underlay.import': 'Import a picture…',

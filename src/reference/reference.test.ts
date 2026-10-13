@@ -419,6 +419,52 @@ describe('export back to a spec', () => {
   });
 });
 
+describe('reference picture', () => {
+  const underlay = {
+    image: 'reference/x.png',
+    imageSize: [720, 1600] as [number, number],
+    corners: [
+      [0, 0],
+      [720, 0],
+      [720, 1600],
+      [0, 1600],
+    ] as [number, number][],
+    size: [60, 133] as [number, number],
+    origin: [5, 6] as [number, number],
+    opacity: 0.4,
+  };
+
+  it('is placed on the plan by the builder, in metres, and survives export', () => {
+    const { project } = buildProject(spec({ underlay }));
+    expect(project.underlays).toHaveLength(1);
+    const u = project.underlays[0]!;
+    expect(u.opacity).toBe(0.4);
+    expect(u.source).toEqual({ kind: 'url', url: 'reference/x.png' });
+    // the top-left pixel lands on the origin (5 ft, 6 ft); the bottom-right 60 ft across and 133 ft down from it
+    const m = u.transform;
+    expect(m[2]).toBeCloseTo(5 * FT, 6);
+    expect(m[5]).toBeCloseTo(6 * FT, 6);
+    expect(m[0] * 720).toBeCloseTo(60 * FT, 6);
+    expect(m[4] * 1600).toBeCloseTo(133 * FT, 6);
+    const back = projectToSpec(project);
+    expect(back.underlay).toMatchObject({ image: 'reference/x.png', size: [60, 133] });
+    expect(() => buildProject(back)).not.toThrow();
+  });
+
+  it('rejects corners that are in a line', () => {
+    const bad = {
+      ...underlay,
+      corners: [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+        [3, 3],
+      ] as [number, number][],
+    };
+    expect(() => buildProject(spec({ underlay: bad }))).toThrow();
+  });
+});
+
 describe('fidelity report', () => {
   it('lists every element against its label and the picture, and says how many labels are matched to an inch', () => {
     const s = spec();
