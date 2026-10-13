@@ -1,5 +1,5 @@
 import { Box3, Group, Mesh, Vector3 } from 'three';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CATALOG, entryName, getEntry, registerCustomEntries } from '../catalog';
 import {
   customTextureVersion,
@@ -133,6 +133,30 @@ describe('catalogue entries', () => {
     g.traverse((o) => o instanceof Mesh && boxes++);
     expect(boxes).toBe(1);
     expect(entry.draw2D({}, { w: 0.9, d: 0.8, h: 0.85 })).toBeTruthy();
+  });
+});
+
+describe('a model that has been downloaded', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('is shown as the real model at once (thumbnails are drawn synchronously), not as the placeholder', async () => {
+    const bytes = minimalGlb(1, 0.9, 0.9, [0.15, 0.45, 0.35]);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(buf(bytes), { status: 200 })),
+    );
+    const entry = customEntry({ ...model(), id: 'fedcba9876543210' });
+    const size = { w: 1, d: 0.9, h: 0.9 };
+    const materialsOf = (g: Group) => {
+      const list: string[] = [];
+      g.traverse((o) => o instanceof Mesh && list.push((o.material as { type: string }).type));
+      return list;
+    };
+    // Before the file is here: the grey see-through placeholder.
+    expect(materialsOf(entry.build3D({}, size))).toEqual(['MeshBasicMaterial']);
+    await entry.ready;
+    // After: the model itself, with its own material, in a single synchronous call.
+    expect(materialsOf(entry.build3D({}, size))).toEqual(['MeshStandardMaterial']);
   });
 });
 

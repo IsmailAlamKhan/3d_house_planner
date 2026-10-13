@@ -35,7 +35,9 @@ export function customEntry(asset: AssetMeta): CatalogEntry {
     : 'custom';
   // The file is only fetched when something needs it (the library thumbnail or a placed copy).
   let loading: Promise<Object3D> | undefined;
-  const load = (): Promise<Object3D> => (loading ??= loadModel(asset.id, assetFileUrl(asset.id)));
+  let loaded: Object3D | undefined;
+  const load = (): Promise<Object3D> =>
+    (loading ??= loadModel(asset.id, assetFileUrl(asset.id)).then((root) => (loaded = root)));
   return {
     catalogId: customItemId(asset.id),
     nameKey: 'cat.custom',
@@ -53,6 +55,11 @@ export function customEntry(asset: AssetMeta): CatalogEntry {
     defaults: {},
     build3D(_props, size) {
       const g = new Group();
+      if (loaded) {
+        // Already downloaded: show the real model at once (thumbnails are drawn synchronously).
+        g.add(fitModel(loaded, size));
+        return g;
+      }
       const box = new Mesh(new BoxGeometry(size.w, size.h, size.d), PLACEHOLDER);
       box.position.y = size.h / 2;
       g.add(box);
