@@ -81,7 +81,7 @@ function generatePool(z: SiteZone): Part[] {
       layer: 'site',
       entity,
       geometry: water,
-      materials: [z.material === 'water' ? 'water' : z.material],
+      materials: ['water'],
     });
   // Basin floor and walls (visible through the translucent water).
   const floor = flatMulti([[toRing(z.polygon)]], -depth, true);
@@ -94,7 +94,8 @@ function generatePool(z: SiteZone): Part[] {
       id: `zone:${z.id}:basin`,
       layer: 'site',
       geometry: basin,
-      materials: ['pool-tile'],
+      // the tiles under the water: the zone's own finish, unless it was set to plain water
+      materials: [z.material === 'water' ? 'pool-tile' : z.material],
     });
   // Coping: a paved border around the rim.
   const coping = poly.map((a, i) => strip(a, poly[(i + 1) % poly.length]!, 0.35, 0.08, 0));

@@ -56,11 +56,20 @@ const deviation = (a: readonly [number, number], b: readonly [number, number]) =
     Math.max(Math.abs(a[0] - b[1]), Math.abs(a[1] - b[0])),
   );
 
+/** How closely the item is drawn: a real CC0 model from the asset pack, or the built-in procedural model. */
+function visualMatch(catalog: ReadonlySet<string>, real: ReadonlyMap<string, string>): string {
+  return [...catalog]
+    .map((c) => (real.has(c) ? `real model (${real.get(c)})` : 'procedural'))
+    .join(', ');
+}
+
 /** The fidelity report (Markdown): every element of the picture against its label, the picture and the model. */
 export function fidelityMarkdown(
   spec: ReferenceSpec,
   result: BuildResult,
   generatedBy = 'npm run reference:build',
+  /** Catalogue id → what stands in for it in the asset pack (a real model); shows the "Visual match" column. */
+  realModels?: ReadonlyMap<string, string>,
 ): string {
   const u = spec.units;
   const [A, ...others] = spec.designs;
@@ -159,13 +168,14 @@ export function fidelityMarkdown(
       'Element',
       ...spec.designs.map((d) => `Option ${d.letter ?? d.id}`),
       'Catalogue item(s)',
+      ...(realModels ? ['Visual match'] : []),
       'Notes',
     ];
     out.push(`| ${h2.join(' | ')} |`);
     out.push(`|${h2.map(() => ' --- ').join('|')}|`);
     for (const [name, row] of inventory)
       out.push(
-        `| ${[name, ...row.inDesign.map((b) => (b ? '✓' : '—')), [...row.catalog].join(', '), row.note].join(' | ')} |`,
+        `| ${[name, ...row.inDesign.map((b) => (b ? '✓' : '—')), [...row.catalog].join(', '), ...(realModels ? [visualMatch(row.catalog, realModels)] : []), row.note].join(' | ')} |`,
       );
     out.push('');
   }

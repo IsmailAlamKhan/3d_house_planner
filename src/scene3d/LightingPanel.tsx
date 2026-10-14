@@ -1,5 +1,6 @@
 import { Sun } from 'lucide-react';
 import { useState } from 'react';
+import { usePack } from '../assets/pack';
 import { useLightStyle } from './SceneLights';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
@@ -223,6 +224,8 @@ export function LightingPanel() {
   const t = useT();
   const [open, setOpen] = useState(false);
   const { lighting, quality, showFps, fps, setPref } = useSceneStore();
+  const packStatus = usePack((s) => s.status);
+  const packEnabled = usePack((s) => s.enabled);
   const time = timeOf(lighting);
   return (
     <div className="relative">
@@ -304,6 +307,18 @@ export function LightingPanel() {
                 onChange={(e) => setPref('showFps', e.target.checked)}
               />
             </span>
+          </label>
+          <label
+            className="flex items-center justify-between text-xs text-slate-600"
+            title={packStatus === 'none' ? t('pack.missing') : undefined}
+          >
+            {t('pack.use')}
+            <input
+              type="checkbox"
+              checked={packEnabled && packStatus !== 'none'}
+              disabled={packStatus === 'none'}
+              onChange={(e) => usePack.getState().setEnabled(e.target.checked)}
+            />
           </label>
         </div>
       )}

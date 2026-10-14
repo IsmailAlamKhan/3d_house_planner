@@ -4,6 +4,7 @@ import { useModel } from '../model/store';
 import { startAutosave } from '../persistence/autosave';
 import { pushOpenProject, startSync } from '../persistence/syncStore';
 import { SyncConflictDialog } from './SyncConflictDialog';
+import { usePack } from '../assets/pack';
 import { useCustomAssets } from '../custom/store';
 import { bootstrapProject } from '../persistence/bootstrap';
 import { PlanCanvas } from '../plan2d/PlanCanvas';
@@ -54,6 +55,8 @@ export function App() {
     let cancelled = false;
     // The user's own models and textures (kept on the app server) join the library while the project loads.
     void useCustomAssets.getState().refresh();
+    // The CC0 asset pack (real models, PBR textures, HDRI skies), when it has been downloaded.
+    void usePack.getState().load();
     void bootstrapProject().then(() => {
       if (cancelled) return;
       stop = startAutosave(useModel, undefined, 1000, pushOpenProject);

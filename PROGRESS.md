@@ -358,3 +358,34 @@ Target on the villa (≥ 90 % of labels, centres within 3 ft): **met** (100 % / 
 - Truth for the villa is my own hand tracing (Prompt 18), so box errors (mean 2.2 ft) include my tracing error. Rooms are boxed by the model; B-style accuracy comes from the clean-up and the user's review.
 - The full "upload → build → matches the Prompt 18 inventory" flow was verified up to the review screen with a pretend model (e2e) and with the real model on the eval; furniture (items pass) was not evaluated on the GPU, only unit-tested, and the model does not read the unlabelled features (waterfall, medallion …), so the inventory still needs the Prompt 18 spec or manual additions.
 - Vision calls take 14–110 s per plan; a tile that exceeds 5 minutes fails and is reported as a note.
+
+## Prompt 20 — Real Assets: Free CC0 Models, PBR Textures & HDRI Sky — DONE (Docker service not run here)
+
+**What was built.** A manifest-driven CC0 asset pack (`assets/manifest.json`, 54 assets: 39 models, 12 PBR texture sets, 3 HDRI skies) with `npm run assets:download` (fetch, SHA-256 check, convert, index into `assets/pack/`), `assets/LICENSES.md` (generated, tested), runtime swap of catalogue models / library textures / sky with a procedural fallback, animated pool water, a pack on/off switch in *Light & quality*, the `assets-init` Docker service, and the committed GPU harness `npm run test:gpu`.
+
+- [x] Sources: Poly Haven, ambientCG, Kenney (all CC0, licence checked and recorded per asset); only `CC0-1.0` is allowed by the schema
+- [x] Models normalised to the catalogue's default size (test: within 5 %), centred, floor at 0, recolour by material slot (beds, sofas, car, rugs)
+- [x] PBR textures for marble, oak, walnut, travertine, tile, concrete, carpet, decking, stone paving, pool tile, grass with real-world repeat; HDRIs for day / dusk / night
+- [x] Pool water: ripple normal map drifting with time + glow; basin tile under it
+- [x] Tests: 11 unit tests (manifest, licences, sizes, fallback), 2 Playwright tests with a fake pack, GPU harness (2 specs)
+- [x] `reference/FIDELITY.md` has a "Visual match" column (real model vs procedural per inventory item)
+
+**Measured on the owner's PC (RTX 4060 Ti, Chrome on D3D11, Reference Villa at Medium, dusk).**
+
+| View | Real pack on | Procedural (pack off) |
+| --- | --- | --- |
+| Front gate | 57.8 fps | 52.4 fps |
+| Isometric | 59.8 fps | 59.7 fps |
+
+Target ≥ 45 fps at Medium: **met** with the real assets (fewer draw calls than procedural: 3701 vs 4502 at Isometric). The villa is smooth ~3 s after opening and ~2 s after a view change. Numbers: `test-results/gpu/*.json`.
+
+**Bug found by the GPU run.** Real models never appeared at first: the scene copies each item when it draws, so a model added after the copy was lost. Fixed with per-item cache epochs (`src/assets/epoch.ts`).
+
+**Deviations and limits.**
+- Textures are WebP at 1K (not KTX2, not ≤ 2K by quality tier); thumbnails are drawn in-app from the models, not baked by the downloader.
+- Kenney models are stylised (low-poly, palette colours; palms look teal) and are stretched to the catalogue size. Not available as free CC0 models and still procedural: U-sectional, trampoline, play tower, gym machines, jacuzzi, waterfall, fire pit, fountain, hedges, flower beds, neon strips, TV wall. `FIDELITY.md` lists real vs procedural per item.
+- No instancing / LOD yet (the repeated items are few and draw calls already dropped); texture size does not vary by quality tier.
+- The `assets-init` Docker service and Dockerfile `assets` stage were written and `docker compose config` validates, but Docker was not running here, so a fresh `docker compose up -d` download was not run. `npm run assets:download` was run and works.
+- The villa's saved "Pool deck" camera view sits inside a wall (a Prompt 18 authoring bug, same with the pack off); the GPU test uses Front gate and Isometric instead.
+- The default Playwright config now serves no pack (`ASSETS_DIR=assets/none`) so the pictures do not depend on the machine.
+- **Open test failures (set aside by the owner, to be run and fixed on request):** the last full `npm run test:e2e` had 69 passed, 2 failed, 5 not run: `e2e/lighting.spec.ts` "tiers: Low, Medium and High have the same brightness…" (lighting.spec is calibrated to the software renderer and was sensitive to the pack being present; now runs without the pack) and `e2e/shared.spec.ts` (conflict dialog, needs the sync server; failed before this prompt too). Unit tests (693), typecheck, lint and build pass.

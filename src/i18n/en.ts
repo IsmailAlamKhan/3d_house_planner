@@ -336,6 +336,9 @@ export const en = {
   'quality.medium': 'Medium',
   'quality.high': 'High',
   'quality.fps': 'Show frame rate',
+  'pack.use': 'Real 3D models and textures',
+  'pack.missing':
+    'Asset pack not installed (run npm run assets:download); simple built-in models are used',
   'ai.warn.entrance':
     'There was no room for the main entrance door where the shell has its entrance.',
   'ai.warn.noDoor':

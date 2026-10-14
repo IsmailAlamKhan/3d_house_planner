@@ -8,6 +8,7 @@ import { ComfyClient } from './render/comfy';
 import { createAssetService } from './assetsApi';
 import { createRenderService, unloadOllama } from './render/renderApi';
 import { createVisionService } from './vision/visionApi';
+import { createPackHandler, packStatus } from './packStatic';
 import { handleProjects } from './projectsApi';
 import { ProjectStore } from './store';
 import type { ServerConfig } from './config';
@@ -104,6 +105,7 @@ export function createApp(config: ServerConfig): AppHandle {
     model: config.visionModel,
     queue,
   });
+  const pack = createPackHandler(config.assetsDir ?? 'assets');
   const render = createRenderService({ comfyUrl: config.comfyUrl, dataDir: config.dataDir, queue });
   const assets = createAssetService({ dataDir: config.dataDir });
   const store = new ProjectStore(
@@ -163,6 +165,7 @@ export function createApp(config: ServerConfig): AppHandle {
       },
       ollama,
       render: await render.health(),
+      assets: packStatus(config.assetsDir ?? 'assets'),
       authRequired: !!config.password,
     });
   }
@@ -247,6 +250,7 @@ export function createApp(config: ServerConfig): AppHandle {
         return void res.end(LOGIN_PAGE(false));
       }
 
+      if (pack(req, res)) return;
       if (path === '/api/ai') return ai(req, res);
       if (await vision.handle(req, res, path)) return;
       if (await render.handle(req, res, path)) return;

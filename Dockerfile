@@ -12,6 +12,12 @@ RUN npm ci --ignore-scripts
 COPY . .
 RUN npm run build && npm run build:server
 
+# ── 1b. One-shot asset downloader (the "assets-init" compose service): fetches the CC0 models, textures and skies listed in
+#    assets/manifest.json, checks their hashes and converts them into the pack the app serves at /pack ─────────────────
+FROM build AS assets
+ENV ASSETS_DIR=/app/assets
+CMD ["npx", "tsx", "scripts/assets-download.ts"]
+
 # ── 2. The only native runtime dependency: better-sqlite3, compiled for this exact image ───────────────────────
 FROM node:22.20.0-bookworm-slim AS deps
 WORKDIR /srv
@@ -25,7 +31,7 @@ require('fs').writeFileSync('package.json', JSON.stringify({name:'duplex-runtime
 
 # ── 3. Runtime: slim, non-root, nothing but the build, the bundled server and better-sqlite3 ────────────────────
 FROM node:22.20.0-bookworm-slim AS runtime
-ENV NODE_ENV=production PORT=8080 HOST=0.0.0.0 DATA_DIR=/data
+ENV NODE_ENV=production PORT=8080 HOST=0.0.0.0 DATA_DIR=/data ASSETS_DIR=/assets
 WORKDIR /srv
 COPY --from=deps /srv/node_modules ./node_modules
 COPY --from=build /app/server-dist ./

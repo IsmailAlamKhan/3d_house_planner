@@ -10,6 +10,7 @@ import {
   generateSlab,
 } from './generators/floors';
 import type { AnyPart } from './generators/common';
+import { packEpoch } from '../assets/epoch';
 import { generateItemPart } from './generators/items';
 import { generateOpeningParts } from './generators/openings';
 import { generateStair } from './generators/stairs';
@@ -132,7 +133,7 @@ export class SceneBuilder {
 
       for (const item of project.items.filter((i) => i.levelId === level.id)) {
         parts.push(
-          ...c.get(`item:${item.id}`, [item], () => {
+          ...c.get(`item:${item.id}`, [item, packEpoch(item.catalogId)], () => {
             const p = generateItemPart(item);
             return p ? [p] : [];
           }),

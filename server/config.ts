@@ -10,6 +10,8 @@ export interface ServerConfig {
   model: string;
   /** The picture-reading model ("Recreate from picture"); runs on the same GPU queue as everything else. */
   visionModel: string;
+  /** Where the CC0 asset pack lives (`<assetsDir>/pack`, served under /pack). */
+  assetsDir?: string;
   /** If set, the whole app asks for this password first. */
   password: string | null;
   /** Folder with the production build. */
@@ -51,6 +53,7 @@ export function loadConfig(
     comfyUrl: get('COMFYUI_URL') ? get('COMFYUI_URL')!.replace(/\/+$/, '') : null,
     model: get('OLLAMA_MODEL') || 'qwen3:14b',
     visionModel: get('OLLAMA_VISION_MODEL') || 'qwen3-vl:8b-instruct',
+    assetsDir: get('ASSETS_DIR') || 'assets',
     password: get('APP_PASSWORD') ? String(get('APP_PASSWORD')) : null,
     distDir,
     dataDir: get('DATA_DIR') || 'data',

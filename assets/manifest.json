@@ -1,0 +1,1299 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "ph-outdoor_table_chair_set_01",
+      "name": "Outdoor Table Chair Set 01",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/outdoor_table_chair_set_01",
+        "sha256": "1b718deb56a9f07b260a5f95926fb7caa5fd27918cacca283414c840e46415f2"
+      },
+      "author": "James Ray Cock",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "model",
+      "catalogId": "outdoor-dining",
+      "size": {
+        "w": 2.6,
+        "d": 1.2,
+        "h": 0.8
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "ph-potted_plant_04",
+      "name": "Potted Plant 04",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/potted_plant_04",
+        "sha256": "b3a3bc3e97da75844999c4da07b7104b6c023f729a7c045979929b9504184339"
+      },
+      "author": "James Ray Cock",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "model",
+      "catalogId": "plant-large",
+      "size": {
+        "w": 0.8,
+        "d": 0.8,
+        "h": 1.9
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "ph-potted_plant_01",
+      "name": "Potted Plant 01",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/potted_plant_01",
+        "sha256": "23b30294407684b02f14800d6685bd8938da5d2111e17753ac8dd3c37d8c88a0"
+      },
+      "author": "Rico Cilliers",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "model",
+      "catalogId": "plant-medium",
+      "size": {
+        "w": 0.5,
+        "d": 0.5,
+        "h": 1.15
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "ph-planter_box_01",
+      "name": "Planter Box 01",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/planter_box_01",
+        "sha256": "15c7ff7396d872e5cad6743c796ff0f42e1f3f831fd334a26aa1fdbd11834a1f"
+      },
+      "author": "James Ray Cock",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "model",
+      "catalogId": "planter-box",
+      "size": {
+        "w": 1.2,
+        "d": 0.4,
+        "h": 0.7
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "ph-island_tree_01",
+      "name": "Island Tree 01",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/island_tree_01",
+        "sha256": "78e905a40670bfabb2760601d4d9a6c17193a50d68e6271c66893eb7bd75906d"
+      },
+      "author": "Rob Tuytel, Rico Cilliers",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "model",
+      "catalogId": "tree-broad",
+      "size": {
+        "w": 3,
+        "d": 3,
+        "h": 5
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "ph-shrub_01",
+      "name": "Shrub 01",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/shrub_01",
+        "sha256": "c3bb3340687d46c684b9dab82f5b2f92b7b0fe761842423d3c9e19f59a839393"
+      },
+      "author": "Rico Cilliers",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "model",
+      "catalogId": "shrub",
+      "size": {
+        "w": 0.9,
+        "d": 0.9,
+        "h": 0.8
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "ph-large_iron_gate",
+      "name": "Large Iron Gate",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/large_iron_gate",
+        "sha256": "fd46dd0fc634c0529656dca3d275e4eb81fbfbb5105228dc9d4e215b0b4bec77"
+      },
+      "author": "Josh Dean",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "model",
+      "catalogId": "gate-vehicle",
+      "size": {
+        "w": 3.6,
+        "d": 0.1,
+        "h": 1.5
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "acg-marble021",
+      "name": "Marble021 (floor-marble)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Marble021",
+        "downloadUrl": "https://ambientcg.com/get?file=Marble021_1K-JPG.zip",
+        "sha256": "7e75982560079476f6051666985553deb3eb77b07d2923a12d0665733b8f043e"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "floor-marble",
+      "scale": 1.2
+    },
+    {
+      "id": "acg-marble012",
+      "name": "Marble012 (marble-wall)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Marble012",
+        "downloadUrl": "https://ambientcg.com/get?file=Marble012_1K-JPG.zip",
+        "sha256": "b04384c6d49ce73baeb70db7ea4abfe9948fc9b74b9fd92c3766970662bf2c43"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "marble-wall",
+      "scale": 1.2
+    },
+    {
+      "id": "acg-woodfloor051",
+      "name": "WoodFloor051 (floor-oak)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=WoodFloor051",
+        "downloadUrl": "https://ambientcg.com/get?file=WoodFloor051_1K-JPG.zip",
+        "sha256": "3f493484eab1ec5e1c466b90e515003b286fc6d7f84ff8ff6485900bfc26cef5"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "floor-oak",
+      "scale": 1
+    },
+    {
+      "id": "acg-woodfloor064",
+      "name": "WoodFloor064 (floor-walnut)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=WoodFloor064",
+        "downloadUrl": "https://ambientcg.com/get?file=WoodFloor064_1K-JPG.zip",
+        "sha256": "edd177798c9fa641531ef32970418ff9781e3bf3ceb7808257d2b6c09d7d3cc1"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "floor-walnut",
+      "scale": 1
+    },
+    {
+      "id": "acg-travertine009",
+      "name": "Travertine009 (floor-tile-large)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Travertine009",
+        "downloadUrl": "https://ambientcg.com/get?file=Travertine009_1K-JPG.zip",
+        "sha256": "09fa1ce1cd590e87ed4053864ebaf0186718fba6373559a8458eb4fa6146fdb7"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "floor-tile-large",
+      "scale": 1.2
+    },
+    {
+      "id": "acg-tiles107",
+      "name": "Tiles107 (floor-tile-white)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Tiles107",
+        "downloadUrl": "https://ambientcg.com/get?file=Tiles107_1K-JPG.zip",
+        "sha256": "ec41de6439d087cbd4b88ecd373cf240206715a3b3e022c0d556f9eb677940d0"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "floor-tile-white",
+      "scale": 0.6
+    },
+    {
+      "id": "acg-concrete034",
+      "name": "Concrete034 (floor-concrete)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Concrete034",
+        "downloadUrl": "https://ambientcg.com/get?file=Concrete034_1K-JPG.zip",
+        "sha256": "5839d284d94ffb8d2a56df742ec522b13dd311c52dbd42b8fd33f0409ceedb81"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "floor-concrete",
+      "scale": 1.5
+    },
+    {
+      "id": "acg-carpet016",
+      "name": "Carpet016 (floor-carpet-beige)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Carpet016",
+        "downloadUrl": "https://ambientcg.com/get?file=Carpet016_1K-JPG.zip",
+        "sha256": "b9e67b5d42cb47cead082dedae3767ae228175c857b6b3af6fe7bd4e69237b81"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "floor-carpet-beige",
+      "scale": 0.8
+    },
+    {
+      "id": "acg-planks037a",
+      "name": "Planks037A (decking)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Planks037A",
+        "downloadUrl": "https://ambientcg.com/get?file=Planks037A_1K-JPG.zip",
+        "sha256": "df255df16475bad251f194eb173017c46d5354d572348d435808717c478cf144"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "decking",
+      "scale": 1
+    },
+    {
+      "id": "acg-pavingstones138",
+      "name": "PavingStones138 (paving-stone)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=PavingStones138",
+        "downloadUrl": "https://ambientcg.com/get?file=PavingStones138_1K-JPG.zip",
+        "sha256": "5e2aee8fde52a9f2799ff2f5036522d2d25673d235e1c42f86144bc5a8d83fdd"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "paving-stone",
+      "scale": 1.2
+    },
+    {
+      "id": "acg-tiles107-pool",
+      "name": "Tiles107 (pool-tile)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Tiles107",
+        "downloadUrl": "https://ambientcg.com/get?file=Tiles107_1K-JPG.zip",
+        "sha256": "ec41de6439d087cbd4b88ecd373cf240206715a3b3e022c0d556f9eb677940d0"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "pool-tile",
+      "scale": 0.6,
+      "tint": "#4fb6d6"
+    },
+    {
+      "id": "acg-grass004",
+      "name": "Grass004 (grass)",
+      "source": {
+        "provider": "ambientcg",
+        "pageUrl": "https://ambientcg.com/view?id=Grass004",
+        "downloadUrl": "https://ambientcg.com/get?file=Grass004_1K-JPG.zip",
+        "sha256": "4b63495f459db8481f4d5144e4e9069345c81cf898cc71f2216f5dd3bb344469"
+      },
+      "author": "Lennart Demes (ambientCG.com)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "downloaded": "2026-10-14",
+      "kind": "texture",
+      "materialId": "grass",
+      "scale": 2,
+      "tint": "#d6ffa8"
+    },
+    {
+      "id": "hdri-kloofendal_48d_partly_cloudy_puresky",
+      "name": "Kloofendal 48d Partly Cloudy (Pure Sky)",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+        "sha256": "fd94c84997b8a3c353b62c2125a9b44e19509956986a126e472684432a02d798"
+      },
+      "author": "Greg Zaal, Jarod Guest",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "hdri",
+      "preset": "day"
+    },
+    {
+      "id": "hdri-belfast_sunset_puresky",
+      "name": "Belfast Sunset (Pure Sky)",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/belfast_sunset_puresky",
+        "sha256": "cec532d8dd382bcdca98d7010fa951a782f3295f98e8bd72ee453be8d0a64e98"
+      },
+      "author": "Greg Zaal, Dimitrios Savva, Jarod Guest",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "hdri",
+      "preset": "dusk"
+    },
+    {
+      "id": "hdri-dikhololo_night",
+      "name": "Dikhololo Night",
+      "source": {
+        "provider": "polyhaven",
+        "pageUrl": "https://polyhaven.com/a/dikhololo_night",
+        "sha256": "6861489f983cdc0c22435b781a3487171bd25f25f9cc52c46ac402d48e08249e"
+      },
+      "author": "Greg Zaal",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://polyhaven.com/license",
+      "downloaded": "2026-10-14",
+      "kind": "hdri",
+      "preset": "night"
+    },
+    {
+      "id": "kn-bed-single-bedsingle",
+      "name": "bedSingle (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bedSingle.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "bed-single",
+      "size": {
+        "w": 0.9,
+        "d": 2.05,
+        "h": 0.95
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-bed-double-beddouble",
+      "name": "bedDouble (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bedDouble.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "bed-double",
+      "size": {
+        "w": 1.4,
+        "d": 2.05,
+        "h": 0.95
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-bed-queen-beddouble",
+      "name": "bedDouble (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bedDouble.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "bed-queen",
+      "size": {
+        "w": 1.6,
+        "d": 2.05,
+        "h": 0.95
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-bed-king-beddouble",
+      "name": "bedDouble (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bedDouble.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "bed-king",
+      "size": {
+        "w": 1.8,
+        "d": 2.05,
+        "h": 0.95
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-sofa-2seat-loungesofa",
+      "name": "loungeSofa (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/loungeSofa.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "sofa-2seat",
+      "size": {
+        "w": 1.7,
+        "d": 0.9,
+        "h": 0.85
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-sofa-3seat-loungesofalong",
+      "name": "loungeSofaLong (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/loungeSofaLong.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "sofa-3seat",
+      "size": {
+        "w": 2.2,
+        "d": 0.95,
+        "h": 0.85
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-sofa-l-loungesofacorner",
+      "name": "loungeSofaCorner (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/loungeSofaCorner.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "sofa-l",
+      "size": {
+        "w": 2.6,
+        "d": 1.7,
+        "h": 0.85
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-armchair-loungechair",
+      "name": "loungeChair (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/loungeChair.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "armchair",
+      "size": {
+        "w": 0.85,
+        "d": 0.85,
+        "h": 0.85
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-coffee-table-tablecoffee",
+      "name": "tableCoffee (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/tableCoffee.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "coffee-table",
+      "size": {
+        "w": 1,
+        "d": 0.6,
+        "h": 0.42
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-bookshelf-bookcaseopen",
+      "name": "bookcaseOpen (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bookcaseOpen.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "bookshelf",
+      "size": {
+        "w": 0.9,
+        "d": 0.32,
+        "h": 2
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-wardrobe-bookcaseclosedwide",
+      "name": "bookcaseClosedWide (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bookcaseClosedWide.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "wardrobe",
+      "size": {
+        "w": 1.8,
+        "d": 0.6,
+        "h": 2.2
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-dresser-sidetabledrawers",
+      "name": "sideTableDrawers (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/sideTableDrawers.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "dresser",
+      "size": {
+        "w": 1.2,
+        "d": 0.5,
+        "h": 0.85
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-desk-desk",
+      "name": "desk (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/desk.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "desk",
+      "size": {
+        "w": 1.4,
+        "d": 0.7,
+        "h": 0.75
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-office-chair-chairdesk",
+      "name": "chairDesk (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/chairDesk.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "office-chair",
+      "size": {
+        "w": 0.6,
+        "d": 0.6,
+        "h": 1.05
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-chair-chaircushion",
+      "name": "chairCushion (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/chairCushion.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "chair",
+      "size": {
+        "w": 0.44,
+        "d": 0.46,
+        "h": 0.9
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-fridge-kitchenfridgelarge",
+      "name": "kitchenFridgeLarge (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/kitchenFridgeLarge.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "fridge",
+      "size": {
+        "w": 0.7,
+        "d": 0.7,
+        "h": 1.8
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-stove-kitchenstoveelectric",
+      "name": "kitchenStoveElectric (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/kitchenStoveElectric.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "stove",
+      "size": {
+        "w": 0.6,
+        "d": 0.6,
+        "h": 0.92
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-sink-kitchen-kitchensink",
+      "name": "kitchenSink (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/kitchenSink.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "sink-kitchen",
+      "size": {
+        "w": 1,
+        "d": 0.6,
+        "h": 1.1
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-kitchen-wall-cabinet-kitchencabinetupperdouble",
+      "name": "kitchenCabinetUpperDouble (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/kitchenCabinetUpperDouble.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "kitchen-wall-cabinet",
+      "size": {
+        "w": 1.2,
+        "d": 0.35,
+        "h": 0.7
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-washing-machine-washer",
+      "name": "washer (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/washer.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "washing-machine",
+      "size": {
+        "w": 0.6,
+        "d": 0.6,
+        "h": 0.85
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-wc-toilet",
+      "name": "toilet (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/toilet.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "wc",
+      "size": {
+        "w": 0.4,
+        "d": 0.72,
+        "h": 0.8
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-basin-bathroomsink",
+      "name": "bathroomSink (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bathroomSink.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "basin",
+      "size": {
+        "w": 0.65,
+        "d": 0.5,
+        "h": 0.85
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-shower-shower",
+      "name": "shower (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/shower.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "shower",
+      "size": {
+        "w": 0.9,
+        "d": 0.9,
+        "h": 2
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-bathtub-bathtub",
+      "name": "bathtub (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/bathtub.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "bathtub",
+      "size": {
+        "w": 1.7,
+        "d": 0.75,
+        "h": 0.55
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-plant-small-plantsmall1",
+      "name": "plantSmall1 (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/plantSmall1.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "plant-small",
+      "size": {
+        "w": 0.3,
+        "d": 0.3,
+        "h": 0.6
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-floor-lamp-lamproundfloor",
+      "name": "lampRoundFloor (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/lampRoundFloor.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "floor-lamp",
+      "size": {
+        "w": 0.4,
+        "d": 0.4,
+        "h": 1.6
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-table-lamp-lamproundtable",
+      "name": "lampRoundTable (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/lampRoundTable.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "table-lamp",
+      "size": {
+        "w": 0.32,
+        "d": 0.32,
+        "h": 0.5
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-rug-rugrectangle",
+      "name": "rugRectangle (Kenney Furniture Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/furniture-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/furniture-kit/440e0608a4-1677580847/kenney_furniture-kit.zip",
+        "entry": "Models/GLTF format/rugRectangle.glb",
+        "sha256": "e67652d0932cee41683f74711c03d3e192a2af9979ef8e6b237711f5482d46b0"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Furniture Kit archive and on https://kenney.nl/assets/furniture-kit",
+      "kind": "model",
+      "catalogId": "rug",
+      "size": {
+        "w": 2,
+        "d": 1.4,
+        "h": 0.015
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^carpet$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-car-suv",
+      "name": "suv (Kenney Car Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/car-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/car-kit/1a312ec241-1775131960/kenney_car-kit.zip",
+        "entry": "Models/GLB format/suv.glb",
+        "sha256": "fac7dacac5c7874348cf19729af3ef205f3d366493edaf0a827d93f4fdf3d0c4"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Car Kit archive and on https://kenney.nl/assets/car-kit",
+      "kind": "model",
+      "catalogId": "car",
+      "size": {
+        "w": 1.85,
+        "d": 4.5,
+        "h": 1.45
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": [
+        {
+          "slot": "^colormap$",
+          "prop": "color"
+        }
+      ]
+    },
+    {
+      "id": "kn-tree-palm-tree_palmdetailedtall",
+      "name": "tree_palmDetailedTall (Kenney Nature Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/nature-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip",
+        "entry": "Models/GLTF format/tree_palmDetailedTall.glb",
+        "sha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Nature Kit archive and on https://kenney.nl/assets/nature-kit",
+      "kind": "model",
+      "catalogId": "tree-palm",
+      "size": {
+        "w": 2.4,
+        "d": 2.4,
+        "h": 5.5
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-tree-conifer-tree_pinerounda",
+      "name": "tree_pineRoundA (Kenney Nature Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/nature-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip",
+        "entry": "Models/GLTF format/tree_pineRoundA.glb",
+        "sha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Nature Kit archive and on https://kenney.nl/assets/nature-kit",
+      "kind": "model",
+      "catalogId": "tree-conifer",
+      "size": {
+        "w": 1.6,
+        "d": 1.6,
+        "h": 4
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    },
+    {
+      "id": "kn-tree-small-tree_oak",
+      "name": "tree_oak (Kenney Nature Kit)",
+      "source": {
+        "provider": "kenney",
+        "pageUrl": "https://kenney.nl/assets/nature-kit",
+        "downloadUrl": "https://kenney.nl/media/pages/assets/nature-kit/37ac38a37b-1677698939/kenney_nature-kit.zip",
+        "entry": "Models/GLTF format/tree_oak.glb",
+        "sha256": "fa7974a0d342bfe63c38664ba9f8ec1a4aab8ea25f099bdc56870e33588c4d9d"
+      },
+      "author": "Kenney (www.kenney.nl)",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "downloaded": "2026-10-14",
+      "notes": "Creative Commons Zero, stated in License.txt of the Nature Kit archive and on https://kenney.nl/assets/nature-kit",
+      "kind": "model",
+      "catalogId": "tree-small",
+      "size": {
+        "w": 1.4,
+        "d": 1.4,
+        "h": 2.4
+      },
+      "lod": 0,
+      "rotateY": 0,
+      "recolor": []
+    }
+  ]
+}

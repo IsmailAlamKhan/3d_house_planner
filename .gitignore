@@ -11,3 +11,7 @@ ai-eval-results.json
 server-dist
 data
 backups
+
+# downloaded asset pack (see assets/manifest.json; run npm run assets:download)
+/assets/.cache/
+/assets/pack/

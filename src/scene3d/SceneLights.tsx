@@ -30,6 +30,7 @@ import { effectiveLightStyle, useSceneStore } from './sceneStore';
 import { usePresent } from '../present/presentStore';
 import { debugRenderEnabled, useDebug } from '../debug/debugStore';
 import { setIndoorSky } from './skyMix';
+import { PackSky, useSkyShown } from './PackSky';
 
 // Area lights need their lookup tables once, before the first material is compiled.
 RectAreaLightUniformsLib.init();
@@ -150,6 +151,7 @@ export function SceneLights({ quality }: { quality: Quality }) {
   const dist = radius * 3;
   return (
     <>
+      <PackSky />
       {!transparent && <SkyDome top={sky.top} horizon={sky.horizon} ground={sky.ground} />}
       <hemisphereLight
         args={[sky.top, sky.ground, sky.ambient]}
@@ -180,6 +182,7 @@ export function SceneLights({ quality }: { quality: Quality }) {
 
 /** A big inverted sphere with a vertical colour gradient (zenith → horizon → ground). */
 function SkyDome({ top, horizon, ground }: { top: string; horizon: string; ground: string }) {
+  const hidden = useSkyShown((s) => s.shown); // the asset pack's HDRI sky takes over
   const geometry = useMemo(() => {
     const g = new SphereGeometry(300, 24, 16);
     const pos = g.getAttribute('position');
@@ -198,6 +201,7 @@ function SkyDome({ top, horizon, ground }: { top: string; horizon: string; groun
     return g;
   }, [top, horizon, ground]);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  if (hidden) return null;
   return (
     <mesh geometry={geometry} renderOrder={-10} frustumCulled={false} userData={{ sky: true }}>
       <meshBasicMaterial

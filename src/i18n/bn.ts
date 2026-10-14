@@ -502,6 +502,9 @@ export const bn: Translations = {
   'quality.medium': 'মাঝারি',
   'quality.high': 'উচ্চ',
   'quality.fps': 'ফ্রেম রেট দেখান',
+  'pack.use': 'আসল ৩ডি মডেল ও টেক্সচার',
+  'pack.missing':
+    'অ্যাসেট প্যাক ইনস্টল করা নেই (npm run assets:download চালান); সাধারণ বিল্ট-ইন মডেল ব্যবহার হচ্ছে',
   'ai.warn.entrance': 'শেলের প্রবেশদ্বারের জায়গায় প্রধান দরজা বসানোর মতো জায়গা ছিল না।',
   'ai.warn.noDoor': '{a} ও {b}-এর মাঝে দরজা বসানো যায়নি (মাঝের দেয়াল খুব ছোট বা বাধাগ্রস্ত)।',
   'ai.warn.unreachable': 'এই ঘরগুলোতে দরজা দিয়ে পৌঁছানো যায়নি: {rooms}।',

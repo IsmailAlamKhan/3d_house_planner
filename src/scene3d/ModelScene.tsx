@@ -1,7 +1,9 @@
 import { UnderlayDecals } from '../underlay/Decal3D';
-import { type ThreeEvent } from '@react-three/fiber';
+import { type ThreeEvent, useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { EdgesGeometry, Plane, Vector3 } from 'three';
+import { usePack } from '../assets/pack';
+import { tickWater } from './water';
 import { useCustomAssets } from '../custom/store';
 import { t } from '../i18n';
 import { useModel } from '../model/store';
@@ -35,12 +37,17 @@ export function useSceneModel(): LevelScene[] & { site: AnyPart[] } {
   const doorsOpen = useSceneStore((s) => s.doorsOpen);
   // A fresh builder whenever the user's own models change: items using a model that was not known yet must be rebuilt.
   const customVersion = useCustomAssets((s) => s.version);
+  // The asset pack arriving, or being switched, changes models and textures: start the scene from scratch.
+  const packVersion = usePack((s) => s.version);
+  const modelVersion = usePack((s) => s.modelVersion);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const builder = useMemo(() => new SceneBuilder(), [customVersion]);
+  const builder = useMemo(() => new SceneBuilder(), [customVersion, packVersion]);
   useEffect(() => () => builder.dispose(), [builder]);
   return useMemo(
     () => builder.build(project, { wallMode, cutHeight: DEFAULT_CUT_HEIGHT, doorsOpen }),
-    [builder, project, wallMode, doorsOpen],
+    // modelVersion: real models arriving re-evaluate the cached items that use them
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [builder, project, wallMode, doorsOpen, modelVersion],
   );
 }
 
@@ -227,6 +234,7 @@ function ObjectView({
 
 /** All levels of the apartment, stacked at their elevations. */
 export function ModelScene() {
+  useFrame((s) => tickWater(s.clock.elapsedTime));
   const levels = useSceneModel();
   const project = useSceneProject();
   const overrides = project.materials;

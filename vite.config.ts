@@ -4,7 +4,22 @@ import react from '@vitejs/plugin-react';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createAiProxy } from './server/aiProxy';
+import { createPackHandler } from './server/packStatic';
+
+/** Serves the converted asset pack (`assets/pack`) under /pack on the dev and preview servers. */
+function assetPack(): Plugin {
+  const handler = createPackHandler(process.env.ASSETS_DIR ?? 'assets');
+  const mount = (server: {
+    middlewares: {
+      use: (fn: (req: IncomingMessage, res: ServerResponse, next: () => void) => void) => unknown;
+    };
+  }): void => {
+    server.middlewares.use((req, res, next) => (handler(req, res) ? undefined : next()));
+  };
+  return { name: 'duplex-asset-pack', configureServer: mount, configurePreviewServer: mount };
+}
 
 /** Mounts the local-LLM proxy (`POST /api/ai`) on the dev and preview servers. */
 function aiProxy(): Plugin {
@@ -28,6 +43,7 @@ export default defineConfig({
   plugins: [
     react(),
     aiProxy(),
+    assetPack(),
     VitePWA({
       // The user decides when to switch to a new version (nothing reloads under their feet mid-edit).
       registerType: 'prompt',

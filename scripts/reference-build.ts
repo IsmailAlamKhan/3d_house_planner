@@ -12,8 +12,9 @@
  *   --fidelity <file>   where to write the report (default: FIDELITY.md next to the spec)
  *   --no-fidelity       skip the report
  */
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
+import { ManifestSchema } from '../src/assets/manifest';
 import { buildProject, describeReport } from '../src/reference/build';
 import { fidelityMarkdown } from '../src/reference/fidelity';
 import { parseReferenceSpec } from '../src/reference/spec';
@@ -53,7 +54,14 @@ for (const d of result.report.designs) for (const w of d.warnings) console.log(`
 
 if (!has('no-fidelity')) {
   const out = flag('fidelity') ?? join(dirname(file), 'FIDELITY.md');
-  writeFileSync(out, fidelityMarkdown(spec, result), 'utf8');
+  // "Visual match": which items are drawn with a real model from the asset pack (assets/manifest.json), which are procedural
+  const manifestFile = join(process.env.ASSETS_DIR ?? 'assets', 'manifest.json');
+  const real = new Map<string, string>();
+  if (existsSync(manifestFile))
+    for (const a of ManifestSchema.parse(JSON.parse(readFileSync(manifestFile, 'utf8'))).assets)
+      if (a.kind === 'model')
+        real.set(a.catalogId, `${a.source.provider} ${a.name.replace(/ \(.*$/, '')}`);
+  writeFileSync(out, fidelityMarkdown(spec, result, undefined, real), 'utf8');
   console.log(`Fidelity report: ${out}`);
 }
 

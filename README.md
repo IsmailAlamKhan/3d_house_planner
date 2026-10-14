@@ -124,6 +124,10 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the module map, the data fl
 the project JSON is the single source of truth (meters and radians), every edit is one undoable `store.apply`, 3D
 meshes are generated from the model, and the AI only produces validated JSON that deterministic code turns into walls.
 
+### Real models, textures and sky (free CC0 asset pack)
+
+`docker compose up -d` also runs `assets-init`, which downloads about 300 MB of free (CC0) models, PBR textures and HDRI skies once and converts them (`npm run assets:download` does the same without Docker). Reload the page when it finishes; the villa then shows real models, textures and a photographic sky. Without the pack (or with *Real 3D models and textures* switched off under *Light & quality*) the built-in models are used. Sources and licences of every asset: [assets/LICENSES.md](assets/LICENSES.md). Frame rate on a real GPU: `npm run test:gpu`.
+
 ## Performance
 
 Measured on the stress project (2 levels, ~180 walls, ~300 items; see `src/perf/stress.test.ts`): first scene build

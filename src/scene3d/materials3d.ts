@@ -1,8 +1,10 @@
 import { DoubleSide, MeshStandardMaterial, type Plane } from 'three';
+import { packMapsFor, packTexturesVersion } from '../assets/textures';
 import { customTextureVersion, getTexture, resolveMaterial } from '../materials';
 import type { MaterialOverride } from '../model/types';
 import { registerClippable } from './clipping';
 import { applySkyMix, capAlbedo } from './skyMix';
+import { styleWater } from './water';
 
 const cache = new Map<string, MeshStandardMaterial>();
 
@@ -26,17 +28,22 @@ export function getMaterial(
   const key = outdoor ? rawKey.slice(0, -4) : rawKey;
   const o = overrides[key];
   // Uploaded textures arrive from the server after start-up: their materials are rebuilt when that list changes.
-  const id = `${key.startsWith('tex:') ? customTextureVersion() : ''}|${rawKey}|${o ? JSON.stringify(o) : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? `${flags.clip.constant}` : ''}|${flags.highlight ? 'h' : ''}`;
+  const id = `${key.startsWith('tex:') ? customTextureVersion() : ''}|${packTexturesVersion()}|${rawKey}|${o ? JSON.stringify(o) : ''}|${flags.ghost ? 'g' : ''}|${flags.clip ? `${flags.clip.constant}` : ''}|${flags.highlight ? 'h' : ''}`;
   let m = cache.get(id);
   if (!m) {
     const spec = resolveMaterial(key, overrides);
-    const map = getTexture(spec.def);
+    // A PBR texture set from the asset pack (when present and switched on) replaces the procedural texture.
+    const pbr = packMapsFor(spec.def.id);
+    const map = pbr?.map ?? getTexture(spec.def);
     const translucent = spec.opacity < 1 || flags.ghost;
     m = new MeshStandardMaterial({
       // A texture already carries the colour; only an explicit override tints it.
-      color: map ? (overrides[key]?.color ?? '#ffffff') : spec.color,
+      color: map ? (overrides[key]?.color ?? pbr?.tint ?? '#ffffff') : spec.color,
       map,
-      roughness: spec.roughness,
+      normalMap: pbr?.normalMap,
+      roughnessMap: pbr?.roughnessMap,
+      aoMap: pbr?.aoMap,
+      roughness: pbr?.roughnessMap ? 1 : spec.roughness,
       metalness: spec.metalness,
       transparent: translucent,
       opacity: flags.ghost ? Math.min(spec.opacity, 0.25) : spec.opacity,
@@ -46,6 +53,7 @@ export function getMaterial(
       emissiveIntensity: flags.highlight ? 0.6 : 0,
     });
     capAlbedo(m.color);
+    if (spec.def.id === 'water') styleWater(m);
     applySkyMix(m, outdoor);
     registerClippable(m, flags.clip);
     cache.set(id, m);

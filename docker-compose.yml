@@ -18,6 +18,8 @@ services:
       COMFYUI_URL: http://comfyui:8188
     volumes:
       - app-data:/data
+      # the CC0 model / texture / sky pack, filled by assets-init below (the app works without it, on built-in models)
+      - assets-pack:/assets/pack:ro
     depends_on:
       ollama:
         condition: service_healthy
@@ -60,6 +62,19 @@ services:
       - -c
       - ollama pull "${OLLAMA_MODEL:-qwen3:14b}" && ollama pull "${OLLAMA_VISION_MODEL:-qwen3-vl:8b-instruct}"
 
+  # Downloads the free CC0 asset pack (real 3D models, PBR textures, HDRI skies; about 300 MB, converted to compact files)
+  # once into the assets-pack volume and exits. The app already works while this runs, on its built-in models; reload
+  # the page when it is done. Licences: assets/LICENSES.md. Watch it with:  docker compose logs -f assets-init
+  assets-init:
+    build:
+      context: .
+      target: assets
+    image: duplex-designer-assets:local
+    restart: "no"
+    volumes:
+      - assets-pack:/app/assets/pack
+      - assets-cache:/app/assets/.cache
+
   # ── AI image enhancement (ComfyUI + Stable Diffusion XL + ControlNet), started by the same "docker compose up -d" ──
   # The first start downloads about 12 GB of models once (comfyui-init); until then the app says the image service is
   # still starting and everything else already works. Watch it with:  docker compose logs -f comfyui-init
@@ -92,5 +107,7 @@ services:
 
 volumes:
   app-data:
+  assets-pack:
+  assets-cache:
   ollama-data:
   comfyui-models:

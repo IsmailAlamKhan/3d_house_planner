@@ -27,5 +27,7 @@ export default defineConfig({
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    // The tests run on the built-in models (same pictures on every machine); the asset pack has its own tests.
+    env: { ASSETS_DIR: 'assets/none' },
   },
 });
