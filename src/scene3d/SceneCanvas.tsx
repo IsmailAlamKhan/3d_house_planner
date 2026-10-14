@@ -19,6 +19,8 @@ import { Minimap } from './camera/Minimap';
 import { SavedViewsStrip } from './camera/SavedViewsStrip';
 import { SectionRig } from './camera/SectionRig';
 import { WalkHud } from './camera/WalkHud';
+import { ReflectionProbes } from '../bake/ReflectionProbes';
+import { useBake } from '../bake/bakeStore';
 import { ExportBridge } from '../export/bridge';
 import { NotePins3D } from '../notes/NotePins3D';
 import { useExportFlags } from '../export/flags';
@@ -31,6 +33,12 @@ import { RenderDebugPanel } from '../debug/RenderDebugPanel';
 import { ContactBlobs } from './ContactBlobs';
 import { RoomLightButtons } from './RoomLightButtons';
 import { useUnderlayUi } from '../underlay/uiStore';
+
+/** A phone: a coarse pointer on a small screen. */
+const isPhone = (): boolean =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(pointer: coarse)').matches &&
+  Math.min(window.innerWidth, window.innerHeight) < 700;
 
 // Loaded only when High quality asks for it, keeping the postprocessing library out of the main bundle.
 
@@ -123,12 +131,14 @@ export function SceneCanvas() {
   // "Compare with reference" wants a clean picture: no light switches, toolbars or minimap on top of the render.
   const comparing = useUnderlayUi((s) => s.compareOpen);
   useCameraShortcuts();
+  // phones show the bake (cheap to display) and skip real-time shadows altogether
+  const bakedOnPhone = useBake((s) => !!s.applied) && isPhone();
   return (
     <div data-testid="scene-canvas" className="relative h-full w-full bg-slate-200">
       {/* Quality changes apply live (anti-aliasing is done by the render pipeline, not the GL context). */}
       <Canvas
         flat
-        shadows={q.shadowType}
+        shadows={bakedOnPhone ? false : q.shadowType}
         dpr={q.dpr}
         camera={{ position: [15, 14, 20], fov: 45, near: 0.1, far: 800 }}
         gl={{ localClippingEnabled: true, antialias: false }}
@@ -152,6 +162,7 @@ export function SceneCanvas() {
           />
         )}
         <ModelScene />
+        <ReflectionProbes quality={quality} />
         <ContactBlobs quality={quality} />
         <DropTarget />
         <SectionRig />

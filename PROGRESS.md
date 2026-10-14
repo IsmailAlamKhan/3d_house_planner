@@ -408,3 +408,38 @@ Target ≥ 45 fps at Medium: **met** with the real assets (fewer draw calls than
 - The glb is large (about 100 MB for the villa: embedded PNG textures per material). Fine on a LAN; a texture size cap per quality is a later optimisation.
 - Window light uses one area light per exterior window on top of the sky; their strength was tuned by eye.
 - The `blender` image was written and `docker compose --profile render config` validates, but Docker was not running here, so the container build was not run.
+
+## Prompt 22 — Baked Lighting: Walk Through the Villa Looking Like the Render — DONE (Docker image not built here)
+
+**What was built.** Lightmap baking through the Blender service: planar-chart lightmap UVs made in the browser (Low 8 / Medium 16 / High 32 texels per metre), a bake job (`POST /api/bake`, `docker/blender/bake.py`) that bakes the diffuse lighting of the static geometry per preset (Day, Dusk — Reference look, Night) with OpenImageDenoise, results stored per project + preset + revision, and a runtime that draws baked surfaces with `lightMap` on UV2 while furniture keeps real-time light. Box-projected reflection probes per level, real-time AO / window lights / lamp shadows off for baked surfaces, shadows off on phones, "Lighting out of date — Rebake" badge and an auto-rebake-when-idle option.
+
+- [x] UV2 for walls, floors, slabs, ceilings, roofs, ground, decks, pool basins (not glass, water, furniture); consistent texel density; one atlas
+- [x] Bake in Blender through the GPU queue; respects lamp on/off per preset and hides nothing that shades (ceilings and roofs are baked and cast shadows)
+- [x] Runtime: lightmaps in walkthrough and orbit with Realistic lighting; changed or unbaked parts fall back to real-time; probes; furniture dimmed to match
+- [x] Staleness badge, auto-rebake after 2 idle minutes, bakes survive reloads (stored on the server, listed per project)
+- [x] Tests: 16 unit tests (atlas, key, runtime), 7 server tests incl. headless Blender bakes, 3 Playwright tests with route mocks, GPU spec with `reference/compare-walkthrough.html`
+
+**Measured on the owner's PC (RTX 4060 Ti, Blender 4.2.23, OptiX), Reference Villa, Dusk.**
+
+| Quality | Texels / m | Atlas | Samples | Bake time |
+| --- | --- | --- | --- | --- |
+| Low | 8 | 2048 × 1024 | 128 | 6 s |
+| Medium | 16 | 2048 × 2048 | 256 | 41 s |
+| High | 32 | 4096 × 4096 | 512 | 321 s |
+
+Walkthrough with the Medium bake on, Medium quality: **60 fps** in the Living room, Master bedroom and Front gate (target ≥ 60 met; `test-results/gpu/bake-walkthrough-fps.json`). Side by side with the Studio render of the same camera: `reference/compare-walkthrough.html` (real-time | baked | studio, three saved views).
+
+**How it got there (bugs worth knowing).**
+- Baking 158 objects took 130 s however few samples were used: Cycles re-syncs the scene for every object. Joining them into one object brought Medium from minutes to 41 s.
+- The glTF importer flips V, so the bake was upside down against the app's UVs (rows are flipped back in `bake.py`).
+- Recalculating wall normals in Blender (a fix for the studio render) turned parts of the app's open wall meshes inside out, which baked as black triangles; it is no longer used for the bake.
+- three.js adds the environment's diffuse light through `iblIrradiance`, separately from ambient light: it has to be zeroed too or baked walls stay bright whatever the lightmap says.
+- Bakes of an earlier run were loaded in place of the new one (the villa is rebuilt with new part ids every run); the GPU spec now deletes the old bake and waits for the new key.
+
+**Limits and deviations.**
+- A small planar chart packer replaces xatlas (the repo's `xatlas-web` 0.1.0 does not load outside a browser; the shapes are flat). Charts are bounding rectangles, so about half the atlas is empty (fill 42–58 %).
+- One reflection probe per level (box = the footprint), not one per room; glass and water keep reflecting the sky. Furniture is dimmed globally (40 %) rather than blended per object, and has no baked contact shadows (the existing blob shadows stay).
+- Lightmaps are 8-bit sRGB with a stored scale (not KTX2 / float); very bright texels next to lamps clip.
+- The "Night" and "Day" presets were exercised by unit tests and the Dusk bake only; their bakes were not timed.
+- The `blender` image copies `bake.py` and `studio_common.py` but, like the studio render, was not built (Docker was not running here).
+- **Open test failures (set aside by the owner, to be run and fixed on request):** the last full `npm run test:e2e` had 74 passed, 4 failed, 4 not run. `e2e/lighting.spec.ts` "tiers: Low, Medium and High have the same brightness…" (0.737 against a bar of 0.761; it failed in the run after Prompt 20 too and is calibrated to the software renderer) and `e2e/shared.spec.ts` (needs the sync server) are the real ones; `e2e/custom.spec.ts` (texture upload) and `e2e/wizard.spec.ts` failed under load and pass when run alone. The materials test was fixed (the new bake quality select made its selector ambiguous). Unit tests (727), typecheck, lint and build pass.

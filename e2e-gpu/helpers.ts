@@ -185,3 +185,40 @@ export async function saveStudioBundle(
   writeFileSync(join(dir, 'sidecar.json'), JSON.stringify(sidecar, null, 1));
   return { glbBytes: glb.length, sidecar };
 }
+
+/** Builds the lighting-bake bundle (static geometry with lightmap UVs + lights) and writes it as scene.glb + sidecar.json + uv.bin. */
+export async function saveBakeBundle(
+  page: Page,
+  dir: string,
+  opts: { preset: string; quality: string },
+): Promise<{ glbBytes: number }> {
+  mkdirSync(dir, { recursive: true });
+  let body: Buffer | null = null;
+  await page.route('**/__save-bake', async (route) => {
+    body = route.request().postDataBuffer();
+    await route.fulfill({ status: 204 });
+  });
+  await page.evaluate(async (o) => {
+    const s = (
+      window as unknown as {
+        __duplex: {
+          studio: {
+            buildBakeBundle: (o: Record<string, unknown>) => Promise<unknown>;
+            packBakeBundle: (b: unknown) => Blob;
+          };
+        };
+      }
+    ).__duplex.studio;
+    const bundle = await s.buildBakeBundle(o);
+    await fetch('/__save-bake', { method: 'POST', body: s.packBakeBundle(bundle) });
+  }, opts);
+  const buf = body as Buffer | null;
+  if (!buf) throw new Error('the bake bundle was not produced');
+  const n = buf.readUInt32LE(0);
+  const m = buf.readUInt32LE(4 + n);
+  writeFileSync(join(dir, 'sidecar.json'), buf.subarray(4, 4 + n));
+  writeFileSync(join(dir, 'uv.bin'), buf.subarray(8 + n, 8 + n + m));
+  const glb = buf.subarray(8 + n + m);
+  writeFileSync(join(dir, 'scene.glb'), glb);
+  return { glbBytes: glb.length };
+}

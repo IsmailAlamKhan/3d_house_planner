@@ -30,6 +30,7 @@ import { effectiveLightStyle, useSceneStore } from './sceneStore';
 import { usePresent } from '../present/presentStore';
 import { debugRenderEnabled, useDebug } from '../debug/debugStore';
 import { setIndoorSky } from './skyMix';
+import { useBake } from '../bake/bakeStore';
 import { PackSky, useSkyShown } from './PackSky';
 
 // Area lights need their lookup tables once, before the first material is compiled.
@@ -37,6 +38,9 @@ RectAreaLightUniformsLib.init();
 
 /** Scene units for lamps: a 1800 lm ceiling light lights a room about as strongly as daylight through a window. */
 export const LAMP_GAIN = 0.05;
+
+/** Real-time light left for furniture when surfaces are baked: the baked light is physically scaled, the live lights are not, so the furniture is dimmed to look as bright as its surroundings. */
+const ITEM_LIGHT_WHEN_BAKED = 0.4;
 
 /** The lighting style in force (realistic or design) for the current view. */
 export function useLightStyle(): 'realistic' | 'design' {
@@ -143,10 +147,12 @@ export function SceneLights({ quality }: { quality: Quality }) {
       pmrem.dispose();
     };
   }, [get, q.environment]);
+  // With baked lighting the surfaces carry the light; what is left is for the furniture, which is dimmed to match
+  const bakedLight = useBake((s) => !!s.applied) ? ITEM_LIGHT_WHEN_BAKED : 1;
   useEffect(() => {
     get().scene.environmentIntensity =
-      q.environment && (!dbg || debug.environment) ? sky.environment : 0;
-  }, [get, q.environment, sky.environment, dbg, debug.environment]);
+      q.environment && (!dbg || debug.environment) ? sky.environment * bakedLight : 0;
+  }, [get, q.environment, sky.environment, dbg, debug.environment, bakedLight]);
 
   const dist = radius * 3;
   return (
@@ -154,7 +160,7 @@ export function SceneLights({ quality }: { quality: Quality }) {
       <PackSky />
       {!transparent && <SkyDome top={sky.top} horizon={sky.horizon} ground={sky.ground} />}
       <hemisphereLight
-        args={[sky.top, sky.ground, sky.ambient]}
+        args={[sky.top, sky.ground, sky.ambient * bakedLight]}
         visible={!dbg || debug.hemisphere}
       />
       <object3D ref={targetRef} position={[center.x, 0, center.z]} />
@@ -163,7 +169,8 @@ export function SceneLights({ quality }: { quality: Quality }) {
         visible={!dbg || debug.sun}
         color={sun.color}
         intensity={
-          style === 'realistic' && !sunVisible(lighting) ? sun.intensity * 0.3 : sun.intensity
+          (style === 'realistic' && !sunVisible(lighting) ? sun.intensity * 0.3 : sun.intensity) *
+          bakedLight
         }
         position={[
           center.x + sun.direction[0] * dist,
@@ -244,6 +251,8 @@ export function InteriorLights({ quality }: { quality: Quality }) {
   });
 
   const lampsOn = useDebug((s) => !debugRenderEnabled() || s.flags.interiorLights);
+  // baked surfaces ignore the lamps: no shadow maps from them, and fewer of them
+  const baked = useBake((s) => !!s.applied);
   const lamps = useMemo<Lamp[]>(() => {
     if (!lampsOn) return [];
     const [fx, fy, fz] = focus.split(',').map(Number) as [number, number, number];
@@ -272,23 +281,24 @@ export function InteriorLights({ quality }: { quality: Quality }) {
         Math.hypot(a.position[0] - fx, a.position[1] - fy, a.position[2] - fz) -
         Math.hypot(b.position[0] - fx, b.position[1] - fy, b.position[2] - fz),
     );
-    return out.slice(0, q.maxLights);
-  }, [project, lighting, levelFilter, activeLevelId, focus, q.maxLights, lampsOn]);
+    // with baked lighting the lamps only light the furniture: half of them are plenty
+    return out.slice(0, baked ? Math.ceil(q.maxLights / 2) : q.maxLights);
+  }, [project, lighting, levelFilter, activeLevelId, focus, q.maxLights, lampsOn, baked]);
 
   return (
     <>
       {lamps.map((l, i) =>
         l.beam ? (
-          <SpotLamp key={l.id} lamp={l} shadow={i < q.shadowLights} />
+          <SpotLamp key={l.id} lamp={l} shadow={!baked && i < q.shadowLights} baked={baked} />
         ) : (
           <pointLight
             key={l.id}
             position={l.position}
             color={l.color}
-            intensity={l.intensity}
+            intensity={l.intensity * (baked ? ITEM_LIGHT_WHEN_BAKED : 1)}
             distance={12}
             decay={2}
-            castShadow={i < q.shadowLights}
+            castShadow={!baked && i < q.shadowLights}
             shadow-mapSize={[512, 512]}
             shadow-bias={-0.002}
           />
@@ -298,7 +308,7 @@ export function InteriorLights({ quality }: { quality: Quality }) {
   );
 }
 
-function SpotLamp({ lamp, shadow }: { lamp: Lamp; shadow: boolean }) {
+function SpotLamp({ lamp, shadow, baked }: { lamp: Lamp; shadow: boolean; baked: boolean }) {
   const ref = useRef<import('three').SpotLight>(null);
   useLayoutEffect(() => {
     const light = ref.current;
@@ -311,7 +321,7 @@ function SpotLamp({ lamp, shadow }: { lamp: Lamp; shadow: boolean }) {
       ref={ref}
       position={lamp.position}
       color={lamp.color}
-      intensity={lamp.intensity}
+      intensity={lamp.intensity * (baked ? ITEM_LIGHT_WHEN_BAKED : 1)}
       angle={((lamp.beam ?? 55) * Math.PI) / 360}
       penumbra={0.45}
       distance={12}
@@ -410,7 +420,9 @@ export function WindowLights({ quality }: { quality: Quality }) {
     [lighting, compass],
   );
   const enabled = useDebug((s) => !debugRenderEnabled() || s.flags.windowLights);
-  if (style !== 'realistic' || !specs.length || !enabled) return null;
+  // baked surfaces already hold the daylight through the windows
+  const baked = useBake((s) => !!s.applied);
+  if (style !== 'realistic' || !specs.length || !enabled || baked) return null;
   const day = daylightLevel(lighting, sun);
   const color = new Color('#cfe0ff').lerp(new Color(sun.color), 0.25).getStyle();
   return (

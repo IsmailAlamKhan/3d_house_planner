@@ -1,4 +1,7 @@
 import { captureScene } from '../export/bridge';
+import { buildBakeBundle, packBakeBundle } from '../bake/bundle';
+import { useBake } from '../bake/bakeStore';
+import { bakeStats, setBakeGain } from '../bake/runtime';
 import { buildStudioBundle, packBundle } from '../studio/bundle';
 import { applyReferenceLook } from '../studio/referenceLook';
 import { withScene } from '../export/scene';
@@ -68,11 +71,32 @@ export function worldToScreen(x: number, y: number, z: number): { x: number; y: 
 }
 
 /** The test hook: only for end-to-end and visual tests (never used by the app itself). */
+/** A clean picture of the 3D view as it is now (no toolbars), as a base64 PNG. */
+async function captureView(): Promise<string> {
+  const shot = await withScene(() =>
+    captureScene({ scale: 1, format: 'png', transparent: false, presentation: true, fx: true }),
+  );
+  const buf = new Uint8Array(await shot.blob.arrayBuffer());
+  let s = '';
+  for (let i = 0; i < buf.length; i += 0x8000)
+    s += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+
 export function installTestHook(): void {
   Object.assign((window as unknown as { __duplex: object }).__duplex, {
-    stores: { model: useModel, scene: useSceneStore, camera: useCamera, present: usePresent },
+    stores: {
+      model: useModel,
+      scene: useSceneStore,
+      camera: useCamera,
+      present: usePresent,
+      bake: useBake,
+    },
     measureLuminance,
+    captureView,
+    setBakeGain,
+    bakeStats,
     worldToScreen,
-    studio: { buildStudioBundle, packBundle, applyReferenceLook },
+    studio: { buildStudioBundle, packBundle, applyReferenceLook, buildBakeBundle, packBakeBundle },
   });
 }

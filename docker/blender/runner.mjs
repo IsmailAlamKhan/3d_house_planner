@@ -35,7 +35,7 @@ print('HEALTH ' + json.dumps({'version': bpy.app.version_string, 'device': found
 
 export function createRunner({
   blender,
-  script = join(HERE, 'render.py'),
+  scripts = { render: join(HERE, 'render.py'), bake: join(HERE, 'bake.py') },
   jobsDir,
   assetsDir = 'assets',
   spawnFn = spawn,
@@ -82,8 +82,8 @@ export function createRunner({
     return health;
   }
 
-  /** Starts a render of the bundle already written to `<jobsDir>/<id>/bundle`. */
-  function start(id, quality) {
+  /** Starts a job (`render` or `bake`) on the bundle already written to `<jobsDir>/<id>/bundle`. */
+  function start(id, quality, kind = 'render') {
     const dir = resolve(jobsDir, id); // absolute: Blender's working folder is not ours
     const job = {
       id,
@@ -100,7 +100,7 @@ export function createRunner({
         '-b',
         '--factory-startup',
         '-P',
-        script,
+        scripts[kind],
         '--',
         join(dir, 'bundle'),
         join(dir, 'out'),
@@ -138,7 +138,9 @@ export function createRunner({
       child.on('close', (code) => {
         job.child = null;
         if (job.status === 'cancelled') return resolve(job);
-        const ok = code === 0 && existsSync(join(dir, 'out', 'beauty.png'));
+        const ok =
+          code === 0 &&
+          existsSync(join(dir, 'out', kind === 'bake' ? 'lightmap.png' : 'beauty.png'));
         job.status = ok ? 'done' : 'error';
         if (!ok) {
           const line = tail

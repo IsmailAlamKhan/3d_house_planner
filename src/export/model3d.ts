@@ -25,6 +25,10 @@ export interface Model3dOptions {
   cutHeight?: number;
   /** Levels drawn; the slabs, ceilings and roofs of the others stay (they still cast shadows) but nothing else. */
   visibleLevelIds?: ReadonlySet<string>;
+  /** Lightmap UV geometry by part id: those parts are exported with it and flagged `bake` (the lighting bake). */
+  lightmap?: ReadonlyMap<string, BufferGeometry>;
+  /** Leave furniture and other movable items out (they get real-time light, not baked light). */
+  skipItems?: boolean;
   /** Mark every mesh with its layer, entity and material ids (glTF `extras`) for the studio renderer. */
   meta?: boolean;
   /** Use the procedural textures (needs a browser canvas). Off = flat colours, which also works without a DOM. */
@@ -103,6 +107,7 @@ export function buildExportGroup(
       ...(hidden && { cameraHidden: true }),
       // fixtures hanging from the ceiling are cut away with it
       ...(item && isCeilingMounted(item) && { ceilingMounted: true }),
+      ...(!isObjectPart(part) && opts.lightmap?.has(part.id) && { bake: true }),
     };
   };
 
@@ -115,6 +120,7 @@ export function buildExportGroup(
     for (const part of parts as AnyPart[]) {
       if (!shown && (isObjectPart(part) || !['slab', 'ceiling', 'roof'].includes(part.layer)))
         continue;
+      if (opts.skipItems && part.entity?.type === 'item') continue;
       if (isObjectPart(part)) {
         const o = prepareObject(part.object, { highlight: false });
         o.name = part.id;
@@ -123,7 +129,10 @@ export function buildExportGroup(
         continue;
       }
       const mats = part.materials.map(material);
-      const mesh = new Mesh(part.geometry, mats.length === 1 ? mats[0]! : mats);
+      const mesh = new Mesh(
+        opts.lightmap?.get(part.id) ?? part.geometry,
+        mats.length === 1 ? mats[0]! : mats,
+      );
       mesh.name = part.id;
       tag(mesh, part, !shown);
       g.add(mesh);
@@ -137,7 +146,10 @@ export function buildExportGroup(
     for (const part of levels.site as AnyPart[]) {
       if (isObjectPart(part)) continue;
       const mats = part.materials.map(material);
-      const mesh = new Mesh(part.geometry, mats.length === 1 ? mats[0]! : mats);
+      const mesh = new Mesh(
+        opts.lightmap?.get(part.id) ?? part.geometry,
+        mats.length === 1 ? mats[0]! : mats,
+      );
       mesh.name = part.id;
       tag(mesh, part);
       g.add(mesh);

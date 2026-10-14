@@ -3,6 +3,8 @@ import { type ThreeEvent, useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { EdgesGeometry, Plane, Vector3 } from 'three';
 import { usePack } from '../assets/pack';
+import { useBake } from '../bake/bakeStore';
+import { bakedGeometry, bakedMaterial } from '../bake/runtime';
 import { tickWater } from './water';
 import { useCustomAssets } from '../custom/store';
 import { t } from '../i18n';
@@ -91,22 +93,31 @@ function focusOnDoubleClick(entity: NonNullable<Part['entity']>) {
 
 interface PartMeshProps {
   part: Part;
+  /** The level the part belongs to (its reflection probe); none for the plot. */
+  levelId?: string;
   overrides: Record<string, MaterialOverride>;
   ghost: boolean;
   clip: Plane | undefined;
   selected: boolean;
 }
 
-function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
+function PartMesh({ part, levelId, overrides, ghost, clip, selected }: PartMeshProps) {
+  // baked lighting: the part's lightmap geometry when it has a valid bake (re-evaluated when the bake changes)
+  const bakeVersion = useBake((s) => s.version);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const baked = useMemo(() => (ghost ? null : bakedGeometry(part)), [part, ghost, bakeVersion]);
   const materials = useMemo(() => {
     const flags = {
       ghost,
       clip: part.clipToCut ? clip : undefined,
       highlight: selected,
     };
-    const list = part.materials.map((k) => getMaterial(k, overrides, flags));
+    const list = part.materials.map((k) => {
+      const base = getMaterial(k, overrides, flags);
+      return baked ? bakedMaterial(base, levelId) : base;
+    });
     return list.length === 1 ? list[0]! : list;
-  }, [part, overrides, ghost, clip, selected]);
+  }, [part, levelId, overrides, ghost, clip, selected, baked]);
   const edges = useMemo(
     () => (selected ? new EdgesGeometry(part.geometry, 25) : null),
     [selected, part.geometry],
@@ -128,10 +139,10 @@ function PartMesh({ part, overrides, ghost, clip, selected }: PartMeshProps) {
   return (
     <>
       <mesh
-        geometry={part.geometry}
+        geometry={baked ?? part.geometry}
         material={materials}
         castShadow={!translucent && part.layer !== 'floor'}
-        receiveShadow={!translucent}
+        receiveShadow={!translucent && !baked}
         onClick={onClick}
         onDoubleClick={onDoubleClick}
         userData={{ entity: part.entity }}
@@ -344,6 +355,7 @@ export function ModelScene() {
                 <PartMesh
                   key={p.id}
                   part={p}
+                  levelId={level.id}
                   overrides={overrides}
                   ghost={ghostOf(p, level.id)}
                   clip={clips.get(level.id)}

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Walkthrough, baked lighting and the Studio render</title>
+<style>
+  body{font:14px system-ui,sans-serif;margin:16px;background:#0f172a;color:#e2e8f0}
+  h1{font-size:18px} p{max-width:70ch;color:#94a3b8}
+  table{border-collapse:collapse;width:100%} th,td{padding:4px;vertical-align:top}
+  th{writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;color:#94a3b8;width:28px}
+  thead th{writing-mode:horizontal-tb;transform:none;text-align:center;width:auto}
+  img{width:100%;height:auto;border-radius:4px;display:block}
+</style></head><body>
+<h1>Reference Villa, Dusk: walkthrough views</h1>
+<p>Left: real-time lighting (what the walkthrough looked like before). Middle: the walkthrough with the Dusk lighting bake
+(Medium, Blender Cycles). Right: the Studio render (Blender, Standard quality) from exactly the same camera.
+Made by <code>npm run test:gpu</code> (e2e-gpu/bake.gpu.spec.ts).</p>
+<table><thead><tr><th></th><th>Real-time</th><th>Baked</th><th>Studio render</th></tr></thead><tbody>
+<tr><th>Living room</th><td><img src="walkthrough/living-room-realtime.png" alt="Living room, realtime"></td><td><img src="walkthrough/living-room-baked.png" alt="Living room, baked"></td><td><img src="walkthrough/living-room-studio.png" alt="Living room, studio"></td></tr>
+<tr><th>Master bedroom</th><td><img src="walkthrough/master-bedroom-realtime.png" alt="Master bedroom, realtime"></td><td><img src="walkthrough/master-bedroom-baked.png" alt="Master bedroom, baked"></td><td><img src="walkthrough/master-bedroom-studio.png" alt="Master bedroom, studio"></td></tr>
+<tr><th>Front gate</th><td><img src="walkthrough/front-gate-realtime.png" alt="Front gate, realtime"></td><td><img src="walkthrough/front-gate-baked.png" alt="Front gate, baked"></td><td><img src="walkthrough/front-gate-studio.png" alt="Front gate, studio"></td></tr>
+</tbody></table></body></html>

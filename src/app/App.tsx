@@ -5,6 +5,7 @@ import { startAutosave } from '../persistence/autosave';
 import { pushOpenProject, startSync } from '../persistence/syncStore';
 import { SyncConflictDialog } from './SyncConflictDialog';
 import { usePack } from '../assets/pack';
+import { BakeRuntime } from '../bake/BakeRuntime';
 import { useCustomAssets } from '../custom/store';
 import { bootstrapProject } from '../persistence/bootstrap';
 import { PlanCanvas } from '../plan2d/PlanCanvas';
@@ -116,6 +117,7 @@ export function App() {
       <PwaBanner />
       <SyncConflictDialog />
       <Toaster />
+      <BakeRuntime />
       <Drawer
         side="left"
         open={leftDrawerOpen}

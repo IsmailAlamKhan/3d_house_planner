@@ -17,6 +17,7 @@ import { usePresent } from '../present/presentStore';
 import { RenderInfoProbe } from '../debug/RenderDebugPanel';
 import { debugRenderEnabled, useDebug } from '../debug/debugStore';
 import { QUALITY, type Quality } from './quality';
+import { useBake } from '../bake/bakeStore';
 import { useSceneStore } from './sceneStore';
 
 /** Scales the linear image by 2^EV: the one exposure control, applied before tone mapping. */
@@ -55,12 +56,14 @@ export default function RenderPipeline({ quality }: { quality: Quality }) {
   const dbg = debugRenderEnabled();
   const flags = useDebug((s) => s.flags);
   const off = (k: keyof typeof flags) => dbg && !flags[k];
+  // baked surfaces carry their own occlusion in the lightmap
+  const baked = useBake((s) => !!s.applied);
   useEffect(() => {
     setComposer(ref.current);
     return () => setComposer(null);
   });
   const children = [
-    q.ao !== 'none' && !off('ao') && (
+    q.ao !== 'none' && !off('ao') && !baked && (
       <N8AO
         key="ao"
         halfRes={q.ao === 'half'}

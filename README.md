@@ -132,6 +132,10 @@ meshes are generated from the model, and the AI only produces validated JSON tha
 
 For pictures like the reference, *Present → Studio render (Blender)* renders the design offline with Blender Cycles on the NVIDIA GPU (OptiX): Preview, Standard (about 1.5 minutes for the reference villa on an RTX 4060 Ti) or Poster, with a progress bar, cancel and a gallery. *Reference look* reproduces the dusk mood of the reference picture in one click. Turn it on with `docker compose --profile render up -d`, or, running the server on Windows, install Blender 4.2 and set `BLENDER_PATH` in `.env`. Without it the app works as before and the dialog says how to enable it.
 
+### Baked lighting (optional, needs the Blender service)
+
+*Light & quality → Baked lighting* bakes the Day, Dusk or Night lighting of the building into lightmaps with Blender (Low about 6 s, Medium about 40 s, High about 5 minutes for the reference villa on an RTX 4060 Ti). The walkthrough then looks like the studio render (warm pools of light, soft bounce light) at 60 fps; furniture keeps live lighting. Editing the design marks the bake out of date ("Lighting out of date — Rebake"); there is an option to rebake after 2 idle minutes.
+
 ## Performance
 
 Measured on the stress project (2 levels, ~180 walls, ~300 items; see `src/perf/stress.test.ts`): first scene build

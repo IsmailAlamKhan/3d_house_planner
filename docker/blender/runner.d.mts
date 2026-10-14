@@ -13,13 +13,17 @@ export interface RunnerJob {
 }
 export interface Runner {
   check(force?: boolean): Promise<RunnerHealth>;
-  start(id: string, quality: string): { job: RunnerJob; done: Promise<RunnerJob> };
+  start(
+    id: string,
+    quality: string,
+    kind?: 'render' | 'bake',
+  ): { job: RunnerJob; done: Promise<RunnerJob> };
   cancel(id: string): boolean;
   info(id: string): RunnerJob | null;
 }
 export function createRunner(opts: {
   blender: string;
-  script?: string;
+  scripts?: { render: string; bake: string };
   jobsDir: string;
   assetsDir?: string;
   spawnFn?: unknown;

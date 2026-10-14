@@ -18,7 +18,7 @@ RUN curl -fsSL -o /tmp/blender.tar.xz "https://download.blender.org/release/Blen
 # Node only for the runner (a dependency-free ES module)
 COPY --from=node /usr/local/bin/node /usr/local/bin/node
 WORKDIR /opt/runner
-COPY docker/blender/runner.mjs docker/blender/render.py ./
+COPY docker/blender/runner.mjs docker/blender/render.py docker/blender/bake.py docker/blender/studio_common.py ./
 
 # OptiX / CUDA come from the host driver through the NVIDIA container runtime
 ENV NVIDIA_VISIBLE_DEVICES=all NVIDIA_DRIVER_CAPABILITIES=compute,graphics,utility \

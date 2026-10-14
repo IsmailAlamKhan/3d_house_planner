@@ -105,7 +105,7 @@ test('3D light & quality panel: presets, time of day, compass and quality', asyn
   for (let i = 0; i < 5; i++) await compass.press('ArrowRight');
   await compass.press('Tab'); // release = commit to the project
   // (Software GL renders slowly, so leave the 3D view before reading the model back.)
-  await panel.getByRole('combobox').selectOption('low');
+  await panel.getByRole('combobox', { name: 'Graphics quality' }).selectOption('low');
   await panel.getByRole('checkbox', { name: 'Show frame rate' }).check();
   await expect(panel.getByText(/\d+ fps/)).toBeVisible();
   await page.getByRole('button', { name: '2D', exact: true }).click();

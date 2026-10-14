@@ -16,3 +16,4 @@ backups
 /assets/.cache/
 /assets/pack/
 /tools/
+__pycache__/

@@ -1,6 +1,7 @@
 import { Sun } from 'lucide-react';
 import { useState } from 'react';
 import { usePack } from '../assets/pack';
+import { BakeSection } from '../bake/BakeSection';
 import { useLightStyle } from './SceneLights';
 import { useT } from '../i18n';
 import { useModel } from '../model/store';
@@ -320,6 +321,7 @@ export function LightingPanel() {
               onChange={(e) => usePack.getState().setEnabled(e.target.checked)}
             />
           </label>
+          <BakeSection />
         </div>
       )}
     </div>
