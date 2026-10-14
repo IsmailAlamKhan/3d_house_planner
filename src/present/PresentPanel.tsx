@@ -9,7 +9,10 @@ import { autoDecorate } from './decorate';
 import type { LabelFont, LabelMode } from './labels';
 import { usePresent } from './presentStore';
 import { renderPresentation, exportPresentation } from './render';
+import { debugRenderEnabled } from '../debug/debugStore';
 import { EnhanceDialog } from '../render/EnhanceDialog';
+import { StudioDialog } from '../studio/StudioDialog';
+import { useStudio } from '../studio/studioStore';
 import { useEnhance } from '../render/enhanceStore';
 
 const chip = (on: boolean) =>
@@ -294,58 +297,72 @@ export function PresentPanel() {
               </div>
               <div role="group" aria-label={t('present.still')} className="space-y-1">
                 <p className="text-xs font-medium text-slate-500">{t('present.still')}</p>
-                <label className="flex items-center justify-between gap-2 text-xs">
-                  {t('present.samples')}
-                  <input
-                    type="number"
-                    min={10}
-                    max={2000}
-                    step={10}
-                    className="w-20 rounded border border-slate-300 px-1"
-                    value={pathTrace.target}
-                    disabled={pathTrace.running}
-                    onChange={(e) =>
-                      present.setPathTrace({ target: Math.max(10, Number(e.target.value) || 200) })
-                    }
-                  />
-                </label>
-                {pathTrace.running ? (
-                  <>
-                    <progress
-                      className="w-full"
-                      data-testid="present-progress"
-                      max={pathTrace.target}
-                      value={pathTrace.samples}
+                <button
+                  className={`${chip(false)} w-full`}
+                  data-testid="present-studio"
+                  onClick={() => useStudio.getState().setOpen(true)}
+                >
+                  {t('studio.open')}
+                </button>
+              </div>
+              {debugRenderEnabled() && (
+                <div role="group" aria-label={t('present.experimental')} className="space-y-1">
+                  <p className="text-xs font-medium text-slate-500">{t('present.experimental')}</p>
+                  <label className="flex items-center justify-between gap-2 text-xs">
+                    {t('present.samples')}
+                    <input
+                      type="number"
+                      min={10}
+                      max={2000}
+                      step={10}
+                      className="w-20 rounded border border-slate-300 px-1"
+                      value={pathTrace.target}
+                      disabled={pathTrace.running}
+                      onChange={(e) =>
+                        present.setPathTrace({
+                          target: Math.max(10, Number(e.target.value) || 200),
+                        })
+                      }
                     />
-                    <p className="text-xs tabular-nums" data-testid="present-samples">
-                      {t('present.sampling')
-                        .replace('{n}', String(pathTrace.samples))
-                        .replace('{max}', String(pathTrace.target))}
-                    </p>
+                  </label>
+                  {pathTrace.running ? (
+                    <>
+                      <progress
+                        className="w-full"
+                        data-testid="present-progress"
+                        max={pathTrace.target}
+                        value={pathTrace.samples}
+                      />
+                      <p className="text-xs tabular-nums" data-testid="present-samples">
+                        {t('present.sampling')
+                          .replace('{n}', String(pathTrace.samples))
+                          .replace('{max}', String(pathTrace.target))}
+                      </p>
+                      <button
+                        className={`${chip(false)} w-full`}
+                        data-testid="present-cancel"
+                        onClick={() => abort.current?.abort()}
+                      >
+                        {t('present.cancel')}
+                      </button>
+                    </>
+                  ) : (
                     <button
                       className={`${chip(false)} w-full`}
-                      data-testid="present-cancel"
-                      onClick={() => abort.current?.abort()}
+                      data-testid="present-still"
+                      disabled={busy}
+                      onClick={() => void still()}
                     >
-                      {t('present.cancel')}
+                      {t('present.highQuality')}
                     </button>
-                  </>
-                ) : (
-                  <button
-                    className={`${chip(false)} w-full`}
-                    data-testid="present-still"
-                    disabled={busy}
-                    onClick={() => void still()}
-                  >
-                    {t('present.highQuality')}
-                  </button>
-                )}
-                {pathTrace.fallback && (
-                  <p role="status" className="text-xs text-amber-700">
-                    {t('present.stillFallback')}
-                  </p>
-                )}
-              </div>
+                  )}
+                  {pathTrace.fallback && (
+                    <p role="status" className="text-xs text-amber-700">
+                      {t('present.stillFallback')}
+                    </p>
+                  )}
+                </div>
+              )}
               <button
                 className={`${chip(false)} w-full`}
                 data-testid="present-enhance"
@@ -366,6 +383,7 @@ export function PresentPanel() {
         </div>
       )}
       <EnhanceDialog />
+      <StudioDialog />
     </div>
   );
 }

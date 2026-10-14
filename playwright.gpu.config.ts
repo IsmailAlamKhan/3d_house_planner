@@ -1,4 +1,9 @@
+import { existsSync } from 'node:fs';
 import { defineConfig } from '@playwright/test';
+
+// Blender for the studio render tests: BLENDER_PATH, or the portable copy in tools/ (git-ignored).
+const PORTABLE = 'tools/blender-4.2.23-windows-x64/blender.exe';
+const blender = process.env.BLENDER_PATH ?? (existsSync(PORTABLE) ? PORTABLE : '');
 
 /**
  * The GPU harness (`npm run test:gpu`): the same app, but Chromium uses the real graphics card (ANGLE → Direct3D 11)
@@ -16,19 +21,38 @@ export default defineConfig({
     baseURL: 'http://localhost:4175',
     viewport: { width: 1600, height: 900 },
     launchOptions: {
-      args: ['--enable-gpu', '--ignore-gpu-blocklist', '--use-gl=angle', '--use-angle=d3d11', '--enable-unsafe-webgpu'],
+      args: [
+        '--enable-gpu',
+        '--ignore-gpu-blocklist',
+        '--use-gl=angle',
+        '--use-angle=d3d11',
+        '--enable-unsafe-webgpu',
+      ],
     },
     storageState: {
       cookies: [],
       origins: [
-        { origin: 'http://localhost:4175', localStorage: [{ name: 'duplex-designer:prefs', value: JSON.stringify({ tourSeen: true }) }] },
+        {
+          origin: 'http://localhost:4175',
+          localStorage: [
+            { name: 'duplex-designer:prefs', value: JSON.stringify({ tourSeen: true }) },
+          ],
+        },
       ],
     },
   },
   webServer: {
-    command: 'npm run build && npm run preview -- --port 4175 --strictPort',
+    // the real app server (static files, /pack, /api/studio), not the preview server: the studio render needs its API
+    command: 'npm run build && npm run server',
     url: 'http://localhost:4175',
     reuseExistingServer: true,
     timeout: 300_000,
+    env: {
+      PORT: '4175',
+      HOST: '127.0.0.1',
+      DATA_DIR: 'test-results/gpu-data',
+      ASSETS_DIR: 'assets',
+      BLENDER_PATH: blender,
+    },
   },
 });

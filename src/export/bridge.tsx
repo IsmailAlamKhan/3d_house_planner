@@ -2,7 +2,7 @@ import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import type { Vec3 } from '../scene3d/camera/views';
-import { Matrix4 } from 'three';
+import { Matrix4, type OrthographicCamera, type PerspectiveCamera } from 'three';
 import { getComposer } from '../present/fxBridge';
 import { type RenderPass, applyPass } from '../present/passes';
 import { type PathTraceOptions, pathTraceInto } from '../present/pathTrace';
@@ -44,6 +44,22 @@ export interface CaptureResult {
 type CaptureFn = (o: CaptureOptions) => Promise<CaptureResult>;
 let current: CaptureFn | null = null;
 
+/** The live camera as the studio renderer needs it (world matrix, projection kind, field of view / view height). */
+export interface CameraInfo {
+  matrixWorld: number[];
+  kind: 'perspective' | 'ortho';
+  fov: number;
+  orthoHeight?: number;
+  near: number;
+  far: number;
+  /** Width / height of the 3D view. */
+  aspect: number;
+}
+let cameraInfo: (() => CameraInfo) | null = null;
+
+/** The camera of the 3D view right now, or null when no 3D view is open. */
+export const describeCamera = (): CameraInfo | null => cameraInfo?.() ?? null;
+
 /** True while a 3D view is mounted and can be photographed. */
 export const hasScene = (): boolean => current !== null;
 
@@ -72,6 +88,21 @@ const toBlob = (canvas: HTMLCanvasElement, type: string, quality?: number) =>
 export function ExportBridge() {
   const get = useThree((s) => s.get);
   useEffect(() => {
+    cameraInfo = () => {
+      const { camera, size } = get();
+      camera.updateMatrixWorld();
+      const ortho = camera as OrthographicCamera;
+      const isOrtho = 'isOrthographicCamera' in camera;
+      return {
+        matrixWorld: camera.matrixWorld.toArray(),
+        kind: isOrtho ? 'ortho' : 'perspective',
+        fov: isOrtho ? 45 : (camera as PerspectiveCamera).fov,
+        orthoHeight: isOrtho ? (ortho.top - ortho.bottom) / ortho.zoom : undefined,
+        near: camera.near,
+        far: camera.far,
+        aspect: size.width / Math.max(size.height, 1),
+      };
+    };
     current = async (o) => {
       const flags = useExportFlags.getState();
       const before = { presentation: flags.presentation, transparent: flags.transparent };
@@ -152,6 +183,7 @@ export function ExportBridge() {
     };
     return () => {
       current = null;
+      cameraInfo = null;
     };
   }, [get]);
   return null;

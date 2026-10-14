@@ -38,11 +38,11 @@ test('presentation: a labelled dusk cutaway exported at 2× in three clicks', as
   expect(errors).toEqual([]);
 });
 
-test('presentation: the high-quality still reports progress and can be cancelled', async ({
+test('presentation: the experimental browser path tracer (?debug=render) reports progress and can be cancelled', async ({
   page,
 }) => {
   test.setTimeout(240_000);
-  await page.goto('/');
+  await page.goto('/?debug=render');
   await page.getByRole('button', { name: '3D', exact: true }).click();
   await page.getByTestId('present-button').click();
   await page.getByTestId('present-cutaway-34').click();

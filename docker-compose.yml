@@ -16,6 +16,8 @@ services:
       APP_PASSWORD: ${APP_PASSWORD:-}
       # AI image enhancement ("Enhance with AI"): ComfyUI below, on the internal network only.
       COMFYUI_URL: http://comfyui:8188
+      # Studio render (Blender Cycles): the `blender` service below, started with  docker compose --profile render up -d
+      BLENDER_URL: http://blender:9000
     volumes:
       - app-data:/data
       # the CC0 model / texture / sky pack, filled by assets-init below (the app works without it, on built-in models)
@@ -89,6 +91,27 @@ services:
       - comfyui-models:/models
     # No depends_on: the container starts at once and waits for the models itself (docker/comfyui/start.sh), so
     # "docker compose up -d" returns immediately even on the first start.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # ── Studio render: Blender 4.2 LTS + Cycles on the GPU (OptiX), started by  docker compose --profile render up -d ──
+  # Not part of a plain "docker compose up -d": without it the app works and explains how to turn Studio render on.
+  # No "ports": reachable only from the app. It shares the app's data folder (bundles and results) and the asset pack (HDRI skies).
+  blender:
+    profiles: ["render"]
+    build:
+      context: .
+      dockerfile: docker/blender/Dockerfile
+    image: duplex-designer-blender:local
+    restart: unless-stopped
+    volumes:
+      - app-data:/data
+      - assets-pack:/assets/pack:ro
     deploy:
       resources:
         reservations:

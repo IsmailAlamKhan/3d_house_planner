@@ -146,3 +146,42 @@ export function drawStats(page: Page, frames = 30): Promise<{ calls: number; tri
     frames,
   );
 }
+
+/** Builds the studio bundle in the page (Reference look when asked) and writes `scene.glb` + `sidecar.json` into `dir`. */
+export async function saveStudioBundle(
+  page: Page,
+  dir: string,
+  opts: { quality: string; reference: boolean },
+): Promise<{ glbBytes: number; sidecar: Record<string, unknown> }> {
+  mkdirSync(dir, { recursive: true });
+  let body: Buffer | null = null;
+  await page.route('**/__save-bundle', async (route) => {
+    body = route.request().postDataBuffer();
+    await route.fulfill({ status: 204 });
+  });
+  await page.evaluate(async (o) => {
+    const s = (
+      window as unknown as {
+        __duplex: {
+          studio: {
+            applyReferenceLook: (q: string) => Record<string, unknown>;
+            buildStudioBundle: (o: Record<string, unknown>) => Promise<unknown>;
+            packBundle: (b: unknown) => Blob;
+          };
+        };
+      }
+    ).__duplex.studio;
+    const options = o.reference ? s.applyReferenceLook(o.quality) : { quality: o.quality };
+    await new Promise((r) => setTimeout(r, 6000)); // the view settles on the look
+    const bundle = await s.buildStudioBundle(options);
+    await fetch('/__save-bundle', { method: 'POST', body: s.packBundle(bundle) });
+  }, opts);
+  const buf = body as Buffer | null;
+  if (!buf) throw new Error('the bundle was not produced');
+  const n = buf.readUInt32LE(0);
+  const sidecar = JSON.parse(buf.subarray(4, 4 + n).toString('utf8')) as Record<string, unknown>;
+  const glb = buf.subarray(4 + n);
+  writeFileSync(join(dir, 'scene.glb'), glb);
+  writeFileSync(join(dir, 'sidecar.json'), JSON.stringify(sidecar, null, 1));
+  return { glbBytes: glb.length, sidecar };
+}

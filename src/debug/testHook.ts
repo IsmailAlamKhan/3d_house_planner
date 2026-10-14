@@ -1,4 +1,6 @@
 import { captureScene } from '../export/bridge';
+import { buildStudioBundle, packBundle } from '../studio/bundle';
+import { applyReferenceLook } from '../studio/referenceLook';
 import { withScene } from '../export/scene';
 import { useModel } from '../model/store';
 import { getLabelFrame } from '../present/labelFrame';
@@ -71,5 +73,6 @@ export function installTestHook(): void {
     stores: { model: useModel, scene: useSceneStore, camera: useCamera, present: usePresent },
     measureLuminance,
     worldToScreen,
+    studio: { buildStudioBundle, packBundle, applyReferenceLook },
   });
 }

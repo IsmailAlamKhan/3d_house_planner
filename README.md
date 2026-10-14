@@ -128,6 +128,10 @@ meshes are generated from the model, and the AI only produces validated JSON tha
 
 `docker compose up -d` also runs `assets-init`, which downloads about 300 MB of free (CC0) models, PBR textures and HDRI skies once and converts them (`npm run assets:download` does the same without Docker). Reload the page when it finishes; the villa then shows real models, textures and a photographic sky. Without the pack (or with *Real 3D models and textures* switched off under *Light & quality*) the built-in models are used. Sources and licences of every asset: [assets/LICENSES.md](assets/LICENSES.md). Frame rate on a real GPU: `npm run test:gpu`.
 
+### Studio render (Blender Cycles, optional)
+
+For pictures like the reference, *Present → Studio render (Blender)* renders the design offline with Blender Cycles on the NVIDIA GPU (OptiX): Preview, Standard (about 1.5 minutes for the reference villa on an RTX 4060 Ti) or Poster, with a progress bar, cancel and a gallery. *Reference look* reproduces the dusk mood of the reference picture in one click. Turn it on with `docker compose --profile render up -d`, or, running the server on Windows, install Blender 4.2 and set `BLENDER_PATH` in `.env`. Without it the app works as before and the dialog says how to enable it.
+
 ## Performance
 
 Measured on the stress project (2 levels, ~180 walls, ~300 items; see `src/perf/stress.test.ts`): first scene build

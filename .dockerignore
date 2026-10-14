@@ -17,3 +17,5 @@ backups
 *.log
 ai-eval-results.json
 .DS_Store
+tools
+reference/renders

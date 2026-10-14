@@ -7,6 +7,7 @@ import { GpuQueue } from './gpuQueue';
 import { ComfyClient } from './render/comfy';
 import { createAssetService } from './assetsApi';
 import { createRenderService, unloadOllama } from './render/renderApi';
+import { createStudioService } from './studio/studioApi';
 import { createVisionService } from './vision/visionApi';
 import { createPackHandler, packStatus } from './packStatic';
 import { handleProjects } from './projectsApi';
@@ -107,6 +108,13 @@ export function createApp(config: ServerConfig): AppHandle {
   });
   const pack = createPackHandler(config.assetsDir ?? 'assets');
   const render = createRenderService({ comfyUrl: config.comfyUrl, dataDir: config.dataDir, queue });
+  const studio = createStudioService({
+    blenderPath: config.blenderPath ?? null,
+    blenderUrl: config.blenderUrl ?? null,
+    dataDir: config.dataDir,
+    assetsDir: config.assetsDir ?? 'assets',
+    queue,
+  });
   const assets = createAssetService({ dataDir: config.dataDir });
   const store = new ProjectStore(
     config.dataDir === ':memory:' ? ':memory:' : join(config.dataDir, 'app.db'),
@@ -165,6 +173,7 @@ export function createApp(config: ServerConfig): AppHandle {
       },
       ollama,
       render: await render.health(),
+      studio: await studio.health(),
       assets: packStatus(config.assetsDir ?? 'assets'),
       authRequired: !!config.password,
     });
@@ -254,6 +263,7 @@ export function createApp(config: ServerConfig): AppHandle {
       if (path === '/api/ai') return ai(req, res);
       if (await vision.handle(req, res, path)) return;
       if (await render.handle(req, res, path)) return;
+      if (await studio.handle(req, res, path)) return;
       if (await assets.handle(req, res, path)) return;
       if (await handleProjects(store, req, res, path)) return;
       if (path.startsWith('/api/')) return json(res, 404, { error: 'Unknown API route' });

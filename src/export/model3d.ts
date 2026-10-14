@@ -3,11 +3,13 @@ import {
   DoubleSide,
   Group,
   Mesh,
+  type Object3D,
   MeshStandardMaterial,
   type Material,
   Vector3,
 } from 'three';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
+import { getEntry, itemSize } from '../catalog';
 import { resolveMaterial } from '../materials';
 import type { Project } from '../model/types';
 import { type AnyPart, isObjectPart } from '../scene3d/generators/common';
@@ -18,6 +20,13 @@ import { DEFAULT_CUT_HEIGHT, SceneBuilder } from '../scene3d/sceneModel';
 export interface Model3dOptions {
   /** Only this level (its own geometry, at its real elevation). */
   levelId?: string;
+  /** Walls: full height (default) or cut at `cutHeight` (cutaway views). */
+  wallMode?: 'up' | 'cut';
+  cutHeight?: number;
+  /** Levels drawn; the slabs, ceilings and roofs of the others stay (they still cast shadows) but nothing else. */
+  visibleLevelIds?: ReadonlySet<string>;
+  /** Mark every mesh with its layer, entity and material ids (glTF `extras`) for the studio renderer. */
+  meta?: boolean;
   /** Use the procedural textures (needs a browser canvas). Off = flat colours, which also works without a DOM. */
   textures?: boolean;
 }
@@ -36,6 +45,12 @@ function flatMaterial(key: string, overrides: Project['materials']): MeshStandar
   });
 }
 
+/** Ceiling lights and pendants: a light fixture whose lamp hangs near the ceiling. */
+function isCeilingMounted(item: Project['items'][number]): boolean {
+  const entry = getEntry(item.catalogId);
+  return !!entry?.lamp && item.elevation + entry.lamp.y(itemSize(entry, item.scale)) >= 2.0;
+}
+
 /**
  * The whole building (or one level) as a three.js group in metres, y up, plan (x, y) → world (x, h, y) — the same
  * frame the editor uses — ready for GLTFExporter or the OBJ writer. Geometry is built fresh and owned by the group.
@@ -46,33 +61,71 @@ export function buildExportGroup(
 ): { group: Group; dispose: () => void } {
   const builder = new SceneBuilder();
   const levels = builder.build(project, {
-    wallMode: 'up',
-    cutHeight: DEFAULT_CUT_HEIGHT,
+    wallMode: opts.wallMode ?? 'up',
+    cutHeight: opts.cutHeight ?? DEFAULT_CUT_HEIGHT,
     doorsOpen: true,
   });
   const group = new Group();
   group.name = project.name;
   const flats = new Map<string, MeshStandardMaterial>();
-  const material = (key: string): Material =>
-    opts.textures === false
-      ? (flats.get(key) ?? flats.set(key, flatMaterial(key, project.materials)).get(key)!)
-      : getMaterial(key, project.materials);
+  const plains = new Map<string, MeshStandardMaterial>();
+  const material = (key: string): Material => {
+    const m =
+      opts.textures === false
+        ? (flats.get(key) ?? flats.set(key, flatMaterial(key, project.materials)).get(key)!)
+        : getMaterial(key, project.materials);
+    // generated data textures (the water ripples) cannot be written to a file: export the material without them
+    if (m instanceof MeshStandardMaterial && m.normalMap && 'isDataTexture' in m.normalMap) {
+      const plain = plains.get(key) ?? plains.set(key, m.clone()).get(key)!;
+      plain.normalMap = null;
+      if (opts.meta) {
+        plain.name = key;
+        plain.userData.materialId = key;
+      }
+      return plain;
+    }
+    if (opts.meta) {
+      m.name = key;
+      m.userData.materialId = key;
+    }
+    return m;
+  };
+  const tag = (o: Object3D, part: AnyPart, hidden = false) => {
+    if (!opts.meta) return;
+    const item =
+      part.entity?.type === 'item'
+        ? project.items.find((i) => i.id === part.entity!.id)
+        : undefined;
+    o.userData = {
+      layer: part.layer,
+      entity: part.entity,
+      id: part.id,
+      ...(hidden && { cameraHidden: true }),
+      // fixtures hanging from the ceiling are cut away with it
+      ...(item && isCeilingMounted(item) && { ceilingMounted: true }),
+    };
+  };
 
   for (const { level, parts } of levels) {
     if (opts.levelId && level.id !== opts.levelId) continue;
     const g = new Group();
     g.name = level.name;
     g.position.y = level.elevation;
+    const shown = !opts.visibleLevelIds || opts.visibleLevelIds.has(level.id);
     for (const part of parts as AnyPart[]) {
+      if (!shown && (isObjectPart(part) || !['slab', 'ceiling', 'roof'].includes(part.layer)))
+        continue;
       if (isObjectPart(part)) {
         const o = prepareObject(part.object, { highlight: false });
         o.name = part.id;
+        tag(o, part, !shown);
         g.add(o);
         continue;
       }
       const mats = part.materials.map(material);
       const mesh = new Mesh(part.geometry, mats.length === 1 ? mats[0]! : mats);
       mesh.name = part.id;
+      tag(mesh, part, !shown);
       g.add(mesh);
     }
     group.add(g);
@@ -86,6 +139,7 @@ export function buildExportGroup(
       const mats = part.materials.map(material);
       const mesh = new Mesh(part.geometry, mats.length === 1 ? mats[0]! : mats);
       mesh.name = part.id;
+      tag(mesh, part);
       g.add(mesh);
     }
     group.add(g);
@@ -95,6 +149,7 @@ export function buildExportGroup(
     dispose: () => {
       builder.dispose();
       for (const m of flats.values()) m.dispose();
+      for (const m of plains.values()) m.dispose();
     },
   };
 }
@@ -104,7 +159,11 @@ export async function exportGlb(project: Project, opts: Model3dOptions = {}): Pr
   const { group, dispose } = buildExportGroup(project, opts);
   try {
     group.updateMatrixWorld(true);
-    const result = await new GLTFExporter().parseAsync(group, { binary: true, onlyVisible: true });
+    const result = await new GLTFExporter().parseAsync(group, {
+      binary: true,
+      onlyVisible: true,
+      maxTextureSize: 2048,
+    });
     return result as ArrayBuffer;
   } finally {
     dispose();

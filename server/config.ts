@@ -10,6 +10,9 @@ export interface ServerConfig {
   model: string;
   /** The picture-reading model ("Recreate from picture"); runs on the same GPU queue as everything else. */
   visionModel: string;
+  /** A Blender on this machine for studio renders (BLENDER_PATH), or the `blender` service's URL (BLENDER_URL). */
+  blenderPath?: string | null;
+  blenderUrl?: string | null;
   /** Where the CC0 asset pack lives (`<assetsDir>/pack`, served under /pack). */
   assetsDir?: string;
   /** If set, the whole app asks for this password first. */
@@ -53,6 +56,8 @@ export function loadConfig(
     comfyUrl: get('COMFYUI_URL') ? get('COMFYUI_URL')!.replace(/\/+$/, '') : null,
     model: get('OLLAMA_MODEL') || 'qwen3:14b',
     visionModel: get('OLLAMA_VISION_MODEL') || 'qwen3-vl:8b-instruct',
+    blenderPath: get('BLENDER_PATH') || null,
+    blenderUrl: get('BLENDER_URL') ? get('BLENDER_URL')!.replace(/\/+$/, '') : null,
     assetsDir: get('ASSETS_DIR') || 'assets',
     password: get('APP_PASSWORD') ? String(get('APP_PASSWORD')) : null,
     distDir,
