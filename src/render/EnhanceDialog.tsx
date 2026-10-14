@@ -4,9 +4,10 @@ import { useT } from '../i18n';
 import { useModel } from '../model/store';
 import { usePresent } from '../present/presentStore';
 import { Modal } from '../ui/Modal';
-import { beforeUrl, resultUrl } from './api';
+import { beforeUrl, resultUrl, styleUrl } from './api';
 import { composeOver } from './compose';
 import { useEnhance } from './enhanceStore';
+import { ENHANCE_PRESETS } from './presets';
 import { randomSeed } from './enhance';
 import {
   CREATIVITY_RANGE,
@@ -174,6 +175,164 @@ export function EnhanceDialog() {
                 </button>
               </div>
             )}
+            <div role="group" aria-label={t('enhance.preset')} className="flex flex-wrap gap-1">
+              {ENHANCE_PRESETS.map((id) => (
+                <button
+                  key={id}
+                  data-testid={`enhance-preset-${id}`}
+                  aria-pressed={s.preset === id}
+                  className={`rounded px-2 py-1 text-xs ${s.preset === id ? 'bg-emerald-700 font-semibold text-white' : 'bg-slate-100 hover:bg-slate-200'}`}
+                  onClick={() => s.applyPreset(id)}
+                >
+                  {t(`enhance.preset.${id}` as 'enhance.preset.reference')}
+                </button>
+              ))}
+            </div>
+            {s.preset !== 'classic' && (
+              <div
+                className="space-y-2 rounded-md border border-slate-200 p-2 text-xs"
+                data-testid="enhance-v2"
+              >
+                <label className="block">
+                  {t('enhance.source')}
+                  <select
+                    className={field}
+                    data-testid="enhance-source"
+                    value={s.source}
+                    onChange={(e) => s.patch({ source: e.target.value as 'studio' | 'live' })}
+                  >
+                    <option value="studio">{t('enhance.source.studio')}</option>
+                    <option value="live">{t('enhance.source.live')}</option>
+                  </select>
+                </label>
+                <label className="block">
+                  {t('enhance.styleRef')}
+                  <select
+                    className={field}
+                    data-testid="enhance-style-ref"
+                    value={s.styleRef}
+                    onChange={(e) =>
+                      s.patch({ styleRef: e.target.value as 'none' | 'reference' | 'upload' })
+                    }
+                  >
+                    <option value="none">{t('enhance.styleRef.none')}</option>
+                    <option value="reference">{t('enhance.styleRef.reference')}</option>
+                    <option value="upload" disabled={!s.styleUpload}>
+                      {s.styleUpload ? t('enhance.reference') : t('enhance.styleRef.upload')}
+                    </option>
+                  </select>
+                </label>
+                <label className="block">
+                  <span className="sr-only">{t('enhance.styleRef.upload')}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    data-testid="enhance-style-file"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) void s.chooseStyleFile(f);
+                    }}
+                  />
+                </label>
+                {s.styleRef !== 'none' && s.health?.capabilities?.styleReference === false && (
+                  <p className="text-amber-700">{t('enhance.styleUnavailable')}</p>
+                )}
+                {s.styleRef !== 'none' && (
+                  <label className="block">
+                    <span className="flex justify-between">
+                      {t('enhance.ipWeight')}
+                      <b className="tabular-nums">{s.ipWeight.toFixed(2)}</b>
+                    </span>
+                    <input
+                      type="range"
+                      className="w-full"
+                      data-testid="enhance-ip-weight"
+                      min={0.1}
+                      max={1.2}
+                      step={0.05}
+                      value={s.ipWeight}
+                      onChange={(e) => s.patch({ ipWeight: Number(e.target.value) })}
+                    />
+                  </label>
+                )}
+                <label className="block">
+                  <span className="flex justify-between">
+                    {t('enhance.edgeStrength')}
+                    <b className="tabular-nums">{s.edgeStrength.toFixed(2)}</b>
+                  </span>
+                  <input
+                    type="range"
+                    className="w-full"
+                    min={0}
+                    max={1.2}
+                    step={0.05}
+                    value={s.edgeStrength}
+                    onChange={(e) => s.patch({ edgeStrength: Number(e.target.value) })}
+                  />
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    data-testid="enhance-regions"
+                    checked={s.regions}
+                    onChange={(e) => s.patch({ regions: e.target.checked })}
+                  />
+                  {t('enhance.regions')}
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={s.layoutCheck}
+                    onChange={(e) => s.patch({ layoutCheck: e.target.checked })}
+                  />
+                  {t('enhance.layoutCheck')}
+                </label>
+                <label className="block">
+                  {t('enhance.tiled')}
+                  <select
+                    className={field}
+                    value={s.tiledUpscale}
+                    onChange={(e) => s.patch({ tiledUpscale: Number(e.target.value) as 0 | 2 | 3 })}
+                  >
+                    <option value={0}>{t('enhance.tiled.off')}</option>
+                    <option value={2} disabled={s.health?.capabilities?.tiledUpscale === false}>
+                      2×
+                    </option>
+                    <option value={3} disabled={s.health?.capabilities?.tiledUpscale === false}>
+                      3×
+                    </option>
+                  </select>
+                </label>
+                {(s.health?.capabilities?.checkpoints.length ?? 0) > 1 && (
+                  <label className="block">
+                    {t('enhance.checkpoint')}
+                    <select
+                      className={field}
+                      data-testid="enhance-checkpoint"
+                      value={s.checkpoint}
+                      onChange={(e) => s.patch({ checkpoint: e.target.value })}
+                    >
+                      <option value="">{t('enhance.checkpoint.default')}</option>
+                      {s
+                        .health!.capabilities!.checkpoints.filter(
+                          (c) => !/sd_xl_base_1\.0/i.test(c),
+                        )
+                        .map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                    </select>
+                    <span className="mt-1 block text-slate-500">{t('enhance.checkpointNote')}</span>
+                  </label>
+                )}
+              </div>
+            )}
+            {s.note === 'noStudio' && (
+              <p role="status" className="text-xs text-amber-700" data-testid="enhance-no-studio">
+                {t('enhance.noStudio')}
+              </p>
+            )}
             <div role="group" aria-label={t('enhance.style')} className="flex flex-wrap gap-1">
               {STYLE_PRESETS.map((p) => (
                 <button
@@ -340,6 +499,31 @@ export function EnhanceDialog() {
             )}
             {selected && urls && (
               <BeforeAfter before={urls.before} after={urls.after} label={t('enhance.compare')} />
+            )}
+            {selected && selected.params.ipWeight > 0 && (
+              <figure className="space-y-1" data-testid="enhance-reference">
+                <img
+                  src={styleUrl(selected.id)}
+                  alt={t('enhance.reference')}
+                  className="max-h-40 rounded border border-slate-200"
+                />
+                <figcaption className="text-xs text-slate-500">{t('enhance.compare3')}</figcaption>
+              </figure>
+            )}
+            {selected?.layoutScore !== undefined && (
+              <p
+                className={`text-xs ${selected.layoutScore < 0.55 ? 'text-amber-700' : 'text-slate-600'}`}
+                data-testid="enhance-layout"
+              >
+                {t('enhance.layoutScore').replace(
+                  '{pct}',
+                  String(Math.round(selected.layoutScore * 100)),
+                )}
+                {selected.retries
+                  ? ` · ${t('enhance.layoutRetried').replace('{n}', String(selected.retries))}`
+                  : ''}
+                {selected.layoutScore < 0.55 ? ` — ${t('enhance.layoutWarn')}` : ''}
+              </p>
             )}
             {selected && (
               <>

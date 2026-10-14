@@ -234,6 +234,7 @@ _(Originally numbered Prompt 15; that prompt text is kept as `prompts/villa-site
 Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 610.88, Docker 28.4.0 (Docker Desktop, WSL2 backend), Node 22.20.0, Windows PowerShell 5.1. Model `qwen3:14b`.
 
 **Ran and works**
+
 - Docker GPU check (`nvidia-smi` inside `nvidia/cuda:12.4.1-base-ubuntu22.04` shows the GPU).
 - `docker compose up -d --build`: first real build of the `Dockerfile` (after the fixes below), model pulled by `ollama-init`, `/api/health` shows app OK, Ollama reachable, model installed.
 - `ollama ps`: 10 GB, **100 % GPU**, context 4096; `nvidia-smi` ≈ 12 GB used in total while generating. A 300-token answer takes ≈ 12 s (≈ 25 tok/s).
@@ -245,6 +246,7 @@ Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 6
 - Native option: `scripts\windows\setup.ps1` and `start.ps1` ran under Windows PowerShell 5.1 and `/api/health` answered (tested with a model that was already installed and port 8090; not a download of `qwen3:14b`).
 
 **Bugs found and fixed**
+
 - `Dockerfile` did not build: `better-sqlite3 13` needs Node ≥ 22 and ships no prebuilt binaries, but the image used Node 20 and ran `npm ci` without Python/compilers. All stages now use `node:22.20.0-bookworm-slim`, and the `build` stage runs `npm ci --ignore-scripts` (the native module is compiled in the `deps` stage).
 - Applying an AI design could crash the whole app ("Unable to complete output ring…"): `polygon-clipping` throws on near-degenerate polygons. `unionPolygons` and `subtractPolygons` (`src/scene3d/generators/common.ts`) now degrade gracefully instead of throwing. No unit test: the exact failing polygon is not reproducible from the saved project alone.
 - `scripts/docker-smoke.sh` failed on Git Bash: path conversion of `/tmp/...` (`MSYS_NO_PATHCONV=1`), `curl | grep -q` under `pipefail`, and `curl -o /dev/null` exiting 23.
@@ -253,6 +255,7 @@ Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 6
 - Desktop packaging (Tauri) was removed from the project on request.
 
 **ComfyUI and the path-traced still (prompts 15–17)**
+
 - `docker compose up -d` now also builds and starts ComfyUI v0.9.2 and downloads the models (11.1 GB) by itself; `up -d` returns in about 30 s on a first start. Verified: workflow validates against v0.9.2 (18 nodes, 0 problems); a real Enhance from the Docker app ran in 24–30 s; the queue showed "Waiting: 1 job(s) ahead (an AI design is running)"; Ollama is unloaded before a render; after the render VRAM is back to idle and the next design runs 100 % on the GPU.
 - Bugs found and fixed: CRLF line endings broke `download-models.sh` in the container (`.gitattributes` added); ComfyUI v0.9.2 crashed on the old PyTorch 2.5.1 base (now 2.9.0 + pinned `comfy-kitchen`); ComfyUI kept about 11 GB of VRAM after a render (fixed with `--disable-smart-memory`); `docker compose up -d` blocked on the download (ComfyUI now waits for the models itself); downloads use `.part` files.
 - "ComfyUI finished but returned no picture" (seen with the 1.5× upscale pass): ComfyUI announces the end of a prompt on the socket before it stores the result in `/history` (with `--disable-smart-memory` it unloads the models in between), and the app looked once. `ComfyClient.waitForOutput` now retries until the picture appears; regression test added (fails on the old code). Verified: upscaled render 75 s in ComfyUI, result shown.
@@ -261,12 +264,14 @@ Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 6
 - Browser-pane caveat: while testing in the in-app browser pane, the "Preparing the pictures" step only progressed while the pane was being interacted with (a background canvas is not composited); a visible browser tab was not tested.
 
 **Your own furniture and textures**
-- New: `/api/assets` (upload, list, serve, delete; content checked by bytes, size limits, password-protected like the rest), a **My items** library tab with *Add your own 3D model…* (.glb: name, real size with unit guess and locked proportions, category, floor or wall placement, live preview), and *Upload a texture…* in every material picker (real-world repeat size; applied at once; listed under *My textures*). Imported models are catalogue entries (`custom:<id>`), textures are materials (`tex:<id>`). 6 server tests, 10 unit tests (including parsing and fitting a real .glb built in code) and 2 end-to-end tests (upload → place → reload; texture → apply → delete) against the real server.
+
+- New: `/api/assets` (upload, list, serve, delete; content checked by bytes, size limits, password-protected like the rest), a **My items** library tab with _Add your own 3D model…_ (.glb: name, real size with unit guess and locked proportions, category, floor or wall placement, live preview), and _Upload a texture…_ in every material picker (real-world repeat size; applied at once; listed under _My textures_). Imported models are catalogue entries (`custom:<id>`), textures are materials (`tex:<id>`). 6 server tests, 10 unit tests (including parsing and fitting a real .glb built in code) and 2 end-to-end tests (upload → place → reload; texture → apply → delete) against the real server.
 - Limits: .glb only (a .gltf with separate files is not supported); a model is stretched to the size you set (no animation, no per-part recolouring); custom items are not embedded in exported project files; a static website has no server, so the feature is hidden there.
 
 **Flaky only under load:** `export`, `offline` and `polish` e2e tests (and `villa`) failed in the first full run next to other work and passed when re-run alone and in the next full run.
 
 **Still unverified**
+
 - A truly clean native install: `npm install` compiles `better-sqlite3`; on this PC it only works with a newer node-gyp (13.1) because Visual Studio 2026 is not recognised by npm's node-gyp 11. Not tested with the 2022 Build Tools.
 - Native `setup.ps1` pulling `qwen3:14b` (used an installed model instead), the Task Scheduler / NSSM autostart steps, and the firewall rule.
 - Opening the app from a second physical device on the LAN (checked with the PC's own LAN address only).
@@ -274,17 +279,19 @@ Machine: Windows 11 Pro (10.0.26300), NVIDIA GeForce RTX 4060 Ti 16 GB, driver 6
 
 ## Handoff: open issues (read this first)
 
-State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Windows 11). Everything below that is marked *done* is committed and tested; the three items marked **OPEN** are not fixed.
+State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Windows 11). Everything below that is marked _done_ is committed and tested; the three items marked **OPEN** are not fixed.
 
 **Done and verified (details in "Verified on Windows" above)**
+
 - Docker stack runs on the GPU; `docker compose up -d` also builds and starts ComfyUI and downloads the models by itself (returns in about 30 s).
 - "Enhance with AI" works end to end from the Docker app (about 25-30 s per render, 75 s with the upscale pass); the GPU hand-over with Ollama works (`--disable-smart-memory`).
 - Crash fix when applying AI designs (polygon-clipping), the `ComfyUI finished but returned no picture` race, Windows line endings (`.gitattributes`), Tauri removed.
-- New feature: the user's own 3D models (.glb) and textures (`/api/assets`, *My items* tab, *Upload a texture...* in material pickers).
+- New feature: the user's own 3D models (.glb) and textures (`/api/assets`, _My items_ tab, _Upload a texture..._ in material pickers).
 - Villa project "Luxury Villa (reference plan)" (17 rooms, 120 catalogue decorations) exists on the server only, not in the repo. It was made by a throw-away script (not committed) from the reference photo's room list and sizes using `solveLayout` + `applyPlan` + `ops.addItem`.
 - A first denoiser for the path-traced still (`src/present/denoise.ts`: firefly clamp + edge-preserving blur) and hiding the invisible shadow-only ceilings/roofs (`src/present/pathTrace.ts`).
 
 **OPEN 1 - the "High quality still (path tracing)" looks bad (very dark, wrong colours, grain).** An attempted fix was reverted at the owner's request, so none of it is in the code. What was found (all measured on the villa, top-down cutaway, GPU, 200 samples):
+
 1. `three-gpu-pathtracer` 0.0.27 samples textures with `ClampToEdgeWrapping`, so every repeating texture (floors, walls, decking: UVs in metres) collapses to one edge pixel and gives a random colour that changes between runs. Idea that was in progress: replace each material whose `map.wrapS === RepeatWrapping` by a clone with `map = null` and the texture's average colour while tracing (and restore afterwards).
 2. Meshes whose geometry has several `groups` but ONE material (every box-shaped furniture piece has 6, the slab has 2) get garbage material indices in the library (`updateMaterialIndexAttribute` uses `materials[group.materialIndex]`, `indexOf` gives -1 -> index 255). Dropping `geometry.groups` for meshes with a single (non-array) material while tracing fixed most random colours. Restore them afterwards.
 3. The slab top and the lawn (`site:ground`) are both at y = 0 and the room floor is only 2 mm higher (`generateRoomFloor`, `generateGround`). Lowering the `slab` layer by 0.03 and `site:ground` / `site:surround` by 0.05 while tracing separates them. For this the part meshes need `userData={{ layer, partId }}` in `ModelScene.tsx` (only `entity` is set today).
@@ -297,6 +304,7 @@ State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Wind
 **OPEN 3 - the villa is only an approximation of the reference photo** (the catalogue has about 60 simple procedural shapes). The new custom models/textures feature is the intended way to close the gap: the user uploads real `.glb` furniture and textures.
 
 **Other known gaps**
+
 - `e2e/lighting.spec.ts`: with the default software GL two tests fail (`rooms are dark unless daylight enters...`, `hidden ceilings and roofs still block light...`); on the GPU they pass alone but in a full serial run one of them fails (order dependent). `white on white` was fixed by re-sizing its thresholds (see its comment). The lighting tests overwrite `tests/visual/*.png`; restore them with `git checkout -- tests/visual` after a run.
 - `offline`, `shared`, `export`, `polish`, `villa` e2e tests are flaky only when the whole suite runs under load; they pass alone.
 - Custom models are not embedded in exported project files; the feature needs the app server (hidden on a static site).
@@ -316,6 +324,7 @@ State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Wind
 - [x] I. `docs/ARCHITECTURE.md`, README, tests, build
 
 **Acceptance.**
+
 - Build from a clean state: `npm run reference:build -- reference/villa.spec.json` → both options, no overlaps, no enclosed gaps, every room reachable, a walk from the gates reaches all 31 rooms and areas (foyer, every room, pool deck, gym, sauna, spa, roof terrace) in each option; the app's own checks (stairs, reachability, entrance, door swings, setback, gate paths, pool safety, minimum areas) report **0 issues in both options** (`villa.test.ts` requires none).
 - Option A: **23 of 23 labelled rooms and areas are exactly their label** (0.0 in; `FIDELITY.md`).
 - Option B: every one of the 30 rooms and areas with a picture box lies within **0.5 ft** of that box once the picture is straightened (`villa.test.ts`, worst edge ≤ 0.5 ft); the covered parking measures 20.00 ft. The underlay uses the same homography, so at 50 % opacity the plan overlays the picture wall for wall (checked by eye in the browser, and by the measurement above).
@@ -323,7 +332,8 @@ State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Wind
 - Tests: 626 unit tests pass (new: homography 9, underlay 8, asset API 7, reference spec / builder / export / fidelity 22, Reference Villa 6, options 2); 2 Playwright tests (`e2e/reference.spec.ts`: import → mark corners → straighten → lock / nudge / undo → reload → compare; and build script → options → export spec → compare).
 
 **Deviations and limits (honest list).**
-- The picture is a rendering, not a survey: its walls are not exactly straight or parallel. The four straightening corners are therefore *fitted* (least squares over every wall reading) rather than taken at the plot wall. "Within 0.5 ft" is measured against the readings I took from 3× enlargements with a 50 px grid (about ±0.25 ft of reading error), not against ground truth.
+
+- The picture is a rendering, not a survey: its walls are not exactly straight or parallel. The four straightening corners are therefore _fitted_ (least squares over every wall reading) rather than taken at the plot wall. "Within 0.5 ft" is measured against the readings I took from 3× enlargements with a 50 px grid (about ±0.25 ft of reading error), not against ground truth.
 - Labels in the picture are loose (the parking is labelled 20' × 18' but measures 20 × 17.8; most rooms measure 10–30 % off their labels), which is why Option A and Option B differ; Option A adds unlabelled filler rooms (store, guest dressing, a corridor) to keep each wing a clean rectangle, listed in the report; Option B adds a stair hall and an L-shaped corridor the picture implies.
 - The picture shows the ground floor only: the roof terrace (over the left-front wing, reached by the staircase) and the flat roofs are my interpretation. The upper slab of a villa covers its building footprint, so the comparison view looks into the house by showing the ground floor only.
 - Option B sits inside the shared plot (74 × 98 ft, the size Option A needs), against the front edge where the gates are, with garden around it; a gate snaps to the plot edge, so both options' entrance paths run to it.
@@ -342,17 +352,18 @@ State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Wind
 
 **Eval (RTX 4060 Ti 16 GB, host Ollama 0.17.1, `qwen3-vl:8b-instruct`, before any manual correction; `reference/EVAL_VISION.md`).**
 
-| Plan | Labels read | Printed sizes read | Centres within 3 ft | Mean / median centre error | Time |
-| --- | --- | --- | --- | --- | --- |
-| Reference villa | 100 % (22/22) | 100 % | 95 % | 1.3 / 1.1 ft | 106 s |
-| S1 three rooms, feet | 100 % | 100 % | 100 % | 0.5 / 0.2 ft | 14 s |
-| S2 metric apartment | 100 % | 100 % | 100 % | 0.6 / 0.7 ft | 21 s |
-| S3 villa with pool and garden | 100 % | 100 % | 100 % | 1.0 / 1.0 ft | 43 s |
-| S4 small type, labels without sizes | 100 % | 86 % | 100 % | 0.7 / 0.6 ft | 38 s |
+| Plan                                | Labels read   | Printed sizes read | Centres within 3 ft | Mean / median centre error | Time  |
+| ----------------------------------- | ------------- | ------------------ | ------------------- | -------------------------- | ----- |
+| Reference villa                     | 100 % (22/22) | 100 %              | 95 %                | 1.3 / 1.1 ft               | 106 s |
+| S1 three rooms, feet                | 100 %         | 100 %              | 100 %               | 0.5 / 0.2 ft               | 14 s  |
+| S2 metric apartment                 | 100 %         | 100 %              | 100 %               | 0.6 / 0.7 ft               | 21 s  |
+| S3 villa with pool and garden       | 100 %         | 100 %              | 100 %               | 1.0 / 1.0 ft               | 43 s  |
+| S4 small type, labels without sizes | 100 %         | 86 %               | 100 %               | 0.7 / 0.6 ft               | 38 s  |
 
 Target on the villa (≥ 90 % of labels, centres within 3 ft): **met** (100 % / 95 %).
 
 **How it got there (and limits).**
+
 - First run with the plain `qwen3-vl:8b` tag: labels 81 %, sizes 0 %, centres 65 %, one tile timed out, 2421 s. Causes: it is a thinking model (hidden reasoning, `think:false` ignored) and the optional `size` field was left out. Fix: the `-instruct` tag and a required `size`.
 - The villa truth counts only what the picture prints a label for (22 of the 26 traced items; unlabelled areas such as the fire-pit deck, driveway and roof terrace cannot be "read"); the picture prints "Bath" where the spec says "Guest Bath".
 - Truth for the villa is my own hand tracing (Prompt 18), so box errors (mean 2.2 ft) include my tracing error. Rooms are boxed by the model; B-style accuracy comes from the clean-up and the user's review.
@@ -361,7 +372,7 @@ Target on the villa (≥ 90 % of labels, centres within 3 ft): **met** (100 % / 
 
 ## Prompt 20 — Real Assets: Free CC0 Models, PBR Textures & HDRI Sky — DONE (Docker service not run here)
 
-**What was built.** A manifest-driven CC0 asset pack (`assets/manifest.json`, 54 assets: 39 models, 12 PBR texture sets, 3 HDRI skies) with `npm run assets:download` (fetch, SHA-256 check, convert, index into `assets/pack/`), `assets/LICENSES.md` (generated, tested), runtime swap of catalogue models / library textures / sky with a procedural fallback, animated pool water, a pack on/off switch in *Light & quality*, the `assets-init` Docker service, and the committed GPU harness `npm run test:gpu`.
+**What was built.** A manifest-driven CC0 asset pack (`assets/manifest.json`, 54 assets: 39 models, 12 PBR texture sets, 3 HDRI skies) with `npm run assets:download` (fetch, SHA-256 check, convert, index into `assets/pack/`), `assets/LICENSES.md` (generated, tested), runtime swap of catalogue models / library textures / sky with a procedural fallback, animated pool water, a pack on/off switch in _Light & quality_, the `assets-init` Docker service, and the committed GPU harness `npm run test:gpu`.
 
 - [x] Sources: Poly Haven, ambientCG, Kenney (all CC0, licence checked and recorded per asset); only `CC0-1.0` is allowed by the schema
 - [x] Models normalised to the catalogue's default size (test: within 5 %), centred, floor at 0, recolour by material slot (beds, sofas, car, rugs)
@@ -372,16 +383,17 @@ Target on the villa (≥ 90 % of labels, centres within 3 ft): **met** (100 % / 
 
 **Measured on the owner's PC (RTX 4060 Ti, Chrome on D3D11, Reference Villa at Medium, dusk).**
 
-| View | Real pack on | Procedural (pack off) |
-| --- | --- | --- |
-| Front gate | 57.8 fps | 52.4 fps |
-| Isometric | 59.8 fps | 59.7 fps |
+| View       | Real pack on | Procedural (pack off) |
+| ---------- | ------------ | --------------------- |
+| Front gate | 57.8 fps     | 52.4 fps              |
+| Isometric  | 59.8 fps     | 59.7 fps              |
 
 Target ≥ 45 fps at Medium: **met** with the real assets (fewer draw calls than procedural: 3701 vs 4502 at Isometric). The villa is smooth ~3 s after opening and ~2 s after a view change. Numbers: `test-results/gpu/*.json`.
 
 **Bug found by the GPU run.** Real models never appeared at first: the scene copies each item when it draws, so a model added after the copy was lost. Fixed with per-item cache epochs (`src/assets/epoch.ts`).
 
 **Deviations and limits.**
+
 - Textures are WebP at 1K (not KTX2, not ≤ 2K by quality tier); thumbnails are drawn in-app from the models, not baked by the downloader.
 - Kenney models are stylised (low-poly, palette colours; palms look teal) and are stretched to the catalogue size. Not available as free CC0 models and still procedural: U-sectional, trampoline, play tower, gym machines, jacuzzi, waterfall, fire pit, fountain, hedges, flower beds, neon strips, TV wall. `FIDELITY.md` lists real vs procedural per item.
 - No instancing / LOD yet (the repeated items are few and draw calls already dropped); texture size does not vary by quality tier.
@@ -392,7 +404,7 @@ Target ≥ 45 fps at Medium: **met** with the real assets (fewer draw calls than
 
 ## Prompt 21 — Studio Render with Blender Cycles — DONE (Docker image not built here)
 
-**What was built.** *Present → Studio render (Blender)…*: the browser exports a studio bundle (glb with all materials + per-mesh metadata, and a sidecar with camera, physical lights, sky, cutaway, output size); the app server queues it on the shared GPU queue; Blender 4.2 LTS + Cycles (OptiX, adaptive sampling, OptiX denoise, AgX) renders it with `docker/blender/render.py`; the picture comes back to a gallery with the room labels drawn again as vector text. Preview 64 samples / 1280 px, Standard 256 / 1920, Poster 1024 / 3840. Progress (samples, ETA), cancel, ID (mask) and depth passes are written for prompt 23. One-click **Reference look** (dusk HDRI, every light on incl. garden and pool lights, 2700 K, accent lights, slight glare, plan view with ceilings and roofs cut away). The browser path tracer is behind `?debug=render`, labelled experimental.
+**What was built.** _Present → Studio render (Blender)…_: the browser exports a studio bundle (glb with all materials + per-mesh metadata, and a sidecar with camera, physical lights, sky, cutaway, output size); the app server queues it on the shared GPU queue; Blender 4.2 LTS + Cycles (OptiX, adaptive sampling, OptiX denoise, AgX) renders it with `docker/blender/render.py`; the picture comes back to a gallery with the room labels drawn again as vector text. Preview 64 samples / 1280 px, Standard 256 / 1920, Poster 1024 / 3840. Progress (samples, ETA), cancel, ID (mask) and depth passes are written for prompt 23. One-click **Reference look** (dusk HDRI, every light on incl. garden and pool lights, 2700 K, accent lights, slight glare, plan view with ceilings and roofs cut away). The browser path tracer is behind `?debug=render`, labelled experimental.
 
 - [x] `blender` Docker service (profile `render`, pinned 4.2.23 + SHA-256, NVIDIA runtime, no published port) and a dependency-free job runner (`docker/blender/runner.mjs`) that also runs in-process when `BLENDER_PATH` is set; health = "Cycles has an OptiX / CUDA device", reason shown in the UI otherwise
 - [x] Materials rebuilt in Blender by id: real textures with repeat wrapping and real-world UV scale, glass with shadow-ray pass-through, pool water with absorption + ripples + underwater lights, emissive bulbs; lights in physical units (watts = lumens·π/683)
@@ -402,9 +414,10 @@ Target ≥ 45 fps at Medium: **met** with the real assets (fewer draw calls than
 **Measured on the owner's PC (RTX 4060 Ti, Blender 4.2.23, OptiX).** Reference villa, Reference look, **Standard (256 samples, 1450×1920): 89.7 s render time** (109 s from click to picture, including building and uploading the 100 MB bundle); Preview about 7 s. VRAM 7.9 GB before, **8.6 GB peak** (the card already held 7.9 GB for the desktop and the loaded language model). GPU hand-over checked with a language model (Ollama `llama3.1:8b`) loaded: the queue unloaded it before Blender started (`/api/ps` empty during the render). The ComfyUI leg of the hand-over was not run (ComfyUI is not installed here; the existing `afterRender` hook frees it). Picture: `reference/renders/villa-reference-look-standard.png`. Numbers: `test-results/gpu/studio-render.json`.
 
 **Limits and deviations.**
-- Correct colours, no black slabs, clean noise and a dusk mood with warm lights are met; whether it "reads as the same villa" in *Compare with reference* is for the owner's eye: the layout and rooms match but the picture is orthographic from above (the reference is a perspective view), floors are darker than the reference's cream floors and the Kenney palms look teal.
+
+- Correct colours, no black slabs, clean noise and a dusk mood with warm lights are met; whether it "reads as the same villa" in _Compare with reference_ is for the owner's eye: the layout and rooms match but the picture is orthographic from above (the reference is a perspective view), floors are darker than the reference's cream floors and the Kenney palms look teal.
 - Dark triangles at wall ends and doors are in the app's own wall geometry (also visible in the live view), not a Blender artefact.
-- The studio gallery is a separate list in the Studio dialog, not merged into the *Enhance render* gallery (different metadata); both live in the data folder.
+- The studio gallery is a separate list in the Studio dialog, not merged into the _Enhance render_ gallery (different metadata); both live in the data folder.
 - The glb is large (about 100 MB for the villa: embedded PNG textures per material). Fine on a LAN; a texture size cap per quality is a later optimisation.
 - Window light uses one area light per exterior window on top of the sky; their strength was tuned by eye.
 - The `blender` image was written and `docker compose --profile render config` validates, but Docker was not running here, so the container build was not run.
@@ -421,15 +434,16 @@ Target ≥ 45 fps at Medium: **met** with the real assets (fewer draw calls than
 
 **Measured on the owner's PC (RTX 4060 Ti, Blender 4.2.23, OptiX), Reference Villa, Dusk.**
 
-| Quality | Texels / m | Atlas | Samples | Bake time |
-| --- | --- | --- | --- | --- |
-| Low | 8 | 2048 × 1024 | 128 | 6 s |
-| Medium | 16 | 2048 × 2048 | 256 | 41 s |
-| High | 32 | 4096 × 4096 | 512 | 321 s |
+| Quality | Texels / m | Atlas       | Samples | Bake time |
+| ------- | ---------- | ----------- | ------- | --------- |
+| Low     | 8          | 2048 × 1024 | 128     | 6 s       |
+| Medium  | 16         | 2048 × 2048 | 256     | 41 s      |
+| High    | 32         | 4096 × 4096 | 512     | 321 s     |
 
 Walkthrough with the Medium bake on, Medium quality: **60 fps** in the Living room, Master bedroom and Front gate (target ≥ 60 met; `test-results/gpu/bake-walkthrough-fps.json`). Side by side with the Studio render of the same camera: `reference/compare-walkthrough.html` (real-time | baked | studio, three saved views).
 
 **How it got there (bugs worth knowing).**
+
 - Baking 158 objects took 130 s however few samples were used: Cycles re-syncs the scene for every object. Joining them into one object brought Medium from minutes to 41 s.
 - The glTF importer flips V, so the bake was upside down against the app's UVs (rows are flipped back in `bake.py`).
 - Recalculating wall normals in Blender (a fix for the studio render) turned parts of the app's open wall meshes inside out, which baked as black triangles; it is no longer used for the bake.
@@ -437,9 +451,37 @@ Walkthrough with the Medium bake on, Medium quality: **60 fps** in the Living ro
 - Bakes of an earlier run were loaded in place of the new one (the villa is rebuilt with new part ids every run); the GPU spec now deletes the old bake and waits for the new key.
 
 **Limits and deviations.**
+
 - A small planar chart packer replaces xatlas (the repo's `xatlas-web` 0.1.0 does not load outside a browser; the shapes are flat). Charts are bounding rectangles, so about half the atlas is empty (fill 42–58 %).
 - One reflection probe per level (box = the footprint), not one per room; glass and water keep reflecting the sky. Furniture is dimmed globally (40 %) rather than blended per object, and has no baked contact shadows (the existing blob shadows stay).
 - Lightmaps are 8-bit sRGB with a stored scale (not KTX2 / float); very bright texels next to lamps clip.
 - The "Night" and "Day" presets were exercised by unit tests and the Dusk bake only; their bakes were not timed.
 - The `blender` image copies `bake.py` and `studio_common.py` but, like the studio render, was not built (Docker was not running here).
 - **Open test failures (set aside by the owner, to be run and fixed on request):** the last full `npm run test:e2e` had 74 passed, 4 failed, 4 not run. `e2e/lighting.spec.ts` "tiers: Low, Medium and High have the same brightness…" (0.737 against a bar of 0.761; it failed in the run after Prompt 20 too and is calibrated to the software renderer) and `e2e/shared.spec.ts` (needs the sync server) are the real ones; `e2e/custom.spec.ts` (texture upload) and `e2e/wizard.spec.ts` failed under load and pass when run alone. The materials test was fixed (the new bake quality select made its selector ambiguous). Unit tests (727), typecheck, lint and build pass.
+
+## Prompt 23 — Enhance v2: Make AI Enhancement Actually Look Like the Reference — DONE (Docker comfyui additions not built here)
+
+**What was built.** The default _Reference villa look_ enhances the latest **Studio render** with its depth and ID passes (the browser raster is only the fallback, with a note). Style reference through IP-Adapter (default `reference/villa-reference.png`, weight slider, or an uploaded picture); SDXL base 1.0 default with any other SDXL checkpoint selectable (licences in `docker/comfyui/MODELS.md`); region-aware masked prompting from the ID pass (water, lawn, plants, soft furnishings, cars, floors, glass …; capped at 4 regions per job) with label areas masked; depth + canny ControlNets; a layout post-check (edge overlap, retried at lower creativity, warning if it still drifted); optional tiled 2×/3× UltimateSDUpscale; presets _Reference villa look_, _Subtle polish_, _Bold restyle_, _Classic_ (old pipeline); Compare shows before | after | style reference. Docker: `comfyui-init` downloads the new weights and the image pins both node packs by commit.
+
+- [x] Studio source + depth + ID passes (`depthvis.png`, region ids in `mask.png`); live-view fallback
+- [x] IP-Adapter style reference with weight slider; user-uploadable
+- [x] Selectable checkpoint, licences documented
+- [x] Region masks, layout lock, post-check with auto-retry, tiled upscale (fits in 16 GB)
+- [x] Presets and compare view; i18n (en, bn)
+- [x] `npm run eval:enhance` (GPU PC) → `reference/renders/enhance-eval.png`, `test-results/gpu/enhance-eval.json`
+- [x] Tests: 34 render unit tests incl. fake-ComfyUI runs, 3 new Playwright tests with route mocks
+
+**Measured on the owner's PC (RTX 4060 Ti 16 GB), 3 views of the Reference Villa (top-down, Living room, Front gate), mean of 3.** Layout = share of the source's strongest edges kept; CLIP = ViT-H cosine to the reference picture (source Studio renders: 0.739 / 0.507 / 0.457).
+
+| Preset                                | Time  | VRAM peak | Layout kept | CLIP style |
+| ------------------------------------- | ----- | --------- | ----------- | ---------- |
+| Classic (old pipeline, raster source) | 36 s  | 11.4 GB   | 0.995       | 0.520      |
+| **Reference villa look**              | 96 s  | 14.8 GB   | 0.997       | **0.590**  |
+| Subtle polish                         | 39 s  | 13.7 GB   | 1.000       | 0.575      |
+| Bold restyle                          | 103 s | 15.0 GB   | 0.988       | 0.588      |
+
+Reference look beats the old pipeline on both scores in every view (CLIP +0.067 / +0.040 / +0.103; layout equal or better). No retries were needed, no OOM through the single-GPU queue.
+
+**Bugs worth knowing.** ComfyUI with smart memory stalled the first step for minutes on 16 GB: run it with `--disable-smart-memory`. Each masked conditioning slows every step, hence the 4-region cap (6.5 → 4 s/it). The CLIP scorer crawled while ComfyUI still held VRAM: the eval frees it first. Subtle polish needs creativity below the old 0.25 slider limit: the range is now 0.1–0.6.
+
+**Limits and deviations.** The weights/node packs in Docker were not built or run here (the eval ran against the owner's local ComfyUI). The CLIP score is a proxy: the reference is a phone screenshot, so it is cropped to the design. Regions are coarse (12 classes, 4 prompted). ~100 s per Reference-look job. Classic scoring uses its own raster view, so its CLIP is partly a framing effect. Failing e2e tests set aside by the user (lighting "tiers", shared) are unchanged.

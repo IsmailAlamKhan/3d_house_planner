@@ -96,6 +96,32 @@ def setup_outputs(scene, side, out_dir):
     nt.links.new(div.outputs[0], mask.inputs[0])
 
 
+def write_depth_vis(out_dir):
+    """depthvis.png: the depth pass as an 8-bit picture for ControlNet (near = white, far = dark, sky = black)."""
+    import numpy as np
+
+    img = bpy.data.images.load(os.path.join(out_dir, "depth.exr"))
+    w, h = img.size
+    px = np.empty(w * h * img.channels, dtype=np.float32)
+    img.pixels.foreach_get(px)
+    z = px.reshape(h, w, img.channels)[..., 0]
+    finite = z < 1e8
+    if not finite.any():
+        return
+    lo, hi = np.percentile(z[finite], [1, 99])
+    vis = np.clip(1.0 - (z - lo) / max(hi - lo, 1e-6), 0.0, 1.0)
+    vis = 0.08 + 0.92 * vis  # leave the darkest values for the sky
+    vis[~finite] = 0.0
+    out = bpy.data.images.new("depthvis", w, h, alpha=False, float_buffer=False)
+    out.colorspace_settings.name = "Non-Color"
+    rgba = np.ones((h, w, 4), dtype=np.float32)
+    rgba[..., :3] = vis[..., None]
+    out.pixels.foreach_set(rgba.ravel())
+    out.filepath_raw = os.path.join(out_dir, "depthvis.png")
+    out.file_format = "PNG"
+    out.save()
+
+
 def main():
     argv = sys.argv[sys.argv.index("--") + 1 :]
     bundle, out_dir, quality = os.path.abspath(argv[0]), os.path.abspath(argv[1]), argv[2]
@@ -163,6 +189,10 @@ def main():
         src = os.path.join(out_dir, f"{base}0001{ext}")
         if os.path.exists(src):
             os.replace(src, os.path.join(out_dir, f"{base}{ext}"))
+    try:
+        write_depth_vis(out_dir)
+    except Exception as e:  # noqa: BLE001 - the picture is the product, the guide pictures are extras
+        report["depth_vis_error"] = str(e)[:200]
     with open(os.path.join(out_dir, "result.json"), "w", encoding="utf8") as f:
         json.dump(report, f, indent=1)
     log("done " + json.dumps(report))

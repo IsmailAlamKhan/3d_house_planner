@@ -82,7 +82,7 @@ describe('prompt builder', () => {
 
 describe('request schema', () => {
   const params = { prompt: 'a lovely room', seed: 1 };
-  it('fills in the defaults and keeps creativity inside 0.25–0.6', () => {
+  it('fills in the defaults and keeps creativity inside 0.1–0.6', () => {
     const p = EnhanceParamsSchema.parse(params);
     expect(p).toMatchObject({
       creativity: CREATIVITY_RANGE.default,
@@ -91,8 +91,8 @@ describe('request schema', () => {
       upscale: false,
       negative: '',
     });
-    expect(CREATIVITY_RANGE).toMatchObject({ min: 0.25, max: 0.6, default: 0.35 });
-    expect(EnhanceParamsSchema.safeParse({ ...params, creativity: 0.2 }).success).toBe(false);
+    expect(CREATIVITY_RANGE).toMatchObject({ min: 0.1, max: 0.6, default: 0.35 });
+    expect(EnhanceParamsSchema.safeParse({ ...params, creativity: 0.05 }).success).toBe(false);
     expect(EnhanceParamsSchema.safeParse({ ...params, creativity: 0.61 }).success).toBe(false);
     expect(EnhanceParamsSchema.safeParse({ ...params, seed: -1 }).success).toBe(false);
     expect(EnhanceParamsSchema.safeParse({ prompt: 'x', seed: 1 }).success).toBe(false);

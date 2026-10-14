@@ -287,6 +287,8 @@ export function createStudioService(opts: StudioServiceOptions) {
         } else if (sub === 'meta') send(res, 200, metaOf(id));
         else if (sub === 'depth') sendFile(res, join(dirOf(id), 'out', 'depth.exr'), 'image/x-exr');
         else if (sub === 'mask') sendFile(res, join(dirOf(id), 'out', 'mask.png'), 'image/png');
+        else if (sub === 'depthvis')
+          sendFile(res, join(dirOf(id), 'out', 'depthvis.png'), 'image/png');
         else if (!sub) sendFile(res, join(dirOf(id), 'out', 'beauty.png'), 'image/png');
         else send(res, 404, { error: 'Not found' });
         return true;

@@ -29,6 +29,37 @@ export class ComfyClient {
     }
   }
 
+  /** The options of a combo input (checkpoint names, ControlNet files, …) of a node; empty when the node is missing. */
+  async choices(node: string, input: string): Promise<string[] | null> {
+    try {
+      const j = await this.json<
+        Record<string, { input?: { required?: Record<string, unknown[]> } }>
+      >(`/object_info/${encodeURIComponent(node)}`);
+      const spec = j[node]?.input?.required?.[input];
+      if (!spec) return null;
+      const first = spec[0];
+      if (Array.isArray(first)) return first as string[];
+      const opts = (spec[1] as { options?: string[] } | undefined)?.options;
+      return opts ?? [];
+    } catch {
+      return null;
+    }
+  }
+
+  /** Which of these nodes does ComfyUI know (custom node packs installed)? */
+  async hasNodes(names: string[]): Promise<Record<string, boolean>> {
+    const out: Record<string, boolean> = {};
+    for (const n of names) {
+      try {
+        const j = await this.json<Record<string, unknown>>(`/object_info/${encodeURIComponent(n)}`);
+        out[n] = !!j[n];
+      } catch {
+        out[n] = false;
+      }
+    }
+    return out;
+  }
+
   /** Puts an image in ComfyUI's input folder; returns the stored file name. */
   async upload(name: string, data: Buffer): Promise<string> {
     const form = new FormData();

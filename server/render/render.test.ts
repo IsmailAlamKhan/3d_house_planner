@@ -194,7 +194,9 @@ async function waitFor(url: string, id: string, pred: (j: Record<string, unknown
 describe('/api/render', () => {
   it('health says whether the image service is configured and reachable', async () => {
     const comfy = await fakeComfy();
-    expect((await (await fetch((await app(comfy.url)) + '/api/health')).json()).render).toEqual({
+    expect(
+      (await (await fetch((await app(comfy.url)) + '/api/health')).json()).render,
+    ).toMatchObject({
       configured: true,
       reachable: true,
     });

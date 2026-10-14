@@ -222,3 +222,37 @@ export async function saveBakeBundle(
   writeFileSync(join(dir, 'scene.glb'), glb);
   return { glbBytes: glb.length };
 }
+
+/** A Studio render (Blender) from the camera the 3D view has now (or the options' view); returns the result id. */
+export async function studioRenderHere(
+  page: Page,
+  options: Record<string, unknown>,
+): Promise<string> {
+  return page.evaluate(async (o) => {
+    const d = (
+      window as unknown as {
+        __duplex: {
+          studio: {
+            buildStudioBundle: (o: Record<string, unknown>) => Promise<unknown>;
+            packBundle: (b: unknown) => Blob;
+          };
+        };
+      }
+    ).__duplex.studio;
+    const bundle = await d.buildStudioBundle(o);
+    const r = await fetch('/api/studio/render?quality=' + String(o.quality), {
+      method: 'POST',
+      body: d.packBundle(bundle),
+    });
+    const { id } = (await r.json()) as { id: string };
+    for (;;) {
+      await new Promise((res) => setTimeout(res, 1000));
+      const j = (await (await fetch('/api/studio/jobs/' + id)).json()) as {
+        status: string;
+        error?: string;
+      };
+      if (j.status === 'error' || j.status === 'cancelled') throw new Error(j.error ?? j.status);
+      if (j.status === 'done') return id;
+    }
+  }, options);
+}

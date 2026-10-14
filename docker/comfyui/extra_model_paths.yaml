@@ -5,3 +5,5 @@ duplex:
   controlnet: controlnet
   vae: vae
   upscale_models: upscale_models
+  ipadapter: ipadapter
+  clip_vision: clip_vision

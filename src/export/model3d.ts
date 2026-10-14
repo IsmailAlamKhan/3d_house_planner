@@ -11,6 +11,7 @@ import {
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { getEntry, itemSize } from '../catalog';
 import { resolveMaterial } from '../materials';
+import { regionOfItem, regionOfPart } from '../render/regions';
 import type { Project } from '../model/types';
 import { type AnyPart, isObjectPart } from '../scene3d/generators/common';
 import { getMaterial } from '../scene3d/materials3d';
@@ -104,6 +105,11 @@ export function buildExportGroup(
       layer: part.layer,
       entity: part.entity,
       id: part.id,
+      region: isObjectPart(part)
+        ? item
+          ? regionOfItem(item.catalogId)
+          : regionOfPart(part.layer, [])
+        : regionOfPart(part.layer, part.materials),
       ...(hidden && { cameraHidden: true }),
       // fixtures hanging from the ceiling are cut away with it
       ...(item && isCeilingMounted(item) && { ceilingMounted: true }),

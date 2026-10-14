@@ -13,13 +13,14 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   type EnhanceRequest,
-  EnhanceRequestSchema,
+  EnhanceRequestChecked,
   type JobInfo,
   type RenderHealth,
   type ResultMeta,
 } from '../../src/render/protocol';
 import type { GpuQueue } from '../gpuQueue';
 import { ComfyClient, ComfyError } from './comfy';
+import { runEnhanceV2 } from './enhanceV2';
 import { WORKFLOW_VERSION, buildWorkflow } from './workflow';
 
 export interface RenderServiceOptions {
@@ -109,6 +110,31 @@ export async function unloadOllama(ollamaUrl: string): Promise<void> {
  *   GET    /api/render/results/:id      the enhanced image (png) — /before: the exact render, /meta: its parameters
  *   DELETE /api/render/results/:id      delete
  */
+/** What the ComfyUI behind us can do for Enhance v2 (cached for half a minute: /api/health is polled). */
+let capsCache: { at: number; value: NonNullable<RenderHealth['capabilities']> } | null = null;
+async function capabilities(
+  comfy: ComfyClient,
+): Promise<NonNullable<RenderHealth['capabilities']>> {
+  if (capsCache && Date.now() - capsCache.at < 30_000) return capsCache.value;
+  const [ckpts, ipas, visions, ups, nodes] = await Promise.all([
+    comfy.choices('CheckpointLoaderSimple', 'ckpt_name'),
+    comfy.choices('IPAdapterModelLoader', 'ipadapter_file'),
+    comfy.choices('CLIPVisionLoader', 'clip_name'),
+    comfy.choices('UpscaleModelLoader', 'model_name'),
+    comfy.hasNodes(['IPAdapterAdvanced', 'UltimateSDUpscale']),
+  ]);
+  const value = {
+    checkpoints: (ckpts ?? []).filter((c) => /xl|sdxl/i.test(c) || /sd_xl/i.test(c)),
+    styleReference:
+      !!nodes.IPAdapterAdvanced &&
+      (ipas ?? []).some((f) => /sdxl/i.test(f) && /vit/i.test(f)) &&
+      (visions ?? []).some((f) => /ViT-H-14/i.test(f)),
+    tiledUpscale: !!nodes.UltimateSDUpscale && (ups ?? []).length > 0,
+  };
+  capsCache = { at: Date.now(), value };
+  return value;
+}
+
 export function createRenderService(opts: RenderServiceOptions) {
   const comfy = opts.comfyUrl ? new ComfyClient(opts.comfyUrl) : null;
   const root = join(
@@ -142,9 +168,62 @@ export function createRenderService(opts: RenderServiceOptions) {
     error: job.error,
   });
 
-  async function execute(job: Job, req: EnhanceRequest): Promise<void> {
+  /** Enhance v2: studio source, style reference, regions, layout check, tiled upscale. */
+  async function executeV2(job: Job, req: EnhanceRequest): Promise<void> {
     if (!comfy) throw new ComfyError('The render service is not configured', 503, '');
     job.status = 'running';
+    mkdirSync(dirOf(job.id), { recursive: true });
+    const done = await runEnhanceV2(
+      {
+        comfy,
+        studioDir: join(root, '..', 'studio'),
+        jobId: job.id,
+        signal: job.controller.signal,
+        onProgress: (step, max) => (job.progress = { step, max }),
+        keep: (name, data) => writeFileSync(join(dirOf(job.id), name), data),
+      },
+      req,
+      req.params,
+    );
+    writeFileSync(join(dirOf(job.id), 'result.png'), done.image);
+    // what a re-run needs: the request without its pictures (the source is the studio render or before.png)
+    writeFileSync(
+      join(dirOf(job.id), 'request.json'),
+      JSON.stringify({ ...req, images: undefined, style: undefined }),
+    );
+    const style = req.images?.style ?? req.style;
+    if (style)
+      writeFileSync(
+        join(dirOf(job.id), 'style.png'),
+        Buffer.from(style.replace(/^data:image\/[a-z+]+;base64,/, ''), 'base64'),
+      );
+    const meta: ResultMeta = {
+      id: job.id,
+      projectId: req.projectId,
+      projectName: req.projectName,
+      createdAt: new Date().toISOString(),
+      params: { ...req.params, creativity: done.creativityUsed },
+      width: req.view.width,
+      height: req.view.height,
+      hasEdge: false,
+      view: req.view,
+      labels: req.labels,
+      workflow: done.workflow,
+      pipeline: 'v2',
+      source: done.source,
+      layoutScore: done.layoutScore,
+      retries: done.retries,
+      seconds: done.seconds,
+      creativityUsed: done.creativityUsed,
+    };
+    writeFileSync(join(dirOf(job.id), 'meta.json'), JSON.stringify(meta));
+  }
+
+  async function execute(job: Job, req: EnhanceRequest): Promise<void> {
+    if (req.params.pipeline === 'v2') return executeV2(job, req);
+    if (!comfy) throw new ComfyError('The render service is not configured', 503, '');
+    job.status = 'running';
+    if (!req.images) throw new ComfyError('The request has no pictures.', 400, '');
     const color = decodePng(req.images.color);
     const depth = decodePng(req.images.depth);
     const edge = req.images.edge ? decodePng(req.images.edge) : null;
@@ -210,7 +289,7 @@ export function createRenderService(opts: RenderServiceOptions) {
       const status = (e as { status?: number }).status ?? 400;
       return send(res, status, { error: status === 413 ? 'Request too large' : 'Invalid JSON' });
     }
-    const parsed = EnhanceRequestSchema.safeParse(body);
+    const parsed = EnhanceRequestChecked.safeParse(body);
     if (!parsed.success) {
       const i = parsed.error.issues[0];
       return send(res, 400, { error: `Invalid request: ${i?.path.join('.')} ${i?.message}` });
@@ -273,7 +352,9 @@ export function createRenderService(opts: RenderServiceOptions) {
 
   return {
     async health(): Promise<RenderHealth> {
-      return { configured: !!comfy, reachable: comfy ? await comfy.reachable() : false };
+      const reachable = comfy ? await comfy.reachable() : false;
+      if (!comfy || !reachable) return { configured: !!comfy, reachable };
+      return { configured: true, reachable, capabilities: await capabilities(comfy) };
     },
 
     /** Returns true when the request was for /api/render/*. */
@@ -359,6 +440,33 @@ export function createRenderService(opts: RenderServiceOptions) {
               ? `data:image/png;base64,${readFileSync(f).toString('base64')}`
               : undefined;
           };
+          if (meta.pipeline === 'v2') {
+            // v2: the request without its pictures, then the studio render it named (or the stored before / depth pictures)
+            let saved: Partial<EnhanceRequest>;
+            try {
+              saved = JSON.parse(
+                readFileSync(join(dirOf(id), 'request.json'), 'utf8'),
+              ) as Partial<EnhanceRequest>;
+            } catch {
+              send(res, 410, { error: 'This render cannot be repeated any more.' });
+              return true;
+            }
+            const style = img('style.png');
+            const live = img('before.png') && img('depth.png') && !saved.source;
+            await start(res, {
+              projectId: meta.projectId,
+              projectName: meta.projectName,
+              params: { ...meta.params, seed },
+              source: saved.source,
+              images: live
+                ? { color: img('before.png')!, depth: img('depth.png')!, style }
+                : undefined,
+              style: live ? undefined : style,
+              view: meta.view,
+              labels: meta.labels,
+            });
+            return true;
+          }
           const color = img('before.png');
           const depth = img('depth.png');
           if (!color || !depth) {
@@ -377,6 +485,7 @@ export function createRenderService(opts: RenderServiceOptions) {
         }
         if (sub === 'meta') send(res, 200, metaOf(id));
         else if (sub === 'before') sendFile(res, join(dirOf(id), 'before.png'));
+        else if (sub === 'style') sendFile(res, join(dirOf(id), 'style.png'));
         else if (!sub) sendFile(res, join(dirOf(id), 'result.png'));
         else send(res, 404, { error: 'Not found' });
         return true;

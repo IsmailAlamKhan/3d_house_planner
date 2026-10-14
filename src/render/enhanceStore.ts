@@ -11,9 +11,13 @@ import {
   submitEnhance,
   waitForJob,
 } from './api';
-import { buildRequest, captureEnhanceInputs, randomSeed } from './enhance';
+import { listStudioResults } from '../studio/api';
+import { buildRequest, captureEnhanceInputs, currentLabels, randomSeed } from './enhance';
+import { type EnhancePresetId, PRESET_SETTINGS } from './presets';
+import { fileStyle, isReferenceProject, referenceStyle } from './styleRef';
 import {
   type EnhanceParams,
+  type EnhanceRequest,
   type JobInfo,
   type RenderHealth,
   type ResultMeta,
@@ -33,6 +37,21 @@ interface EnhanceState {
   seed: number;
   upscale: boolean;
   useEdges: boolean;
+  // ── Enhance v2 ──
+  preset: EnhancePresetId;
+  /** Where the picture comes from: the latest studio render (default), or the live view. */
+  source: 'studio' | 'live';
+  /** The style reference: none, the reference villa picture, or an uploaded file. */
+  styleRef: 'none' | 'reference' | 'upload';
+  styleUpload: string | null;
+  ipWeight: number;
+  edgeStrength: number;
+  regions: boolean;
+  tiledUpscale: 0 | 2 | 3;
+  checkpoint: string;
+  layoutCheck: boolean;
+  /** A note about what the last run did (for example that no studio render was found). */
+  note: string | null;
   /** The prompt was written or edited by the user: do not overwrite it when the style changes. */
   promptEdited: boolean;
 
@@ -46,6 +65,8 @@ interface EnhanceState {
   selectedId: string | null;
 
   setOpen: (open: boolean) => void;
+  applyPreset: (id: EnhancePresetId) => void;
+  chooseStyleFile: (file: File) => Promise<void>;
   patch: (p: Partial<EnhanceState>) => void;
   rebuildPrompt: () => void;
   refreshHealth: () => Promise<void>;
@@ -66,7 +87,53 @@ function params(s: EnhanceState): EnhanceParams {
     steps: s.steps,
     upscale: s.upscale,
     style: s.style,
+    pipeline: PRESET_SETTINGS[s.preset].pipeline,
+    preset: s.preset,
+    ipWeight: s.styleRef === 'none' ? 0 : s.ipWeight,
+    edgeStrength: s.edgeStrength,
+    regions: s.regions,
+    tiledUpscale: s.tiledUpscale,
+    checkpoint: s.checkpoint || undefined,
+    layoutCheck: s.layoutCheck,
   };
+}
+
+/** The style picture the settings ask for (none, the reference villa picture, or an uploaded one). */
+async function styleOf(s: EnhanceState): Promise<string | undefined> {
+  if (s.styleRef === 'reference') return referenceStyle();
+  if (s.styleRef === 'upload') return s.styleUpload ?? undefined;
+  return undefined;
+}
+
+/**
+ * The v2 request: the latest studio render of the project (its picture, depth and region passes stay on the server, nothing
+ * big is sent), or, when there is none, the live view's pictures as before.
+ */
+async function buildV2Request(s: EnhanceState, p: EnhanceParams): Promise<EnhanceRequest> {
+  const project = useModel.getState().project;
+  const style = p.ipWeight > 0 ? await styleOf(s) : undefined;
+  const studio = s.source === 'studio' ? (await listStudioResults(project.id))[0] : undefined;
+  if (studio) {
+    useEnhance.setState({ note: null });
+    return {
+      projectId: project.id,
+      projectName: project.name,
+      params: p,
+      source: { kind: 'studio', id: studio.id },
+      style,
+      view: {
+        viewProjection:
+          studio.viewProjection.length === 16 ? studio.viewProjection : new Array(16).fill(0),
+        width: studio.width,
+        height: studio.height,
+      },
+      labels: currentLabels(),
+    };
+  }
+  useEnhance.setState({ note: s.source === 'studio' ? 'noStudio' : null });
+  const inputs = await captureEnhanceInputs(false);
+  const req = buildRequest(p, inputs);
+  return { ...req, images: { ...req.images!, style } };
 }
 
 const messageOf = (e: unknown): string =>
@@ -84,6 +151,17 @@ export const useEnhance = create<EnhanceState>((set, get) => ({
   seed: randomSeed(),
   upscale: false,
   useEdges: true,
+  preset: 'reference',
+  source: 'studio',
+  styleRef: isReferenceProject(useModel.getState().project) ? 'reference' : 'none',
+  styleUpload: null,
+  ipWeight: PRESET_SETTINGS.reference.ipWeight,
+  edgeStrength: PRESET_SETTINGS.reference.edgeStrength,
+  regions: PRESET_SETTINGS.reference.regions,
+  tiledUpscale: 0,
+  checkpoint: '',
+  layoutCheck: true,
+  note: null,
   promptEdited: false,
   busy: false,
   phase: 'idle',
@@ -102,6 +180,38 @@ export const useEnhance = create<EnhanceState>((set, get) => ({
     }
   },
   patch: (p) => set(p),
+  applyPreset: (id) => {
+    const p = PRESET_SETTINGS[id];
+    set({
+      preset: id,
+      creativity: p.creativity,
+      controlStrength: p.controlStrength,
+      edgeStrength: p.edgeStrength,
+      ipWeight: p.ipWeight > 0 ? p.ipWeight : get().ipWeight,
+      styleRef:
+        p.ipWeight === 0
+          ? 'none'
+          : get().styleRef === 'none'
+            ? isReferenceProject(useModel.getState().project)
+              ? 'reference'
+              : get().styleUpload
+                ? 'upload'
+                : 'none'
+            : get().styleRef,
+      regions: p.regions,
+      tiledUpscale: p.tiledUpscale,
+      steps: p.steps,
+      layoutCheck: p.layoutCheck,
+      useEdges: id === 'classic',
+    });
+  },
+  chooseStyleFile: async (file) => {
+    try {
+      set({ styleUpload: await fileStyle(file), styleRef: 'upload', error: null });
+    } catch {
+      set({ error: 'That picture could not be read.' });
+    }
+  },
   rebuildPrompt: () => {
     const project = useModel.getState().project;
     const present = usePresent.getState();
@@ -136,8 +246,14 @@ export const useEnhance = create<EnhanceState>((set, get) => ({
     const controller = new AbortController();
     set({ busy: true, phase: 'capturing', error: null, job: null, controller });
     try {
-      const inputs = await captureEnhanceInputs(s.useEdges);
-      const { id } = await submitEnhance(buildRequest(params(get()), inputs));
+      const p = params(get());
+      let request;
+      if (p.pipeline === 'v2') request = await buildV2Request(get(), p);
+      else {
+        const inputs = await captureEnhanceInputs(s.useEdges);
+        request = buildRequest(p, inputs);
+      }
+      const { id } = await submitEnhance(request);
       set({
         phase: 'waiting',
         job: { id, status: 'queued', ahead: 0, gpuBusyWith: null, progress: null },

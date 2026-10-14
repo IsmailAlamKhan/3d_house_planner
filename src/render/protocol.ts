@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /** The shapes the browser and the app server agree on for "Enhance render" (shared, so both validate the same thing). */
 
-export const CREATIVITY_RANGE = { min: 0.25, max: 0.6, default: 0.35 } as const;
+export const CREATIVITY_RANGE = { min: 0.1, max: 0.6, default: 0.35 } as const;
 export const MAX_SEED = 2 ** 32 - 1;
 
 export const EnhanceParamsSchema = z.object({
@@ -21,6 +21,24 @@ export const EnhanceParamsSchema = z.object({
   /** Add a 1.5× upscale pass. */
   upscale: z.boolean().default(false),
   style: z.string().max(40).optional(),
+
+  // ── Enhance v2 (all optional: a v1 request is still valid) ──
+  /** `v2`: studio source, style reference, region prompts, layout check, tiled upscale. */
+  pipeline: z.enum(['v1', 'v2']).default('v1'),
+  /** The preset the settings came from (shown in the gallery). */
+  preset: z.enum(['reference', 'subtle', 'bold', 'classic']).optional(),
+  /** Strength of the style reference (IP-Adapter, 'style transfer'); 0 = not used. */
+  ipWeight: z.number().min(0).max(1.2).default(0),
+  /** Strength of the canny (edges) ControlNet; the depth ControlNet uses `controlStrength`. */
+  edgeStrength: z.number().min(0).max(1.5).default(0.5),
+  /** Give each region of the picture (pool, lawn, floors, beds, cars, …) its own prompt. */
+  regions: z.boolean().default(false),
+  /** Tiled upscale of the result by 2× or 3× (0 = none). */
+  tiledUpscale: z.union([z.literal(0), z.literal(2), z.literal(3)]).default(0),
+  /** The SDXL checkpoint (empty = SDXL base 1.0). */
+  checkpoint: z.string().max(160).optional(),
+  /** Compare the result's edges with the source's and retry with less creativity when walls moved. */
+  layoutCheck: z.boolean().default(true),
 });
 export type EnhanceParams = z.infer<typeof EnhanceParamsSchema>;
 
@@ -38,14 +56,24 @@ export const EnhanceRequestSchema = z.object({
   projectId: z.string().min(1).max(64),
   projectName: z.string().max(120).default(''),
   params: EnhanceParamsSchema,
-  images: z.object({
-    /** The presentation render WITHOUT labels. */
-    color: dataUrl,
-    /** Normalised depth, near = white. */
-    depth: dataUrl,
-    /** Optional edge / line pass. */
-    edge: dataUrl.optional(),
-  }),
+  images: z
+    .object({
+      /** The presentation render WITHOUT labels. */
+      color: dataUrl,
+      /** Normalised depth, near = white. */
+      depth: dataUrl,
+      /** Optional edge / line pass. */
+      edge: dataUrl.optional(),
+      /** The style reference picture (v2). */
+      style: dataUrl.optional(),
+    })
+    .optional(),
+  /** v2: take the picture, depth and region passes of a studio render stored on the server. */
+  source: z
+    .object({ kind: z.literal('studio'), id: z.string().regex(/^[a-f0-9]{16}$/) })
+    .optional(),
+  /** v2 with a studio source: the style reference picture (the studio render is not in the request). */
+  style: dataUrl.optional(),
   /** The camera of all three images, so labels can be put back on the result. */
   view: z.object({
     viewProjection: z.array(z.number()).length(16),
@@ -55,6 +83,12 @@ export const EnhanceRequestSchema = z.object({
   labels: z.array(StoredLabelSchema).max(60).default([]),
 });
 export type EnhanceRequest = z.infer<typeof EnhanceRequestSchema>;
+
+/** A request needs pictures: its own, or a studio render on the server. */
+export const EnhanceRequestChecked = EnhanceRequestSchema.refine((r) => !!r.images || !!r.source, {
+  message: 'send the pictures or name a studio render',
+  path: ['images'],
+});
 
 export type JobStatus = 'queued' | 'running' | 'done' | 'error' | 'cancelled';
 
@@ -82,6 +116,17 @@ export interface ResultMeta {
   labels: EnhanceRequest['labels'];
   /** Version of the workflow template that produced it. */
   workflow: number;
+  // ── v2 ──
+  pipeline?: 'v1' | 'v2';
+  /** Where the source picture came from. */
+  source?: 'studio' | 'live';
+  /** How much of the source's layout the result kept (0–1), and how often it was retried with less creativity. */
+  layoutScore?: number;
+  retries?: number;
+  /** Seconds the image model needed (all attempts). */
+  seconds?: number;
+  /** The creativity of the attempt that was kept. */
+  creativityUsed?: number;
 }
 
 export interface RenderHealth {
@@ -89,6 +134,15 @@ export interface RenderHealth {
   configured: boolean;
   /** ComfyUI answered just now. */
   reachable: boolean;
+  /** What Enhance v2 can use on this ComfyUI (only when it is reachable). */
+  capabilities?: {
+    /** SDXL checkpoints to choose from. */
+    checkpoints: string[];
+    /** The IP-Adapter node pack, its SDXL weights and the CLIP vision encoder are there (style reference). */
+    styleReference: boolean;
+    /** The Ultimate SD Upscale node pack and an upscale model are there (tiled upscale). */
+    tiledUpscale: boolean;
+  };
 }
 
 /** The command that starts the optional image service. */

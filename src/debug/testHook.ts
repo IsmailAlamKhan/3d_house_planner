@@ -1,5 +1,6 @@
 import { captureScene } from '../export/bridge';
 import { buildBakeBundle, packBakeBundle } from '../bake/bundle';
+import { captureEnhanceInputs } from '../render/enhance';
 import { useBake } from '../bake/bakeStore';
 import { bakeStats, setBakeGain } from '../bake/runtime';
 import { buildStudioBundle, packBundle } from '../studio/bundle';
@@ -94,6 +95,7 @@ export function installTestHook(): void {
     },
     measureLuminance,
     captureView,
+    captureEnhanceInputs,
     setBakeGain,
     bakeStats,
     worldToScreen,

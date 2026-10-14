@@ -53,6 +53,8 @@ export default defineConfig({
       DATA_DIR: 'test-results/gpu-data',
       ASSETS_DIR: 'assets',
       BLENDER_PATH: blender,
+      // the image service: the ComfyUI on this PC (start it first: E:/ComfyUI/ComfyUI/start-comfy.bat), or COMFYUI_URL
+      COMFYUI_URL: process.env.COMFYUI_URL ?? 'http://127.0.0.1:8188',
     },
   },
 });

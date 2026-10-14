@@ -198,13 +198,19 @@ def apply_cutaway(side, report):
     report["hidden_from_camera"] = n
 
 
+# the regions of src/render/regions.ts: the mask pass holds this id in every pixel (0 = sky)
+REGION_IDS = {
+    "floor": 1, "wall": 2, "ceiling": 3, "lawn": 4, "water": 5, "paving": 6,
+    "glass": 7, "car": 8, "soft": 9, "plant": 10, "furniture": 11, "stair": 12,
+}
+
+
 def assign_ids():
-    """Object index per kind of surface, for the mask pass (prompt 23)."""
-    kinds = {"wall": 1, "slab": 2, "floor": 3, "ceiling": 4, "roof": 5, "item": 6, "opening": 7, "stair": 8, "site": 9}
+    """Object index per kind of surface (the region the app tagged on the mesh), for the mask pass."""
     for obj in bpy.data.objects:
         if obj.type != "MESH":
             continue
-        obj.pass_index = kinds.get(str(extra(obj, "layer")), 0)
+        obj.pass_index = REGION_IDS.get(str(extra(obj, "region")), 11)
 
 
 def add_lamps(side, report, bulbs=True):

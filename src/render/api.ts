@@ -48,6 +48,7 @@ export const listResults = async (projectId: string): Promise<ResultMeta[]> => {
 };
 
 export const resultUrl = (id: string): string => `/api/render/results/${id}`;
+export const styleUrl = (id: string): string => `/api/render/results/${id}/style`;
 export const beforeUrl = (id: string): string => `/api/render/results/${id}/before`;
 
 export const deleteResult = (id: string): Promise<unknown> =>
