@@ -8,6 +8,8 @@ export interface ServerConfig {
   comfyUrl: string | null;
   /** The model the app suggests by default (users can still pick another in AI settings). */
   model: string;
+  /** The picture-reading model ("Recreate from picture"); runs on the same GPU queue as everything else. */
+  visionModel: string;
   /** If set, the whole app asks for this password first. */
   password: string | null;
   /** Folder with the production build. */
@@ -48,6 +50,7 @@ export function loadConfig(
     ollamaUrl: (get('OLLAMA_URL') || 'http://127.0.0.1:11434').replace(/\/+$/, ''),
     comfyUrl: get('COMFYUI_URL') ? get('COMFYUI_URL')!.replace(/\/+$/, '') : null,
     model: get('OLLAMA_MODEL') || 'qwen3:14b',
+    visionModel: get('OLLAMA_VISION_MODEL') || 'qwen3-vl:8b-instruct',
     password: get('APP_PASSWORD') ? String(get('APP_PASSWORD')) : null,
     distDir,
     dataDir: get('DATA_DIR') || 'data',

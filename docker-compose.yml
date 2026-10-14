@@ -12,6 +12,7 @@ services:
     environment:
       OLLAMA_URL: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:14b}
+      OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-qwen3-vl:8b-instruct}
       APP_PASSWORD: ${APP_PASSWORD:-}
       # AI image enhancement ("Enhance with AI"): ComfyUI below, on the internal network only.
       COMFYUI_URL: http://comfyui:8188
@@ -22,7 +23,7 @@ services:
         condition: service_healthy
 
   ollama:
-    image: ollama/ollama:0.12.3
+    image: ollama/ollama:0.12.11
     restart: unless-stopped
     # No "ports": Ollama is reachable only from the app on the internal compose network, never from the LAN.
     volumes:
@@ -44,14 +45,20 @@ services:
   # Downloads the model once (into the ollama-data volume) and exits. The app already works while this runs: it falls
   # back to the built-in offline generator and shows "Downloading the AI model…".
   ollama-init:
-    image: ollama/ollama:0.12.3
+    image: ollama/ollama:0.12.11
     restart: "no"
     depends_on:
       ollama:
         condition: service_healthy
     environment:
       OLLAMA_HOST: http://ollama:11434
-    entrypoint: ["ollama", "pull", "${OLLAMA_MODEL:-qwen3:14b}"]
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:14b}
+      OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-qwen3-vl:8b-instruct}
+    # The text model first (the app already works with it), then the picture-reading model.
+    entrypoint:
+      - sh
+      - -c
+      - ollama pull "${OLLAMA_MODEL:-qwen3:14b}" && ollama pull "${OLLAMA_VISION_MODEL:-qwen3-vl:8b-instruct}"
 
   # ── AI image enhancement (ComfyUI + Stable Diffusion XL + ControlNet), started by the same "docker compose up -d" ──
   # The first start downloads about 12 GB of models once (comfyui-init); until then the app says the image service is

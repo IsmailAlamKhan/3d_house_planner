@@ -1,10 +1,16 @@
-export type JobKind = 'design' | 'render';
+export type JobKind = 'design' | 'render' | 'vision';
 
 export interface GpuHooks {
   /** Runs before a render job starts (unload the language model so the image model fits in VRAM). */
   beforeRender?: () => Promise<void>;
   /** Runs after a render job (ask ComfyUI to free its memory). */
   afterRender?: () => Promise<void>;
+  /**
+   * Runs when the language model and the vision model take turns (either way round): unload whichever is loaded so
+   * the two never share the card. Not called between two jobs of the same kind (a picture is read tile by tile with
+   * the vision model staying loaded).
+   */
+  beforeSwitch?: (from: JobKind, to: JobKind) => Promise<void>;
 }
 
 interface Entry {
@@ -24,6 +30,7 @@ export class GpuQueue {
   private waiting: Entry[] = [];
   private current: Entry | null = null;
   private n = 0;
+  private last: JobKind | null = null;
 
   constructor(private readonly hooks: GpuHooks = {}) {}
 
@@ -85,6 +92,9 @@ export class GpuQueue {
   private async execute<T>(entry: Entry, job: () => Promise<T>): Promise<T> {
     try {
       if (entry.kind === 'render') await this.hooks.beforeRender?.().catch(() => undefined);
+      else if (this.last && this.last !== entry.kind && this.last !== 'render')
+        await this.hooks.beforeSwitch?.(this.last, entry.kind).catch(() => undefined);
+      this.last = entry.kind;
       return await job();
     } finally {
       if (entry.kind === 'render') await this.hooks.afterRender?.().catch(() => undefined);

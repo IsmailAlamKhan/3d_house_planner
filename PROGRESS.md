@@ -330,3 +330,31 @@ State at the end of the Windows session (RTX 4060 Ti 16 GB, Docker Desktop, Wind
 - Furniture is placed by rules (beds on a wall, wardrobes opposite, U-sectional facing the TV wall …), not copied item for item; doors that would swing into furniture are moved or made pocket doors.
 - 3D: the compare view, the roof-less cutaway and the two e2e tests ran under software GL only (slow; the browser pane lost its GL context once when switching views repeatedly). Interiors at dusk are dark where no lamp reaches (the project's lights are all on, but only the nearest 8 / 16 / 32 emit): this is the existing realistic-lighting model, and the visual match to the picture's bright interiors is for the GPU runs of Prompts 19–21. `dusk` + `lights.master: on` is set; the preset itself is a view setting, so it is applied by the compare view rather than saved in the project.
 - Not built: dragging the picture with the mouse (nudge buttons, numeric rotate instead), perspective-correct 3D decal of a picture set up with two points (it is flat).
+
+## Prompt 19 — AI "Recreate From a Picture" (local vision model → reference spec) — DONE
+
+**What was built.** `/api/vision` on the shared GPU queue (vision ↔ language model ↔ ComfyUI never share the card), the extraction pipeline in `src/ai/vision/`, the review screen and the "Describe it" / "Recreate from picture" modes of the AI tab, and `npm run ai:eval:vision`.
+
+- [x] Vision model: `OLLAMA_VISION_MODEL=qwen3-vl:8b-instruct` in `.env.example`, `ollama-init` pulls it after the text model; Ollama image bumped 0.12.3 → 0.12.11 for Qwen3-VL (**the new image was not pulled or run here**; the host Ollama 0.17.1 was used)
+- [x] Pass 1 labels (JSON-schema output, name + printed size + position), pass 2 boxes per overlapping tile, merge, code-side clean-up (snap, align, close gaps, resolve overlaps, fit to label / to picture), optional furniture pass
+- [x] Review screen (confidence colours, editable name / type / position / size, add / delete); Build exact / as labelled / as pictured / both; picture added as an underlay; one undo step
+- [x] Tests: 50 unit tests (`src/ai/vision`), 11 server tests, 2 Playwright tests with a pretend model (`e2e/recreate.spec.ts`); existing AI e2e still pass
+
+**Eval (RTX 4060 Ti 16 GB, host Ollama 0.17.1, `qwen3-vl:8b-instruct`, before any manual correction; `reference/EVAL_VISION.md`).**
+
+| Plan | Labels read | Printed sizes read | Centres within 3 ft | Mean / median centre error | Time |
+| --- | --- | --- | --- | --- | --- |
+| Reference villa | 100 % (22/22) | 100 % | 95 % | 1.3 / 1.1 ft | 106 s |
+| S1 three rooms, feet | 100 % | 100 % | 100 % | 0.5 / 0.2 ft | 14 s |
+| S2 metric apartment | 100 % | 100 % | 100 % | 0.6 / 0.7 ft | 21 s |
+| S3 villa with pool and garden | 100 % | 100 % | 100 % | 1.0 / 1.0 ft | 43 s |
+| S4 small type, labels without sizes | 100 % | 86 % | 100 % | 0.7 / 0.6 ft | 38 s |
+
+Target on the villa (≥ 90 % of labels, centres within 3 ft): **met** (100 % / 95 %).
+
+**How it got there (and limits).**
+- First run with the plain `qwen3-vl:8b` tag: labels 81 %, sizes 0 %, centres 65 %, one tile timed out, 2421 s. Causes: it is a thinking model (hidden reasoning, `think:false` ignored) and the optional `size` field was left out. Fix: the `-instruct` tag and a required `size`.
+- The villa truth counts only what the picture prints a label for (22 of the 26 traced items; unlabelled areas such as the fire-pit deck, driveway and roof terrace cannot be "read"); the picture prints "Bath" where the spec says "Guest Bath".
+- Truth for the villa is my own hand tracing (Prompt 18), so box errors (mean 2.2 ft) include my tracing error. Rooms are boxed by the model; B-style accuracy comes from the clean-up and the user's review.
+- The full "upload → build → matches the Prompt 18 inventory" flow was verified up to the review screen with a pretend model (e2e) and with the real model on the eval; furniture (items pass) was not evaluated on the GPU, only unit-tested, and the model does not read the unlabelled features (waterfall, medallion …), so the inventory still needs the Prompt 18 spec or manual additions.
+- Vision calls take 14–110 s per plan; a tile that exceeds 5 minutes fails and is reported as a note.

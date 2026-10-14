@@ -7,6 +7,7 @@ import { GpuQueue } from './gpuQueue';
 import { ComfyClient } from './render/comfy';
 import { createAssetService } from './assetsApi';
 import { createRenderService, unloadOllama } from './render/renderApi';
+import { createVisionService } from './vision/visionApi';
 import { handleProjects } from './projectsApi';
 import { ProjectStore } from './store';
 import type { ServerConfig } from './config';
@@ -94,9 +95,15 @@ export function createApp(config: ServerConfig): AppHandle {
   const comfy = config.comfyUrl ? new ComfyClient(config.comfyUrl) : null;
   const queue = new GpuQueue({
     beforeRender: () => unloadOllama(config.ollamaUrl),
+    beforeSwitch: () => unloadOllama(config.ollamaUrl),
     afterRender: async () => void (await comfy?.free().catch(() => undefined)),
   });
   const ai = createAiProxy({ ollamaUrl: config.ollamaUrl, queue });
+  const vision = createVisionService({
+    ollamaUrl: config.ollamaUrl,
+    model: config.visionModel,
+    queue,
+  });
   const render = createRenderService({ comfyUrl: config.comfyUrl, dataDir: config.dataDir, queue });
   const assets = createAssetService({ dataDir: config.dataDir });
   const store = new ProjectStore(
@@ -145,9 +152,15 @@ export function createApp(config: ServerConfig): AppHandle {
     } catch {
       // Ollama is not running: the app still works with its offline generator.
     }
+    const installed = (name: string) =>
+      ollama.models.some((m) => m === name || m.startsWith(`${name}:`) || name.startsWith(`${m}:`));
     json(res, 200, {
       app: 'ok',
       model: config.model,
+      vision: {
+        model: config.visionModel,
+        installed: ollama.reachable && installed(config.visionModel),
+      },
       ollama,
       render: await render.health(),
       authRequired: !!config.password,
@@ -235,6 +248,7 @@ export function createApp(config: ServerConfig): AppHandle {
       }
 
       if (path === '/api/ai') return ai(req, res);
+      if (await vision.handle(req, res, path)) return;
       if (await render.handle(req, res, path)) return;
       if (await assets.handle(req, res, path)) return;
       if (await handleProjects(store, req, res, path)) return;

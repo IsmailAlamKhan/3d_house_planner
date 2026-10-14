@@ -18,6 +18,7 @@ async function start(password: string | null = null) {
     ollamaUrl: 'http://127.0.0.1:9',
     comfyUrl: null,
     model: 'qwen3:14b',
+    visionModel: 'qwen3-vl:8b-instruct',
     password,
     distDir: mkdtempSync(join(tmpdir(), 'dd-dist-')),
     dataDir: ':memory:',

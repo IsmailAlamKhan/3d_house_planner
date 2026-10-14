@@ -94,6 +94,7 @@ async function app(over: Partial<{ password: string | null }> = {}, dataDir = ':
     ollamaUrl: 'http://127.0.0.1:9',
     comfyUrl: null,
     model: 'm',
+    visionModel: 'v',
     password: over.password ?? null,
     distDir: 'dist',
     dataDir,

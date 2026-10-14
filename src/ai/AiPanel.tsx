@@ -7,6 +7,8 @@ import { type Candidate, useAi } from './aiStore';
 import type { AiSource } from './pipeline';
 import { PlanThumb } from './PlanThumb';
 import { useAiSettings } from './provider';
+import { RecreatePanel } from './vision/RecreatePanel';
+import { useRecreate } from './vision/recreateStore';
 
 const GENERATE_EXAMPLES = [
   '2 bedroom duplex with open kitchen',
@@ -158,6 +160,8 @@ export function AiPanel() {
   const elapsed = useElapsed(ai.startedAt);
   const downloading = useModelDownloading();
   const hasWalls = useModel((s) => s.project.walls.length > 0);
+  const panelMode = useRecreate((s) => s.panelMode);
+  const setPanelMode = useRecreate((s) => s.setPanelMode);
   const generate = ai.mode === 'generate';
   const examples = generate ? GENERATE_EXAMPLES : EDIT_EXAMPLES;
   const usingModel = settings.provider !== 'offline';
@@ -200,175 +204,199 @@ export function AiPanel() {
         <p className="rounded bg-amber-50 p-2 text-xs text-amber-800">{t('ai.offlineBanner')}</p>
       )}
 
-      <div role="tablist" className="flex rounded-md bg-slate-100 p-0.5">
-        {(['generate', 'edit'] as const).map((m) => (
+      <div
+        role="tablist"
+        aria-label={t('vision.mode.describe')}
+        className="flex rounded-md bg-slate-200 p-0.5"
+        data-testid="ai-modes"
+      >
+        {(['describe', 'recreate'] as const).map((m) => (
           <button
             key={m}
             role="tab"
-            aria-selected={ai.mode === m}
-            onClick={() => ai.setMode(m)}
-            className={`flex-1 rounded px-2 py-1 text-xs ${ai.mode === m ? 'bg-white font-semibold shadow-sm' : 'text-slate-600'}`}
+            aria-selected={panelMode === m}
+            onClick={() => setPanelMode(m)}
+            className={`flex-1 rounded px-2 py-1 text-xs ${panelMode === m ? 'bg-white font-semibold shadow-sm' : 'text-slate-600'}`}
           >
-            {t(m === 'generate' ? 'ai.mode.generate' : 'ai.mode.edit')}
+            {t(m === 'describe' ? 'vision.mode.describe' : 'vision.mode.recreate')}
           </button>
         ))}
       </div>
-
-      <textarea
-        aria-label={t(generate ? 'ai.placeholder.generate' : 'ai.placeholder.edit')}
-        placeholder={t(generate ? 'ai.placeholder.generate' : 'ai.placeholder.edit')}
-        value={ai.input}
-        rows={4}
-        onChange={(e) => ai.setInput(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !ai.busy)
-            void (generate ? ai.generate(1) : ai.runEdit());
-        }}
-        className="w-full resize-none rounded-md border border-slate-300 bg-white p-2 text-sm focus:border-sky-400 focus:outline-none"
-      />
-      <div>
-        <p className="mb-1 text-xs text-slate-500">{t('ai.examples')}</p>
-        <div className="flex flex-wrap gap-1">
-          {examples.map((ex) => (
-            <button
-              key={ex}
-              onClick={() => ai.setInput(ex)}
-              className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-200"
-            >
-              {ex}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {generate && (
-        <label className="flex items-center gap-2 text-xs">
-          <input
-            type="checkbox"
-            checked={ai.furnish}
-            onChange={(e) => ai.setFurnish(e.target.checked)}
-          />
-          {t('ai.furnish')}
-        </label>
-      )}
-
-      {downloading && (
-        <p
-          role="status"
-          data-testid="ai-downloading"
-          className="rounded bg-sky-50 p-2 text-xs text-sky-800"
-        >
-          {t('ai.downloading')}
-        </p>
-      )}
-
-      {ai.busy ? (
-        <div className="flex items-center gap-2 rounded-md bg-sky-50 p-2" role="status">
-          <span className="h-3 w-3 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
-          <span className="flex-1 text-sm" data-testid="ai-progress">
-            {ai.progress?.phase === 'queued'
-              ? t('ai.waiting').replace('{n}', String(ai.progress.ahead))
-              : ai.progress?.phase === 'thinking'
-                ? t('ai.thinking').replace('{s}', String(elapsed))
-                : t('ai.working').replace('{s}', String(elapsed))}
-          </span>
-          <button
-            onClick={ai.cancel}
-            className="rounded border border-slate-300 bg-white px-2 py-0.5 text-xs hover:bg-slate-50"
-          >
-            {t('ai.cancel')}
-          </button>
-        </div>
-      ) : generate ? (
-        <div className="flex flex-col gap-1">
-          <button
-            onClick={() => void ai.generate(1)}
-            className="flex items-center justify-center gap-1 rounded-md bg-sky-700 px-3 py-1.5 font-medium text-white hover:bg-sky-800"
-          >
-            <Wand2 size={14} /> {t('ai.generate')}
-          </button>
-          <button
-            onClick={() => void ai.generate(3)}
-            className="rounded-md border border-slate-300 px-3 py-1 text-xs hover:bg-slate-50"
-          >
-            {t('ai.variations')}
-          </button>
-        </div>
+      {panelMode === 'recreate' ? (
+        <RecreatePanel />
       ) : (
-        <button
-          onClick={() => void ai.runEdit()}
-          disabled={!ai.input.trim()}
-          className="w-full rounded-md bg-sky-700 px-3 py-1.5 font-medium text-white hover:bg-sky-800 disabled:opacity-50"
-        >
-          {t('ai.preview')}
-        </button>
-      )}
-
-      {ai.error && (
-        <p role="alert" className="rounded bg-red-50 p-2 text-xs text-red-700">
-          {ai.error}
-        </p>
-      )}
-      {ai.done && (
-        <p role="status" className="rounded bg-green-50 p-2 text-xs text-green-800">
-          {ai.done}
-        </p>
-      )}
-
-      {ai.candidates.length > 0 && (
         <>
-          {hasWalls && <p className="text-xs text-slate-500">{t('ai.replaces')}</p>}
-          <ul className="space-y-2">
-            {ai.candidates.map((c, i) => (
-              <CandidateCard key={c.id} c={c} index={i} />
-            ))}
-          </ul>
-        </>
-      )}
-
-      {ai.preview && (
-        <div
-          className="space-y-2 rounded-lg border border-slate-200 bg-white p-2"
-          data-testid="ai-preview"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-semibold">
-              {ai.preview.error ? t('ai.cantDo') : t('ai.willChange')}
-            </span>
-            <SourceLabel source={ai.preview.source} />
-          </div>
-          {ai.preview.summary && <p className="text-xs text-slate-600">{ai.preview.summary}</p>}
-          {ai.preview.error ? (
-            <p className="text-xs text-red-700">{ai.preview.error}</p>
-          ) : (
-            <ul className="list-inside list-disc text-xs text-slate-700">
-              {ai.preview.changes.map((c, i) => (
-                <li key={i}>{c}</li>
-              ))}
-            </ul>
-          )}
-          {ai.preview.notes.map((n, i) => (
-            <p key={i} className="text-xs text-amber-800">
-              {n}
-            </p>
-          ))}
-          <div className="flex gap-1">
-            {!ai.preview.error && (
+          <div role="tablist" className="flex rounded-md bg-slate-100 p-0.5">
+            {(['generate', 'edit'] as const).map((m) => (
               <button
-                onClick={ai.applyEdit}
-                className="flex-1 rounded bg-sky-700 px-2 py-1 text-sm font-medium text-white hover:bg-sky-800"
+                key={m}
+                role="tab"
+                aria-selected={ai.mode === m}
+                onClick={() => ai.setMode(m)}
+                className={`flex-1 rounded px-2 py-1 text-xs ${ai.mode === m ? 'bg-white font-semibold shadow-sm' : 'text-slate-600'}`}
               >
-                {t('ai.apply')}
+                {t(m === 'generate' ? 'ai.mode.generate' : 'ai.mode.edit')}
               </button>
-            )}
-            <button
-              onClick={ai.discardEdit}
-              className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-slate-50"
-            >
-              {t('ai.discard')}
-            </button>
+            ))}
           </div>
-        </div>
+
+          <textarea
+            aria-label={t(generate ? 'ai.placeholder.generate' : 'ai.placeholder.edit')}
+            placeholder={t(generate ? 'ai.placeholder.generate' : 'ai.placeholder.edit')}
+            value={ai.input}
+            rows={4}
+            onChange={(e) => ai.setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !ai.busy)
+                void (generate ? ai.generate(1) : ai.runEdit());
+            }}
+            className="w-full resize-none rounded-md border border-slate-300 bg-white p-2 text-sm focus:border-sky-400 focus:outline-none"
+          />
+          <div>
+            <p className="mb-1 text-xs text-slate-500">{t('ai.examples')}</p>
+            <div className="flex flex-wrap gap-1">
+              {examples.map((ex) => (
+                <button
+                  key={ex}
+                  onClick={() => ai.setInput(ex)}
+                  className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700 hover:bg-slate-200"
+                >
+                  {ex}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {generate && (
+            <label className="flex items-center gap-2 text-xs">
+              <input
+                type="checkbox"
+                checked={ai.furnish}
+                onChange={(e) => ai.setFurnish(e.target.checked)}
+              />
+              {t('ai.furnish')}
+            </label>
+          )}
+
+          {downloading && (
+            <p
+              role="status"
+              data-testid="ai-downloading"
+              className="rounded bg-sky-50 p-2 text-xs text-sky-800"
+            >
+              {t('ai.downloading')}
+            </p>
+          )}
+
+          {ai.busy ? (
+            <div className="flex items-center gap-2 rounded-md bg-sky-50 p-2" role="status">
+              <span className="h-3 w-3 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
+              <span className="flex-1 text-sm" data-testid="ai-progress">
+                {ai.progress?.phase === 'queued'
+                  ? t('ai.waiting').replace('{n}', String(ai.progress.ahead))
+                  : ai.progress?.phase === 'thinking'
+                    ? t('ai.thinking').replace('{s}', String(elapsed))
+                    : t('ai.working').replace('{s}', String(elapsed))}
+              </span>
+              <button
+                onClick={ai.cancel}
+                className="rounded border border-slate-300 bg-white px-2 py-0.5 text-xs hover:bg-slate-50"
+              >
+                {t('ai.cancel')}
+              </button>
+            </div>
+          ) : generate ? (
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => void ai.generate(1)}
+                className="flex items-center justify-center gap-1 rounded-md bg-sky-700 px-3 py-1.5 font-medium text-white hover:bg-sky-800"
+              >
+                <Wand2 size={14} /> {t('ai.generate')}
+              </button>
+              <button
+                onClick={() => void ai.generate(3)}
+                className="rounded-md border border-slate-300 px-3 py-1 text-xs hover:bg-slate-50"
+              >
+                {t('ai.variations')}
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => void ai.runEdit()}
+              disabled={!ai.input.trim()}
+              className="w-full rounded-md bg-sky-700 px-3 py-1.5 font-medium text-white hover:bg-sky-800 disabled:opacity-50"
+            >
+              {t('ai.preview')}
+            </button>
+          )}
+
+          {ai.error && (
+            <p role="alert" className="rounded bg-red-50 p-2 text-xs text-red-700">
+              {ai.error}
+            </p>
+          )}
+          {ai.done && (
+            <p role="status" className="rounded bg-green-50 p-2 text-xs text-green-800">
+              {ai.done}
+            </p>
+          )}
+
+          {ai.candidates.length > 0 && (
+            <>
+              {hasWalls && <p className="text-xs text-slate-500">{t('ai.replaces')}</p>}
+              <ul className="space-y-2">
+                {ai.candidates.map((c, i) => (
+                  <CandidateCard key={c.id} c={c} index={i} />
+                ))}
+              </ul>
+            </>
+          )}
+
+          {ai.preview && (
+            <div
+              className="space-y-2 rounded-lg border border-slate-200 bg-white p-2"
+              data-testid="ai-preview"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-semibold">
+                  {ai.preview.error ? t('ai.cantDo') : t('ai.willChange')}
+                </span>
+                <SourceLabel source={ai.preview.source} />
+              </div>
+              {ai.preview.summary && <p className="text-xs text-slate-600">{ai.preview.summary}</p>}
+              {ai.preview.error ? (
+                <p className="text-xs text-red-700">{ai.preview.error}</p>
+              ) : (
+                <ul className="list-inside list-disc text-xs text-slate-700">
+                  {ai.preview.changes.map((c, i) => (
+                    <li key={i}>{c}</li>
+                  ))}
+                </ul>
+              )}
+              {ai.preview.notes.map((n, i) => (
+                <p key={i} className="text-xs text-amber-800">
+                  {n}
+                </p>
+              ))}
+              <div className="flex gap-1">
+                {!ai.preview.error && (
+                  <button
+                    onClick={ai.applyEdit}
+                    className="flex-1 rounded bg-sky-700 px-2 py-1 text-sm font-medium text-white hover:bg-sky-800"
+                  >
+                    {t('ai.apply')}
+                  </button>
+                )}
+                <button
+                  onClick={ai.discardEdit}
+                  className="rounded border border-slate-300 px-2 py-1 text-sm hover:bg-slate-50"
+                >
+                  {t('ai.discard')}
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -31,7 +31,11 @@ export function withDesign(p: Project, design: Design): Project {
   return {
     ...p,
     ...rest,
-    shell: { ...p.shell, footprint: footprint ?? p.shell.footprint, entrance: entrance ?? p.shell.entrance },
+    shell: {
+      ...p.shell,
+      footprint: footprint ?? p.shell.footprint,
+      entrance: entrance ?? p.shell.entrance,
+    },
     site: { ...p.site, zones: zones ?? p.site.zones, gates: gates ?? p.site.gates },
   };
 }

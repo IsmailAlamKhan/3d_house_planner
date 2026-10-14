@@ -18,6 +18,7 @@ async function setup() {
     ollamaUrl: 'http://127.0.0.1:9',
     comfyUrl: null,
     model: 'm',
+    visionModel: 'v',
     password: null,
     distDir: 'dist',
     dataDir: ':memory:',

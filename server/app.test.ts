@@ -53,6 +53,7 @@ const config = (over: object = {}) => ({
   ollamaUrl: 'http://127.0.0.1:9',
   comfyUrl: null,
   model: 'qwen3:14b',
+  visionModel: 'qwen3-vl:8b-instruct',
   password: null,
   distDir: dist(),
   dataDir: ':memory:',
@@ -72,6 +73,7 @@ describe('configuration', () => {
       host: '0.0.0.0',
       ollamaUrl: 'http://127.0.0.1:11434',
       model: 'qwen3:14b',
+      visionModel: 'qwen3-vl:8b-instruct',
       password: null,
     });
     expect(
@@ -123,6 +125,7 @@ describe('/api/health', () => {
     expect(up).toMatchObject({
       app: 'ok',
       model: 'qwen3:14b',
+      vision: { model: 'qwen3-vl:8b-instruct', installed: false },
       ollama: { reachable: true, models: ['qwen3:14b'], modelInstalled: true },
       authRequired: false,
     });

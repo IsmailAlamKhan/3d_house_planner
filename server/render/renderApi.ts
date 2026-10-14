@@ -132,7 +132,12 @@ export function createRenderService(opts: RenderServiceOptions) {
     id: job.id,
     status: job.status,
     ahead: Math.max(0, opts.queue.ahead(job.id)),
-    gpuBusyWith: opts.queue.snapshot().running?.kind ?? null,
+    gpuBusyWith:
+      opts.queue.snapshot().running?.kind === 'render'
+        ? 'render'
+        : opts.queue.snapshot().running
+          ? 'design'
+          : null,
     progress: job.progress,
     error: job.error,
   });

@@ -21,6 +21,7 @@ import { ProjectsDialog } from './ProjectsDialog';
 import { useUndoRedoShortcuts } from './useShortcuts';
 import { RightSidebar } from './RightSidebar';
 import { StatusBar } from './StatusBar';
+import { RecreateDialog } from '../ai/vision/RecreateDialog';
 import { CompareView } from '../underlay/CompareView';
 import { UnderlaySetupDialog } from '../underlay/SetupDialog';
 import { TopBar } from './TopBar';
@@ -99,6 +100,7 @@ export function App() {
       </div>
       <StatusBar />
       <UnderlaySetupDialog />
+      <RecreateDialog />
       <ProjectsDialog />
       <Suspense fallback={null}>
         {wizardOpen && <ShellWizard />}
