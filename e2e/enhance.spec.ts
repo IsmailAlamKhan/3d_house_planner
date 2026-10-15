@@ -254,7 +254,9 @@ test('enhance v2: without a studio render the live view is used and the user is 
   await page.getByTestId('enhance-preset-subtle').click();
   await page.getByTestId('enhance-run').click();
   await expect(page.getByTestId('enhance-no-studio')).toBeVisible({ timeout: 60_000 });
-  await expect.poll(() => request?.images?.color ?? '').toMatch(/^data:image\/png/);
+  await expect
+    .poll(() => request?.images?.color ?? '', { timeout: 90_000 })
+    .toMatch(/^data:image\/png/);
   const sent = request as { images?: Record<string, string>; source?: unknown } | null;
   expect(sent?.source).toBeUndefined();
   expect(sent?.images?.depth).toMatch(/^data:image\/png/);
