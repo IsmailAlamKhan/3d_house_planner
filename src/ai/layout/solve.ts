@@ -43,6 +43,8 @@ export interface SolveInput {
   orientation?: Orientation;
   /** What the person asked to improve (see improve.ts). */
   emphasis?: Emphasis;
+  /** Placement hints by room name (bubble diagram, locked rooms). */
+  hints?: Record<string, { x: number; y: number; w?: number }>;
   /** Wall-clock time (ms) the search may take for `solveCandidates` (default 2500): refinement stops when it is used up. */
   budgetMs?: number;
   /** Internal: absolute `performance.now()` deadline for this search. */
@@ -595,6 +597,7 @@ function search(input: SolveInput) {
         gardenSide: input.plot ? gardenSide(input.entrance.direction) : undefined,
         orientation: input.orientation,
         emphasis: input.emphasis,
+        hints: input.hints,
       };
       const laid = (input.engine === 'treemap' ? layoutLevel : optimizeLevel)(
         specs,
@@ -620,9 +623,16 @@ function search(input: SolveInput) {
   if (input.engine === 'treemap') {
     ranked = candidates.map((c) => evaluateSkeleton(c, tries)).sort((a, b) => a.score - b.score);
   } else {
-    const quick = candidates
-      .map((c) => evaluateSkeleton(c, Math.max(3, Math.round(tries / 6))))
-      .sort((a, b) => a.score - b.score);
+    // Skeletons that put the stair where the brief wants it come first; with a deadline the quick pass stops
+    // after about half of the time (always at least eight skeletons, so every kind of plan gets a look).
+    const start = performance.now();
+    const quickBudget = input.deadline ? Math.max(0, (input.deadline - start) * 0.55) : Infinity;
+    const quick: Chosen[] = [];
+    for (const c of [...candidates].sort((x, y) => x.penalty - y.penalty)) {
+      if (quick.length >= 8 && performance.now() - start > quickBudget) break;
+      quick.push(evaluateSkeleton(c, Math.max(3, Math.round(tries / 6))));
+    }
+    quick.sort((x, y) => x.score - y.score);
     // Keep the best skeleton of every archetype in the refinement round, so the candidates differ in kind.
     const byKind = new Map<string, Chosen>();
     for (const q of quick) if (!byKind.has(q.cand.archetype)) byKind.set(q.cand.archetype, q);

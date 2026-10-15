@@ -40,6 +40,7 @@ const showView = (mode: 'split' | 'keep') => () => {
 
 export const TOUR_STEPS: Step[] = [
   { title: 'tour.1.title', body: 'tour.1.body', before: closeDrawers },
+  { target: 'tab-ai', title: 'tour.9.title', body: 'tour.9.body', before: showLeft('ai') },
   { target: 'projects', title: 'tour.2.title', body: 'tour.2.body', before: closeDrawers },
   { target: 'plan-tools', title: 'tour.3.title', body: 'tour.3.body', before: showView('split') },
   {

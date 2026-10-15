@@ -27,7 +27,7 @@ const collectErrors = (page: Page) => {
 test.describe('first-run tour', () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
-  test('starts by itself, walks through all 8 steps without errors, and can be replayed from Help', async ({
+  test('starts by itself, walks through all 9 steps without errors, and can be replayed from Help', async ({
     page,
   }) => {
     const errors = collectErrors(page);
@@ -35,11 +35,11 @@ test.describe('first-run tour', () => {
     const tour = page.getByTestId('tour');
     await expect(tour).toBeVisible({ timeout: 10_000 });
     await expect(tour.getByText('Welcome to Duplex Designer')).toBeVisible();
-    for (let step = 1; step <= 7; step++) {
-      await expect(tour.getByText(`Step ${step} of 8`)).toBeVisible();
+    for (let step = 1; step <= 8; step++) {
+      await expect(tour.getByText(`Step ${step} of 9`)).toBeVisible();
       await tour.getByRole('button', { name: 'Next' }).click();
     }
-    await expect(tour.getByText('Step 8 of 8')).toBeVisible();
+    await expect(tour.getByText('Step 9 of 9')).toBeVisible();
     await expect(tour.getByText('Export and share')).toBeVisible();
     await tour.getByRole('button', { name: 'Finish' }).click();
     await expect(tour).toBeHidden();
@@ -52,7 +52,7 @@ test.describe('first-run tour', () => {
     // … but Help replays it.
     await page.getByRole('button', { name: 'Help' }).click();
     await page.getByRole('menuitem', { name: /Take the tour/ }).click();
-    await expect(page.getByTestId('tour').getByText('Step 1 of 8')).toBeVisible();
+    await expect(page.getByTestId('tour').getByText('Step 1 of 9')).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('tour')).toBeHidden();
   });
@@ -63,7 +63,7 @@ test.describe('first-run tour', () => {
     await expect(tour).toBeVisible({ timeout: 10_000 });
     await tour.getByRole('button', { name: 'Next' }).click();
     await tour.getByRole('button', { name: 'Back' }).click();
-    await expect(tour.getByText('Step 1 of 8')).toBeVisible();
+    await expect(tour.getByText('Step 1 of 9')).toBeVisible();
     await tour.getByRole('button', { name: 'Skip tour' }).click();
     await expect(tour).toBeHidden();
   });
@@ -381,7 +381,7 @@ test.describe('phone-sized screen (390 × 844, touch)', () => {
     const card = (await tour.getByRole('dialog').boundingBox())!;
     expect(card.x).toBeGreaterThanOrEqual(0);
     expect(card.x + card.width).toBeLessThanOrEqual(390);
-    for (let i = 0; i < 7; i++) await tour.getByRole('button', { name: 'পরবর্তী' }).tap();
+    for (let i = 0; i < 8; i++) await tour.getByRole('button', { name: 'পরবর্তী' }).tap();
     await tour.getByRole('button', { name: 'শেষ করুন' }).tap();
     await expect(tour).toBeHidden();
   });

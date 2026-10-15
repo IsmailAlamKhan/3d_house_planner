@@ -67,8 +67,9 @@ function facing(direction: number): 'N' | 'S' | 'W' | 'E' {
 
 /** Zone widths (along the strip) for a list of zones filling `length`. */
 function lengths(zones: SiteZoneIntent[], length: number, cars: number): number[] {
-  const natural = zones.map((z) =>
-    z.type === 'parking' ? CAR_W * Math.max(1, cars) + 0.4 : NATURAL[z.type],
+  const natural = zones.map(
+    (z) =>
+      (z.type === 'parking' ? CAR_W * Math.max(1, cars) + 0.4 : NATURAL[z.type]) * (z.scale ?? 1),
   );
   const total = natural.reduce((a, b) => a + b, 0);
   if (!total) return [];
@@ -233,7 +234,7 @@ export function planSite(input: SitePlanInput): PlannedSite {
         const l = ls[i]!;
         const depth = horizontal ? slot.h : slot.w;
         let d = depth;
-        if (z.type === 'pool') d = Math.min(depth, 4.6);
+        if (z.type === 'pool') d = Math.min(depth, 4.6 * (z.scale ?? 1));
         if (z.type === 'parking') {
           d = Math.min(depth, CAR_L + 0.3);
           if (d < CAR_L - 0.01) out.warnings.push(t('site.warn.parkingDepth'));

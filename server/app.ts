@@ -10,6 +10,7 @@ import { createRenderService, unloadOllama } from './render/renderApi';
 import { createBakeService } from './bake/bakeApi';
 import { createStudioService } from './studio/studioApi';
 import { createVisionService } from './vision/visionApi';
+import { createVoiceService } from './voice/voiceApi';
 import { createPackHandler, packStatus } from './packStatic';
 import { handleProjects } from './projectsApi';
 import { ProjectStore } from './store';
@@ -107,6 +108,7 @@ export function createApp(config: ServerConfig): AppHandle {
     model: config.visionModel,
     queue,
   });
+  const voice = createVoiceService({ whisperUrl: config.whisperUrl ?? null, queue });
   const pack = createPackHandler(config.assetsDir ?? 'assets');
   const render = createRenderService({ comfyUrl: config.comfyUrl, dataDir: config.dataDir, queue });
   const studio = createStudioService({
@@ -181,6 +183,7 @@ export function createApp(config: ServerConfig): AppHandle {
       },
       ollama,
       render: await render.health(),
+      voice: await voice.health(),
       studio: await studio.health(),
       assets: packStatus(config.assetsDir ?? 'assets'),
       authRequired: !!config.password,
@@ -270,6 +273,8 @@ export function createApp(config: ServerConfig): AppHandle {
       if (pack(req, res)) return;
       if (path === '/api/ai') return ai(req, res);
       if (await vision.handle(req, res, path)) return;
+      if (await voice.handle(req, res, path, new URL(req.url ?? '/', 'http://x').searchParams))
+        return;
       if (await render.handle(req, res, path)) return;
       if (await studio.handle(req, res, path)) return;
       if (await bake.handle(req, res, path)) return;

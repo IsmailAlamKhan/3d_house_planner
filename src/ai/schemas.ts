@@ -81,6 +81,8 @@ export const SiteZoneIntentSchema = z.object({
   /** Which side of the building it goes on (the entrance side is the front). */
   side: z.enum(SITE_SIDES).default('back'),
   covered: z.boolean().optional(),
+  /** Relative size (1 = usual): a smaller pool or a bigger lawn. */
+  scale: z.number().min(0.4).max(2).optional(),
 });
 
 export const SiteIntentSchema = z.object({

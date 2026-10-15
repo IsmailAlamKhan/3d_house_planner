@@ -97,6 +97,7 @@ test('villa: the offline brief designs a villa on the plot', async ({ page }) =>
   await page.getByLabel('Depth (m)', { exact: true }).fill('16');
   for (let i = 0; i < 3; i++) await page.getByRole('button', { name: 'Next' }).click();
   await page.getByRole('button', { name: /AI Assistant/ }).click();
+  await page.getByRole('tab', { name: 'Describe it' }).click(); // the classic one-shot generator (the copilot is the other tab)
   await page
     .getByRole('textbox', { name: /Describe the home/ })
     .fill('luxury villa with pool, garden, 2-car garage, gym and sauna');

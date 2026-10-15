@@ -29,6 +29,9 @@ export type Lights = z.infer<typeof S.LightsSchema>;
 export type Costs = z.infer<typeof S.CostsSchema>;
 export type Underlay = z.infer<typeof S.UnderlaySchema>;
 export type Project = z.infer<typeof S.ProjectSchema>;
+export type DesignBrief = z.infer<typeof S.DesignBriefSchema>;
+export type BriefRoom = z.infer<typeof S.BriefRoomSchema>;
+export type BriefFeature = z.infer<typeof S.BriefFeatureSchema>;
 
 export type Units = (typeof S.UNITS)[number];
 export type WallType = (typeof S.WALL_TYPES)[number];

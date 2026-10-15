@@ -18,6 +18,7 @@ services:
       COMFYUI_URL: http://comfyui:8188
       # Studio render (Blender Cycles): the `blender` service below, started with  docker compose --profile render up -d
       BLENDER_URL: http://blender:9000
+      WHISPER_URL: http://whisper:8080
     volumes:
       - app-data:/data
       # the CC0 model / texture / sky pack, filled by assets-init below (the app works without it, on built-in models)
@@ -120,6 +121,23 @@ services:
               count: all
               capabilities: [gpu]
 
+  # ── Voice input: whisper.cpp (GPU), started by  docker compose --profile voice up -d  ──
+  # English and Bengali speech to text for the microphone button. Not part of a plain "docker compose up -d".
+  whisper:
+    profiles: ["voice"]
+    build: ./docker/whisper
+    image: duplex-designer-whisper:local
+    restart: unless-stopped
+    volumes:
+      - whisper-models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
   comfyui-init:
     image: alpine:3.20.3
     restart: "no"
@@ -134,3 +152,4 @@ volumes:
   assets-cache:
   ollama-data:
   comfyui-models:
+  whisper-models:

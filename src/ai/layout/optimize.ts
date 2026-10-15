@@ -475,6 +475,17 @@ function score(p: Prepared, rects: Rect[], full: boolean): Scored {
     }
   }
 
+  // Where the person wants rooms (bubble diagram) or where locked rooms were.
+  if (ctx.hints) {
+    const diag = Math.hypot(ctx.shell.w, ctx.shell.h);
+    for (let i = 0; i < n; i++) {
+      const h = ctx.hints[key(specs[i]!.name)];
+      if (!h) continue;
+      const d = dist(rectCenter(rects[i]!), h);
+      add('hint', W.hint * (h.w ?? 1) * Math.min(1.5, d / (diag / 3)));
+    }
+  }
+
   // Orientation preferences.
   if (ctx.orientation?.sunny) {
     for (let i = 0; i < n; i++) {

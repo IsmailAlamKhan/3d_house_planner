@@ -47,6 +47,7 @@ test('the whole journey: wizard → AI design (offline) → edit → place furni
   await expect(page.getByRole('tab', { name: 'AI Assistant', selected: true })).toBeVisible();
 
   // 2. Generate offline and apply.
+  await page.getByRole('tab', { name: 'Describe it' }).click(); // the classic one-shot generator (the copilot is the other tab)
   await page
     .getByRole('textbox', { name: /Describe the home/ })
     .fill('3 bedroom duplex with open kitchen');

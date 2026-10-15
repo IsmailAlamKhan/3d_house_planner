@@ -374,6 +374,90 @@ export const CostsSchema = z.object({
   unitCosts: z.record(z.string(), z.number().nonnegative()).default({}),
 });
 
+/** How firmly a wish is held. */
+export const BRIEF_PRIORITIES = ['must', 'nice'] as const;
+export const BUDGET_LEVELS = ['low', 'mid', 'high', 'luxury'] as const;
+export const STYLE_IDS = [
+  'modern-luxury',
+  'warm-minimal',
+  'tropical',
+  'classic',
+  'industrial',
+] as const;
+export const CARE_ABOUT = ['light', 'privacy', 'open-plan', 'storage', 'garden', 'cost'] as const;
+
+/** One room the home should have. */
+export const BriefRoomSchema = z.object({
+  id,
+  type: z.enum(ROOM_TYPES),
+  name: z.string().min(1).max(60),
+  /** Wanted floor area (m²). */
+  area: z.number().min(2).max(150),
+  /** Level index (0 = ground) or `null` to let the planner decide. */
+  level: z.number().int().min(0).max(2).nullable().default(null),
+  priority: z.enum(BRIEF_PRIORITIES).default('must'),
+  /** Names of rooms this one wants to be next to (a bathroom beside its bedroom …). */
+  next: z.array(z.string()).default([]),
+  /** Kept as it is when the design is regenerated. */
+  locked: z.boolean().default(false),
+  /** Wants an outside wall (windows). */
+  light: z.boolean().default(true),
+});
+
+/** An outdoor feature of the plot. */
+export const BriefFeatureSchema = z.object({
+  type: z.enum(ZONE_TYPES),
+  name: z.string().max(60).optional(),
+  side: z.enum(['front', 'back', 'left', 'right']).default('back'),
+  covered: z.boolean().default(false),
+  priority: z.enum(BRIEF_PRIORITIES).default('must'),
+  /** 1 = the usual size; 0.7 = a smaller pool, 1.3 = a bigger one. */
+  size: z.number().min(0.4).max(2).default(1),
+});
+
+/**
+ * The Design Brief: everything the layout engine is asked for, in words a person can read and edit. Every way of
+ * starting a design (a sentence, an interview, a sketch, "like this but …", mood pictures) produces one; the layout
+ * engine reads only this.
+ */
+export const DesignBriefSchema = z.object({
+  title: z.string().max(80).optional(),
+  language: z.enum(['en', 'bn']).default('en'),
+  levels: z.number().int().min(1).max(3).default(1),
+  kind: z.enum(['duplex', 'villa']).default('duplex'),
+  /** Plot or building size the person gave (m); the app can offer to make a matching shell. */
+  size: z.object({ width: z.number().positive(), depth: z.number().positive(), of: z.enum(['plot', 'building']) }).optional(),
+  program: z.array(BriefRoomSchema).max(40).default([]),
+  features: z.array(BriefFeatureSchema).max(12).default([]),
+  cars: z.number().int().min(0).max(6).default(0),
+  style: z
+    .object({
+      preset: z.enum(STYLE_IDS).optional(),
+      floor: z.string().optional(),
+      walls: z.string().optional(),
+      keywords: z.array(z.string().max(40)).max(12).default([]),
+      palette: z.array(z.string()).max(8).default([]),
+    })
+    .default({ keywords: [], palette: [] }),
+  budget: z.enum(BUDGET_LEVELS).default('mid'),
+  priorities: z.array(z.enum(CARE_ABOUT)).max(6).default([]),
+  household: z
+    .object({
+      adults: z.number().int().min(0).max(12).default(2),
+      children: z.number().int().min(0).max(12).default(0),
+      elderly: z.number().int().min(0).max(6).default(0),
+      guests: z.boolean().default(false),
+      help: z.boolean().default(false),
+    })
+    .optional(),
+  /** Where the person dragged room bubbles to (plan metres, room id → centre): placement hints for the optimiser. */
+  hints: z.record(z.string(), PointSchema).default({}),
+  /** What the copilot assumed because the person did not say (shown with one-tap corrections). */
+  assumptions: z.array(z.object({ key: z.string(), text: z.string() })).default([]),
+  /** The original wording of the request, kept for the record. */
+  source: z.string().max(4000).optional(),
+});
+
 export const ProjectSchema = z.object({
   id,
   name: z.string(),
@@ -398,6 +482,8 @@ export const ProjectSchema = z.object({
   site: SiteSchema.default({ plot: [], gates: [], zones: [], setback: 1.5 }),
   currentOption: OptionMetaSchema.default({ id: 'main', letter: null, name: null }),
   costs: CostsSchema.default({ currency: 'USD', unitCosts: {} }),
+  /** The Design Brief this design was made from (the copilot edits it and regenerates). */
+  brief: DesignBriefSchema.optional(),
   /** Reference pictures the plan is traced from, back-most first. */
   underlays: z.array(UnderlaySchema).default([]),
   createdAt: z.string(),

@@ -42,8 +42,11 @@ class RoomFurnisher {
       const side = this.sideOf(o.at);
       if (!side) continue;
       const along = side === 'north' || side === 'south' ? o.at.x - r.x : o.at.y - r.y;
-      const pad = o.kind === 'door' ? 0.35 : o.kind === 'archway' ? 0.15 : 0;
+      const entrance = o.catalogId === 'door-entrance';
+      const pad = entrance ? 0.9 : o.kind === 'door' ? 0.35 : o.kind === 'archway' ? 0.15 : 0;
       if (pad > 0) this.cut(side, along - o.width / 2 - pad, along + o.width / 2 + pad);
+      // The main entrance keeps a 1.7 m square clear (the "entrance is blocked" check looks at 1.6 m).
+      if (entrance) this.obstacles.push(boxCorners(o.at, 1.7, 1.7, 0));
       if (o.kind === 'door') {
         // Keep the area in front of a door clear so it can open.
         const n = this.inward(side);

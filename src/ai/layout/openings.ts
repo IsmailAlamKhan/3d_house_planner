@@ -271,6 +271,24 @@ export function planOpenings(input: OpeningPlanInput): OpeningPlan {
       grow();
     }
 
+    // ── Garage doors: a wide door in the longest outside wall ──
+    for (const r of lr.filter((x) => x.type === 'garage')) {
+      const e = exteriorEdges(r.rect, shell).sort((a, b) => b.length - a.length)[0];
+      const width = e ? Math.min(2.5, e.length - 0.6) : 0;
+      const spot = e && width >= 1 ? findSpot(e, width, level, tracker, 0.3, 0.5) : null;
+      if (spot)
+        openings.push({
+          level,
+          kind: 'door',
+          catalogId: 'door-double',
+          at: spot,
+          width,
+          height: 2.1,
+          sillHeight: 0,
+          rooms: [r.key],
+        });
+    }
+
     // ── Windows on outside walls ──
     for (const r of lr) {
       const wantsWindow =

@@ -53,6 +53,8 @@ export interface LevelContext {
   orientation?: Orientation;
   /** What the person asked to improve (multipliers on score terms). */
   emphasis?: Emphasis;
+  /** Where rooms should be (plan metres) by lower-case name; `w` scales how much it matters (locked rooms use more). */
+  hints?: Record<string, { x: number; y: number; w?: number }>;
 }
 
 export interface Orientation {

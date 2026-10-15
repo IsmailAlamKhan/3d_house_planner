@@ -50,9 +50,10 @@ interface RecreateState {
   error: string | null;
   controller: AbortController | null;
   /** Which of the two AI tab modes is showing. */
-  panelMode: 'describe' | 'recreate';
+  /** `null` = automatic: "Design with AI" for an empty project, "Describe it" otherwise. */
+  panelMode: 'describe' | 'recreate' | 'copilot' | null;
 
-  setPanelMode: (m: 'describe' | 'recreate') => void;
+  setPanelMode: (m: 'describe' | 'recreate' | 'copilot') => void;
   choose: (file: File) => Promise<void>;
   setCorners: (c: Vec2[]) => void;
   setReal: (w: string, d: string) => void;
@@ -109,7 +110,7 @@ export const useRecreate = create<RecreateState>((set, get) => ({
   progress: null,
   error: null,
   controller: null,
-  panelMode: 'describe',
+  panelMode: null,
 
   setPanelMode: (panelMode) => set({ panelMode }),
 

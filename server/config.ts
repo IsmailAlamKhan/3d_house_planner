@@ -10,6 +10,8 @@ export interface ServerConfig {
   model: string;
   /** The picture-reading model ("Recreate from picture"); runs on the same GPU queue as everything else. */
   visionModel: string;
+  /** The speech-to-text service (whisper.cpp server, the optional "voice" profile); null = not configured. */
+  whisperUrl?: string | null;
   /** A Blender on this machine for studio renders (BLENDER_PATH), or the `blender` service's URL (BLENDER_URL). */
   blenderPath?: string | null;
   blenderUrl?: string | null;
@@ -56,6 +58,7 @@ export function loadConfig(
     comfyUrl: get('COMFYUI_URL') ? get('COMFYUI_URL')!.replace(/\/+$/, '') : null,
     model: get('OLLAMA_MODEL') || 'qwen3:14b',
     visionModel: get('OLLAMA_VISION_MODEL') || 'qwen3-vl:8b-instruct',
+    whisperUrl: get('WHISPER_URL') ? get('WHISPER_URL')!.replace(/\/+$/, '') : null,
     blenderPath: get('BLENDER_PATH') || null,
     blenderUrl: get('BLENDER_URL') ? get('BLENDER_URL')!.replace(/\/+$/, '') : null,
     assetsDir: get('ASSETS_DIR') || 'assets',

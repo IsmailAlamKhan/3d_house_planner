@@ -8,6 +8,8 @@ import type { AiSource } from './pipeline';
 import { IMPROVE_CHIPS } from './layout/improve';
 import { PlanThumb } from './PlanThumb';
 import { useAiSettings } from './provider';
+import { CopilotPanel } from '../copilot/CopilotPanel';
+import { projectIsBlank } from '../copilot/design';
 import { RecreatePanel } from './vision/RecreatePanel';
 import { useRecreate } from './vision/recreateStore';
 
@@ -224,7 +226,9 @@ export function AiPanel() {
   const elapsed = useElapsed(ai.startedAt);
   const downloading = useModelDownloading();
   const hasWalls = useModel((s) => s.project.walls.length > 0);
-  const panelMode = useRecreate((s) => s.panelMode);
+  const chosenMode = useRecreate((s) => s.panelMode);
+  const blank = useModel((s) => projectIsBlank(s.project));
+  const panelMode = chosenMode ?? (blank ? 'copilot' : 'describe');
   const setPanelMode = useRecreate((s) => s.setPanelMode);
   const generate = ai.mode === 'generate';
   const examples = generate ? GENERATE_EXAMPLES : EDIT_EXAMPLES;
@@ -274,7 +278,7 @@ export function AiPanel() {
         className="flex rounded-md bg-slate-200 p-0.5"
         data-testid="ai-modes"
       >
-        {(['describe', 'recreate'] as const).map((m) => (
+        {(['copilot', 'describe', 'recreate'] as const).map((m) => (
           <button
             key={m}
             role="tab"
@@ -282,11 +286,19 @@ export function AiPanel() {
             onClick={() => setPanelMode(m)}
             className={`flex-1 rounded px-2 py-1 text-xs ${panelMode === m ? 'bg-white font-semibold shadow-sm' : 'text-slate-600'}`}
           >
-            {t(m === 'describe' ? 'vision.mode.describe' : 'vision.mode.recreate')}
+            {t(
+              m === 'copilot'
+                ? 'copilot.tab'
+                : m === 'describe'
+                  ? 'vision.mode.describe'
+                  : 'vision.mode.recreate',
+            )}
           </button>
         ))}
       </div>
-      {panelMode === 'recreate' ? (
+      {panelMode === 'copilot' ? (
+        <CopilotPanel />
+      ) : panelMode === 'recreate' ? (
         <RecreatePanel />
       ) : (
         <>

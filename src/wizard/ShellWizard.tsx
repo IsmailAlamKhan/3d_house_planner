@@ -5,6 +5,7 @@ import { useModel } from '../model/store';
 import { saveProject } from '../persistence/repo';
 import { TEMPLATES, VILLA_TEMPLATE } from '../templates';
 import { Modal } from '../ui/Modal';
+import { useRecreate } from '../ai/vision/recreateStore';
 import { useUiStore } from '../ui/uiStore';
 import { projectWithTemplate } from './finish';
 import {
@@ -98,7 +99,10 @@ export function ShellWizard() {
     await saveProject(useModel.getState().project);
     useModel.getState().loadProject(project);
     await saveProject(project);
-    if (choice === 'ai') useUiStore.getState().setLeftTab('ai');
+    if (choice === 'ai') {
+      useUiStore.getState().setLeftTab('ai');
+      useRecreate.getState().setPanelMode('copilot');
+    }
     setOpen(false);
     setStep(1);
     setC(defaultConfig());
@@ -139,6 +143,14 @@ export function ShellWizard() {
         <div className="min-h-0 flex-1 space-y-3 overflow-auto p-4">
           {step === 1 && (
             <>
+              <button
+                data-testid="wizard-design-ai"
+                className="w-full rounded-lg border border-sky-300 bg-sky-50 p-2 text-left hover:bg-sky-100"
+                onClick={() => void finish('ai')}
+              >
+                <b className="text-sm text-sky-900">{t('wiz.designAi')}</b>
+                <div className="text-xs text-sky-800">{t('wiz.designAiDesc')}</div>
+              </button>
               <label className="flex items-center justify-between gap-2 text-sm">
                 {t('wiz.name')}
                 <input

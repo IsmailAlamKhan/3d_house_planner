@@ -55,6 +55,8 @@ export const LAYOUT_WEIGHTS = {
   view: 7,
   /** Every distinct partition line costs this: fewer, straighter, longer walls. */
   straightWalls: 5,
+  /** A room away from where the person put its bubble (or a locked room away from where it was), scaled 0–1 per room. */
+  hint: 16,
   /** An optional orientation preference is not met (off unless the brief sets one). */
   orientation: 6,
 } as const;
@@ -74,7 +76,16 @@ export const WALK_WALL = 0.9;
 /** What a person can ask to improve; each multiplies the weights of the terms it names (default 1 = no change). */
 export type Emphasis = Partial<
   Record<
-    'daylight' | 'corridor' | 'straight' | 'privacy' | 'wet' | 'view' | 'adjacency' | 'area',
+    | 'daylight'
+    | 'corridor'
+    | 'straight'
+    | 'privacy'
+    | 'wet'
+    | 'view'
+    | 'adjacency'
+    | 'area'
+    | 'entrance'
+    | 'placement',
     number
   >
 >;
@@ -88,6 +99,8 @@ export const EMPHASIS_TERMS: Record<keyof Emphasis, (keyof typeof LAYOUT_WEIGHTS
   view: ['view'],
   adjacency: ['adjacencyMiss', 'ensuiteMiss'],
   area: ['area'],
+  entrance: ['entranceRoom'],
+  placement: ['hint'],
 };
 
 export type Weights = { -readonly [K in keyof typeof LAYOUT_WEIGHTS]: number };

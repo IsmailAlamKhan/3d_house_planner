@@ -83,7 +83,7 @@ export function validate<T>(
  * Asks the model, validates, and if needed sends the problems back ONCE before giving up. `check` can flag a valid
  * answer that misses what the brief asked for; if the second answer is no better, the first (valid) one is kept.
  */
-async function askValidated<T>(
+export async function askValidated<T>(
   provider: LLMProvider,
   messages: LLMMessage[],
   schema: ZodType<T>,

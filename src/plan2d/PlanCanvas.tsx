@@ -21,6 +21,7 @@ import { usePlanStore } from './planStore';
 import { NotesLayer } from '../notes/NotesLayer';
 import { SiteLayer } from './SiteLayer';
 import { useUiStore } from '../ui/uiStore';
+import { useRecreate } from '../ai/vision/recreateStore';
 
 const WALL_FILL = { exterior: '#334155', interior: '#475569', partition: '#64748b' } as const;
 const pts = (poly: Vec2[]) => poly.map((p) => `${p.x},${p.y}`).join(' ');
@@ -702,21 +703,23 @@ export function PlanCanvas() {
         <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center px-6">
           <div className="pointer-events-auto max-w-sm rounded-xl border border-dashed border-slate-400 bg-white/90 p-4 text-center text-sm text-slate-700 shadow-sm">
             <p data-testid="empty-plan">{t('empty.plan')}</p>
-            <div className="mt-3 flex justify-center gap-2">
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
               <button
-                className="rounded-md bg-sky-700 px-3 py-1 text-white hover:bg-sky-800"
-                onClick={() => useModel.getState().setTool('wall')}
-              >
-                {t('empty.draw')}
-              </button>
-              <button
-                className="rounded-md border border-slate-300 px-3 py-1 hover:bg-slate-100"
+                data-testid="empty-design-ai"
+                className="rounded-md bg-sky-700 px-4 py-2 text-base font-medium text-white hover:bg-sky-800"
                 onClick={() => {
+                  useRecreate.getState().setPanelMode('copilot');
                   useUiStore.getState().setLeftTab('ai');
                   useUiStore.getState().setLeftDrawerOpen(window.innerWidth < 1024);
                 }}
               >
-                {t('sidebar.ai')}
+                {t('copilot.empty.button')}
+              </button>
+              <button
+                className="rounded-md border border-slate-300 px-3 py-2 hover:bg-slate-100"
+                onClick={() => useModel.getState().setTool('wall')}
+              >
+                {t('empty.draw')}
               </button>
             </div>
           </div>

@@ -18,6 +18,11 @@ export function registerLanguage(lang: string, dict: Translations): void {
   dictionaries[lang] = dict;
 }
 
+/** A text in a given language (the copilot answers in the language the person wrote in, whatever the app is set to). */
+export function tIn(lang: string, key: TranslationKey): string {
+  return dictionaries[lang]?.[key] ?? en[key];
+}
+
 export function getLanguage(): string {
   return current;
 }
