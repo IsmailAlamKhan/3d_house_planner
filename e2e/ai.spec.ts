@@ -115,3 +115,24 @@ test('AI settings: provider choice, model name and a clear unreachable status', 
   await page.getByRole('radio', { name: /offline generator only/ }).check();
   await expect(page.getByText(/No AI model in use/)).toBeVisible();
 });
+
+test('a candidate shows its plan type and a plain-language score, and "More daylight" re-solves it', async ({
+  page,
+}) => {
+  await page
+    .getByRole('textbox', { name: /Describe the home/ })
+    .fill('3 bedroom duplex with a living room and kitchen downstairs, bedrooms upstairs');
+  await page.getByRole('button', { name: 'Generate', exact: true }).click();
+  const card = page.getByTestId('ai-candidate').first();
+  await expect(card).toBeVisible({ timeout: 30_000 });
+  await expect(card.getByTestId('ai-archetype')).toContainText('Plan type');
+  const score = card.getByTestId('ai-score');
+  await expect(score).toBeVisible();
+  await expect(score).toContainText(/[✓✗]/);
+  await card.getByRole('button', { name: 'More daylight' }).click();
+  await expect(card.getByRole('button', { name: 'Improve' })).toBeVisible({ timeout: 30_000 });
+  await expect(card.getByTestId('ai-score')).toContainText(/[✓✗]/);
+  await card.getByRole('textbox', { name: 'Improve this plan' }).fill('flibbertigibbet');
+  await card.getByRole('button', { name: 'Improve', exact: true }).click();
+  await expect(page.getByText(/Could not tell what to improve/)).toBeVisible();
+});

@@ -28,3 +28,22 @@ export function briefProblems(brief: string, intent: DesignIntent): string[] {
   }
   return out;
 }
+
+/**
+ * A model's design sometimes forgets the outdoor features the brief names (the pool or the garage never appeared on
+ * the plot). For a villa, every outdoor zone the keyword reader finds in the brief but the design lacks is added,
+ * and the car count follows the brief.
+ */
+export function completeSite(intent: DesignIntent, fromBrief: DesignIntent): DesignIntent {
+  const wanted = fromBrief.site;
+  if (!wanted) return intent;
+  const have = intent.site?.zones ?? [];
+  const missing = wanted.zones.filter((z) => !have.some((h) => h.type === z.type));
+  const cars = wanted.cars ?? intent.site?.cars;
+  if (!missing.length && cars === intent.site?.cars) return intent;
+  return {
+    ...intent,
+    strategy: intent.strategy,
+    site: { zones: [...have, ...missing], cars },
+  };
+}

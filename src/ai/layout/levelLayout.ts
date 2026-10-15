@@ -2,6 +2,7 @@ import { type Vec2, dist } from '../../geometry/vec';
 import type { Point, RoomType } from '../../model/types';
 import type { Rect } from './plan';
 import { rectArea, rectCenter } from './plan';
+import type { Emphasis } from './weights';
 import { aspect, exteriorEdges, rng, shuffled, sharedEdge, squarify } from './rect';
 
 /** A room as the layout search sees it. */
@@ -32,8 +33,46 @@ export interface LevelContext {
   plumbing: Point[];
   /** Centres of wet rooms on the level below (for stacking upstairs bathrooms). */
   wetBelow: Point[];
+  /** Rectangles of those wet rooms (the optimiser stacks onto them). */
+  wetBelowRects?: Rect[];
   /** Positions of rooms on the level below by name (for `above`). */
   roomsBelow: Map<string, Rect>;
+  /** — used by the optimiser (all optional) — */
+  level?: number;
+  /** Where the main entrance is (plan metres). */
+  entrance?: Point;
+  /** Floor area of the level (m²), open courts excluded. */
+  levelArea?: number;
+  /** Area already spent on circulation by the skeleton (the stair hall), m². */
+  circulationArea?: number;
+  /** Open-air rectangles inside the shell (courtyards): their walls give daylight. */
+  outdoors?: Rect[];
+  /** Which plan side the garden is on (villas): the living room wants a view there. */
+  gardenSide?: 'N' | 'S' | 'E' | 'W';
+  /** Optional orientation preferences (off by default). */
+  orientation?: Orientation;
+  /** What the person asked to improve (multipliers on score terms). */
+  emphasis?: Emphasis;
+}
+
+export interface Orientation {
+  /** Side that gets the sun: bedrooms and living rooms like an outside wall there. */
+  sunny?: 'N' | 'S' | 'E' | 'W';
+  /** A rule set of traditional placement preferences. */
+  rules?: 'vastu';
+}
+
+/** What a level's arrangement achieved, term by term (the raw material of the plain-language explanation). */
+export interface LevelFacts {
+  adjacency: { a: string; b: string; ok: boolean }[];
+  daylight: { room: string; type: RoomType; outside: number; need: number }[];
+  circulation: number;
+  thin: { room: string; ratio: number }[];
+  throughBedroom: string[];
+  stacked: { room: string; ok: boolean }[];
+  wetGrouped: boolean | null;
+  views: { room: string; ok: boolean }[];
+  partitionLines: number;
 }
 
 export interface LevelResult {
@@ -44,6 +83,9 @@ export interface LevelResult {
   narrow: { name: string; width: number; wanted: number }[];
   noWindow: string[];
   unreachable: string[];
+  /** Optimiser only: penalty per term and the facts behind them. */
+  terms?: Record<string, number>;
+  facts?: LevelFacts;
 }
 
 /** Length of shared wall needed for a door between two rooms. */
@@ -78,7 +120,7 @@ export function adjacencyOrder(rooms: RoomSpec[]): RoomSpec[] {
 }
 
 /** Splits an ordered room list between regions so each region receives roughly its share of the area. */
-function partition(rooms: RoomSpec[], regions: Rect[]): RoomSpec[][] {
+export function partition(rooms: RoomSpec[], regions: Rect[]): RoomSpec[][] {
   const total = rooms.reduce((s, r) => s + r.area, 0);
   const cap = regions.reduce((s, r) => s + rectArea(r), 0);
   const groups: RoomSpec[][] = regions.map(() => []);

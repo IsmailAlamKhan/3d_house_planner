@@ -38,7 +38,13 @@ function merge(intervals: Interval[]): Interval[] {
  * Turns room rectangles into the minimal set of wall segments: shared edges become ONE wall and
  * collinear/overlapping edges are merged, so no wall is drawn twice. Walls on the shell outline are exterior.
  */
-export function wallsFromRects(rects: Rect[], shell: Rect, level: number): PlannedWall[] {
+export function wallsFromRects(
+  rects: Rect[],
+  shell: Rect,
+  level: number,
+  /** Open-air rectangles (courts, voids): a wall on their boundary faces the outside. */
+  outdoor: Rect[] = [],
+): PlannedWall[] {
   const horizontals: Interval[] = [];
   const verticals: Interval[] = [];
   for (const r of rects) {
@@ -50,13 +56,25 @@ export function wallsFromRects(rects: Rect[], shell: Rect, level: number): Plann
   }
   const onShell = (line: number, lo: number, hi: number) =>
     Math.abs(line - lo) < 1e-3 || Math.abs(line - hi) < 1e-3;
+  // A segment is exterior too when it runs along the edge of an open court.
+  const onCourt = (axis: 'x' | 'y', line: number, a: number, b: number) =>
+    outdoor.some((o) =>
+      axis === 'x'
+        ? (Math.abs(line - o.y) < 1e-3 || Math.abs(line - (o.y + o.h)) < 1e-3) &&
+          Math.min(b, o.x + o.w) - Math.max(a, o.x) > 1e-3
+        : (Math.abs(line - o.x) < 1e-3 || Math.abs(line - (o.x + o.w)) < 1e-3) &&
+          Math.min(b, o.y + o.h) - Math.max(a, o.y) > 1e-3,
+    );
   const walls: PlannedWall[] = [];
   for (const h of merge(horizontals)) {
     walls.push({
       level,
       start: { x: q(h.a), y: h.line },
       end: { x: q(h.b), y: h.line },
-      type: onShell(h.line, shell.y, shell.y + shell.h) ? 'exterior' : 'interior',
+      type:
+        onShell(h.line, shell.y, shell.y + shell.h) || onCourt('x', h.line, h.a, h.b)
+          ? 'exterior'
+          : 'interior',
     });
   }
   for (const v of merge(verticals)) {
@@ -64,7 +82,10 @@ export function wallsFromRects(rects: Rect[], shell: Rect, level: number): Plann
       level,
       start: { x: v.line, y: q(v.a) },
       end: { x: v.line, y: q(v.b) },
-      type: onShell(v.line, shell.x, shell.x + shell.w) ? 'exterior' : 'interior',
+      type:
+        onShell(v.line, shell.x, shell.x + shell.w) || onCourt('y', v.line, v.a, v.b)
+          ? 'exterior'
+          : 'interior',
     });
   }
   return walls;

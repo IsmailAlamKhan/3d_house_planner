@@ -5,6 +5,7 @@ import { useModel } from '../model/store';
 import { AiSettingsPanel } from './AiSettingsPanel';
 import { type Candidate, useAi } from './aiStore';
 import type { AiSource } from './pipeline';
+import { IMPROVE_CHIPS } from './layout/improve';
 import { PlanThumb } from './PlanThumb';
 import { useAiSettings } from './provider';
 import { RecreatePanel } from './vision/RecreatePanel';
@@ -55,6 +56,9 @@ function CandidateCard({ c, index }: { c: Candidate; index: number }) {
   const t = useT();
   const apply = useAi((s) => s.applyCandidate);
   const discard = useAi((s) => s.discardCandidate);
+  const improve = useAi((s) => s.improve);
+  const [ask, setAsk] = useState('');
+  const items = c.plan.breakdown ?? [];
   const rooms = c.plan.rooms.filter(
     (r) => r.type !== 'stair' && !(r.type === 'corridor' && r.name === 'Landing'),
   ).length;
@@ -77,11 +81,71 @@ function CandidateCard({ c, index }: { c: Candidate; index: number }) {
           </figure>
         ))}
       </div>
+      {c.plan.archetype && (
+        <p className="text-xs text-slate-700" data-testid="ai-archetype">
+          <span className="text-slate-500">{t('layout.arch')}: </span>
+          <b>{t(`layout.arch.${c.plan.archetype}` as 'layout.arch.villa-wings')}</b>
+        </p>
+      )}
       <p className="text-xs text-slate-600">
         {t('ai.rooms').replace('{n}', String(rooms))}
         {c.plan.items.length > 0 &&
           ` · ${t('ai.furniture').replace('{n}', String(c.plan.items.length))}`}
       </p>
+      {items.length > 0 && (
+        <details className="text-xs" data-testid="ai-score" open={index === 0}>
+          <summary className="cursor-pointer font-medium text-slate-700">
+            {t('layout.scores')}
+          </summary>
+          <ul className="mt-1 space-y-0.5">
+            {items.map((it, i) => (
+              <li key={i} className={it.ok ? 'text-emerald-800' : 'text-red-700'}>
+                {it.text}
+                {it.level && c.plan.levelNames.length > 1 && (
+                  <span className="text-slate-400"> · {it.level}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      <div className="space-y-1" data-testid="ai-improve">
+        <div className="flex flex-wrap gap-1">
+          {IMPROVE_CHIPS.map((chip) => (
+            <button
+              key={chip.id}
+              type="button"
+              disabled={c.improving}
+              onClick={() => void improve(c.id, { [chip.id]: 3 })}
+              className="rounded-full border border-slate-300 px-2 py-0.5 text-[11px] hover:bg-slate-50 disabled:opacity-50"
+            >
+              {t(chip.key as 'layout.improve.daylight')}
+            </button>
+          ))}
+        </div>
+        <form
+          className="flex gap-1"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (ask.trim()) void improve(c.id, ask);
+          }}
+        >
+          <input
+            value={ask}
+            onChange={(e) => setAsk(e.target.value)}
+            placeholder={t('layout.improve.placeholder')}
+            aria-label={t('layout.improve.title')}
+            className="min-w-0 flex-1 rounded border border-slate-300 px-2 py-0.5 text-xs"
+          />
+          <button
+            type="submit"
+            disabled={c.improving || !ask.trim()}
+            className="rounded border border-slate-300 px-2 py-0.5 text-xs hover:bg-slate-50 disabled:opacity-50"
+          >
+            {c.improving ? t('layout.improve.working') : t('layout.improve.go')}
+          </button>
+        </form>
+      </div>
       {c.notes.length > 0 && (
         <div className="text-xs text-slate-600">
           {c.source === 'offline' && c.fellBack === undefined ? (

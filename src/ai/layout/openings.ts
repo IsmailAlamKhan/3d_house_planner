@@ -101,6 +101,8 @@ export interface OpeningPlanInput {
   hallKey: Map<number, string>;
   /** Rooms that asked for an en-suite style link (so a bathroom may open into a bedroom). */
   ensuite: Set<string>;
+  /** Open courts inside the shell (every level): the walls facing them get windows. */
+  courts?: Rect[];
 }
 
 export interface OpeningPlan {
@@ -126,34 +128,36 @@ export function planOpenings(input: OpeningPlanInput): OpeningPlan {
   const ep = input.entrance.position;
   const onPerimeter = nearestOnRect(ep, shell);
   let entranceRoom: PlannedRoom | undefined;
-  let entranceEdge: SharedEdge | undefined;
-  let best = Infinity;
+  // Edges of the building outline, nearest the shell's entrance first; the first one with room for a door wins.
+  const options: { room: PlannedRoom; edge: SharedEdge; d: number }[] = [];
   for (const r of ground) {
-    for (const e of exteriorEdges(r.rect, shell)) {
-      const d = distToEdge(onPerimeter, e);
-      if (d < best) {
-        best = d;
-        entranceRoom = r;
-        entranceEdge = e;
-      }
-    }
+    if (r.type === 'outdoor' || r.void) continue;
+    for (const e of exteriorEdges(r.rect, shell))
+      options.push({ room: r, edge: e, d: distToEdge(onPerimeter, e) });
   }
-  if (entranceRoom && entranceEdge) {
-    const frac = fractionAlong(onPerimeter, entranceEdge);
-    const spot = findSpot(entranceEdge, 1.0, 0, tracker, 0.25, frac);
-    if (spot) {
-      openings.push({
-        level: 0,
-        kind: 'door',
-        catalogId: 'door-entrance',
-        at: spot,
-        width: 1.0,
-        height: 2.2,
-        sillHeight: 0,
-        rooms: [entranceRoom.key],
-      });
-    } else warnings.push(t('ai.warn.entrance'));
+  options.sort((x, y) => x.d - y.d);
+  let entranceDone = options.length === 0;
+  for (const o of options) {
+    const frac = fractionAlong(onPerimeter, o.edge);
+    const spot =
+      findSpot(o.edge, 1.0, 0, tracker, 0.25, frac) ??
+      findSpot(o.edge, 1.0, 0, tracker, 0.05, frac);
+    if (!spot) continue;
+    entranceRoom = o.room;
+    openings.push({
+      level: 0,
+      kind: 'door',
+      catalogId: 'door-entrance',
+      at: spot,
+      width: 1.0,
+      height: 2.2,
+      sillHeight: 0,
+      rooms: [o.room.key],
+    });
+    entranceDone = true;
+    break;
   }
+  if (!entranceDone) warnings.push(t('ai.warn.entrance'));
 
   for (const level of levels) {
     const lr = rooms.filter((r) => r.level === level && !r.void);
@@ -274,7 +278,13 @@ export function planOpenings(input: OpeningPlanInput): OpeningPlan {
           ? true
           : ['living', 'kitchen', 'dining', 'bedroom', 'study', 'other'].includes(r.type);
       if (!wantsWindow) continue;
-      const edges = exteriorEdges(r.rect, shell).sort((a, b) => b.length - a.length);
+      // Outside walls: the shell outline and the sides facing an open court.
+      const edges = exteriorEdges(r.rect, shell);
+      for (const court of input.courts ?? []) {
+        const e = sharedEdge(r.rect, court);
+        if (e) edges.push(e);
+      }
+      edges.sort((a, b) => b.length - a.length);
       let placed = 0;
       for (const e of edges) {
         const small = r.type === 'bathroom';

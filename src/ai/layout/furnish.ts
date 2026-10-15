@@ -1,9 +1,10 @@
 import { getEntry } from '../../catalog';
+import { clearWalkways } from './walkways';
 import { boxCorners, overlapDepth } from '../../geometry/collide';
 import type { Point } from '../../model/types';
 import type { ColumnBox } from './openings';
 import type { PlannedItem, PlannedOpening, PlannedRoom, Rect } from './plan';
-import { exteriorEdges } from './rect';
+import { exteriorEdges, sharedEdge } from './rect';
 
 type Side = 'north' | 'south' | 'east' | 'west';
 const SIDES: Side[] = ['north', 'east', 'south', 'west'];
@@ -28,6 +29,8 @@ class RoomFurnisher {
     openings: PlannedOpening[],
     columns: ColumnBox[],
     private floorToCeiling: number,
+    /** Sides shared with another wet room: the fittings go on this plumbing wall. */
+    readonly wetSides: Set<Side> = new Set(),
   ) {
     this.rect = room.rect;
     const r = this.rect;
@@ -358,7 +361,9 @@ function furnishRoom(f: RoomFurnisher, type: PlannedRoom['type']): void {
       break;
     }
     case 'kitchen': {
-      const [main] = f.sidesByFree((s) => (f.isExterior(s) ? 0.4 : 0));
+      const [main] = f.sidesByFree(
+        (s) => (f.isExterior(s) ? 0.4 : 0) + (f.wetSides.has(s) ? 0.8 : 0),
+      );
       if (!main) break;
       const len = f.longestFree(main);
       f.onWall(main, 'fridge', { align: 'start' });
@@ -418,7 +423,7 @@ function furnishRoom(f: RoomFurnisher, type: PlannedRoom['type']): void {
       break;
     }
     case 'bathroom': {
-      const sides = f.sidesByFree();
+      const sides = f.sidesByFree((s) => (f.wetSides.has(s) ? 1.5 : 0));
       const tub = A >= 5.2 && sides[0] && f.longestFree(sides[0]) >= 1.75;
       if (tub && sides[0]) f.onWall(sides[0], 'bathtub', { align: 'start' });
       else if (sides[0]) f.onWall(sides[0], 'shower', { align: 'start' });
@@ -464,7 +469,7 @@ function furnishRoom(f: RoomFurnisher, type: PlannedRoom['type']): void {
       break;
     }
     case 'utility': {
-      const [side] = f.sidesByFree();
+      const [side] = f.sidesByFree((s) => (f.wetSides.has(s) ? 1.5 : 0));
       if (side) f.onWall(side, 'washing-machine', { align: 'start' });
       f.ceilingLight();
       break;
@@ -492,6 +497,7 @@ export interface FurnishInput {
 /** Default furniture for every room of the plan. */
 export function furnishPlan(input: FurnishInput): PlannedItem[] {
   const out: PlannedItem[] = [];
+  const wet = (r: PlannedRoom) => ['bathroom', 'kitchen', 'utility', 'laundry'].includes(r.type);
   for (const room of input.rooms.filter((r) => !r.void)) {
     const mine = input.openings.filter((o) => o.level === room.level && o.rooms.includes(room.key));
     const f = new RoomFurnisher(
@@ -501,9 +507,29 @@ export function furnishPlan(input: FurnishInput): PlannedItem[] {
       mine,
       input.columns,
       input.floorToCeiling,
+      wet(room)
+        ? wetSidesOf(
+            room,
+            input.rooms.filter((o) => o !== room && !o.void && o.level === room.level && wet(o)),
+          )
+        : new Set(),
     );
     furnishRoom(f, room.type);
     out.push(...f.items);
+  }
+  // Keep a 0.9 m walkway between a room's doors: decor in the way goes.
+  return clearWalkways(input.rooms, input.openings, out).items;
+}
+
+/** The sides of a wet room that touch another wet room (their pipes can share the wall). */
+function wetSidesOf(room: PlannedRoom, others: PlannedRoom[]): Set<Side> {
+  const out = new Set<Side>();
+  const r = room.rect;
+  for (const o of others) {
+    const e = sharedEdge(r, o.rect);
+    if (!e || e.length < 0.8) continue;
+    if (e.axis === 'x') out.add(Math.abs(e.a.y - r.y) < 1e-3 ? 'north' : 'south');
+    else out.add(Math.abs(e.a.x - r.x) < 1e-3 ? 'west' : 'east');
   }
   return out;
 }

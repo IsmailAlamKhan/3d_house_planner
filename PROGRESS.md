@@ -485,3 +485,36 @@ Reference look beats the old pipeline on both scores in every view (CLIP +0.067 
 **Bugs worth knowing.** ComfyUI with smart memory stalled the first step for minutes on 16 GB: run it with `--disable-smart-memory`. Each masked conditioning slows every step, hence the 4-region cap (6.5 → 4 s/it). The CLIP scorer crawled while ComfyUI still held VRAM: the eval frees it first. Subtle polish needs creativity below the old 0.25 slider limit: the range is now 0.1–0.6.
 
 **Limits and deviations.** The weights/node packs in Docker were not built or run here (the eval ran against the owner's local ComfyUI). The CLIP score is a proxy: the reference is a phone screenshot, so it is cropped to the design. Regions are coarse (12 classes, 4 prompted). ~100 s per Reference-look job. Classic scoring uses its own raster view, so its CLIP is partly a framing effect. Failing e2e tests set aside by the user (lighting "tiers", shared) are unchanged.
+
+## Prompt 24 — Layout Engine v2: Good Floor Plans for Any Villa or Duplex — DONE
+
+**What was built.** A constraint-based layout optimiser behind the unchanged `solveLayout` interface, ten archetypes, top-N different candidates in a Web Worker, plain-language score breakdowns with "improve this" requests, site planner v2 (plus `completeSite` for features a model forgot), wet-wall furnishing with 0.9 m walkways, an independent plan judge and `npm run eval:layout`. The treemap solver stays available (`engine: 'treemap'`). See docs/ARCHITECTURE.md.
+
+- [x] Archetype library: stacked / loft / split duplex, compact square, villa wings (the reference villa), courtyard, L-garden, linear double / single corridor, apartment double-loaded with columns; each declares shapes, sizes, levels, zones, entrance, parking, garden
+- [x] Optimiser: slicing trees + annealing, seeded; hard constraints by construction or heavily penalised; weights in `weights.ts`; Web Worker; ≈ 1.1 s median, 3.2 s worst (a 28-room villa, 3 plans) on this PC
+- [x] Site planner v2 and brief completion; furnishing and walkways; explainable scores; improve chips + free text
+- [x] `npm run eval:layout` (30 briefs, both engines, contact sheet `reports/layout-eval.png`, `reports/layout-eval.json`)
+- [x] Tests: `engineV2.test.ts` (determinism, tiling, archetype geometry, acceptance briefs, explanations, improve, walkways, site completion), e2e plan type / score / improve; all 759 unit tests pass
+
+**Measured (30 briefs × 3 candidates each, judged by `planMetrics` on the finished plans).**
+
+| Metric                                           | Treemap (old) | Layout v2   |
+| ------------------------------------------------ | ------------- | ----------- |
+| Hard-constraint pass rate                        | 96.8 %        | **100 %**   |
+| Quality score (0–100)                            | 88.4          | **94.4**    |
+| Requested adjacencies met (shared wall + door)   | 97.6 %        | **99.7 %**  |
+| Habitable rooms with a window                    | 98.0 %        | **99.6 %**  |
+| Corridor / hall share of floor (lower is better) | 8.55 %        | **8.45 %**  |
+| Rooms thinner than 1 : 1.8 (lower is better)     | 22.4 %        | **19.1 %**  |
+| Upstairs bathrooms stacked                       | 96.2 %        | **98.9 %**  |
+| Bedrooms not reached through another bedroom     | 86.6 %        | **91.5 %**  |
+| Distinct wall lines per room (lower is better)   | 0.801         | **0.784**   |
+| Walkways between doors clear                     | 86.1 %        | **88.1 %**  |
+| Bedrooms with their bathroom beside them         | 100 %         | 100 % (tie) |
+| Time per brief (3 candidates)                    | 0.02 s        | 1.3 s       |
+
+The treemap solver failed one candidate (a prayer room 1.5 m wide); v2 failed none. Acceptance: the luxury-villa brief (18 × 16 m building, 34 × 42 m plot) gives 3 clearly different plans, each with a pool, a 2-car bay, ensuites beside their bedrooms and no hard failures; the 3-bedroom duplex gives stacked plans with an aligned stair and stacked bathrooms (both asserted in tests).
+
+**Bugs worth knowing.** Skeleton choice mattered more than annealing: without a corridor room an upper floor of four bedrooms could only be walked through other bedrooms (busy levels now get a flexible corridor). Suite blocks (bedroom + bath) put the bedroom at the inner end of the wing, so it had no window (the bedroom now takes the outside end). Snapping partitions to columns moved lines into courts (courts and corridors are fixed lines now). On upper floors a court is simply no room (an "Open to below" room there failed the reachability check). The entrance door now tries the next edge when the nearest is too short.
+
+**Limits and deviations.** L-shapes and courts are rectangles inside the rectangular shell, not general polygons; L-shaped _living_ areas are not generated. Courtyard and L plans only suit shells of at least 170–190 m² per level. Orientation rules are limited to a sunny side and a small Vastu set. The kitchen work triangle is the linear run along one wall (not measured). The judge shares some ideas (daylight, aspect, corridor) with the optimiser's score, as the brief asks for those criteria; its metrics are computed independently from the finished plan. The wizard (`wizard/finish.ts`) calls the solver on the main thread (small plans). Failing e2e tests set aside earlier are unchanged.

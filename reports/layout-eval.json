@@ -1,0 +1,3064 @@
+{
+ "summary": {
+  "treemap": {
+   "hardPassRate": 0.967741935483871,
+   "quality": 88.41694467436275,
+   "adjacency": 0.975627240143369,
+   "daylight": 0.9801715309779825,
+   "corridorRatio": 0.08554575020277888,
+   "thinRooms": 0.22405273937531997,
+   "ensuiteBeside": 1,
+   "stacked": 0.9623655913978495,
+   "privacy": 0.8655913978494623,
+   "wallLines": 0.8007815362654072,
+   "walkways": 0.8612476531831367,
+   "secondsPerBrief": 0.018224599999999123
+  },
+  "v2": {
+   "hardPassRate": 1,
+   "quality": 94.37865653379018,
+   "adjacency": 0.9972826086956522,
+   "daylight": 0.9956521739130434,
+   "corridorRatio": 0.08447950256714844,
+   "thinRooms": 0.19103692201518285,
+   "ensuiteBeside": 1,
+   "stacked": 0.9891304347826086,
+   "privacy": 0.9152173913043475,
+   "wallLines": 0.7839388268736094,
+   "walkways": 0.8810300207039335,
+   "secondsPerBrief": 1.3216669451612904
+  }
+ },
+ "rows": [
+  {
+   "brief": "d-2br-open",
+   "engine": "treemap",
+   "seconds": 0.03792320000000001,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-2br-open",
+   "engine": "v2",
+   "seconds": 0.6271216999999999,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.09782499999999998,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-3br",
+   "engine": "treemap",
+   "seconds": 0.021931900000000042,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666667,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    }
+   ]
+  },
+  {
+   "brief": "d-3br",
+   "engine": "v2",
+   "seconds": 1.0156024999999997,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    }
+   ]
+  },
+  {
+   "brief": "d-3br-study",
+   "engine": "treemap",
+   "seconds": 0.035927099999999886,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06688888888888889,
+     "thin": 0.42857142857142855,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 89.28571428571429
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.0668888888888889,
+     "thin": 0.42857142857142855,
+     "ensuiteBeside": 1,
+     "walkways": 0.75,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 89.28571428571429
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06688888888888889,
+     "thin": 0.2857142857142857,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 92.85714285714286
+    }
+   ]
+  },
+  {
+   "brief": "d-3br-study",
+   "engine": "v2",
+   "seconds": 1.1027052000000004,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06688888888888889,
+     "thin": 0.2857142857142857,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8181818181818182,
+     "quality": 92.85714285714286
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06688888888888889,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.0668888888888889,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 96.42857142857143
+    }
+   ]
+  },
+  {
+   "brief": "d-4br",
+   "engine": "treemap",
+   "seconds": 0.03164789999999994,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.054727272727272715,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.8888888888888888,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8333333333333334,
+     "quality": 96.42857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.05472727272727272,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8333333333333334,
+     "quality": 96.42857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.054727272727272736,
+     "thin": 0.2857142857142857,
+     "ensuiteBeside": 1,
+     "walkways": 0.5714285714285714,
+     "stacked": 0.5,
+     "privacy": 0.5,
+     "wallLines": 0.8333333333333334,
+     "quality": 92.85714285714286
+    }
+   ]
+  },
+  {
+   "brief": "d-4br",
+   "engine": "v2",
+   "seconds": 2.1060214999999998,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07605429104526844,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8461538461538461,
+     "quality": 96.42857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07319078997570361,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.4285714285714286,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8461538461538461,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07469136962352466,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8461538461538461,
+     "quality": 96.42857142857143
+    }
+   ]
+  },
+  {
+   "brief": "d-family",
+   "engine": "treemap",
+   "seconds": 0.019194499999999608,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.055900000000000005,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.0559,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.0559,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    }
+   ]
+  },
+  {
+   "brief": "d-family",
+   "engine": "v2",
+   "seconds": 1.0185748000000003,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.0559,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.0559,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 95.83333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.0559,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-master",
+   "engine": "treemap",
+   "seconds": 0.011856500000000778,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07246296296296297,
+     "thin": 1,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07246296296296297,
+     "thin": 1,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07246296296296297,
+     "thin": 1,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 75
+    }
+   ]
+  },
+  {
+   "brief": "d-master",
+   "engine": "v2",
+   "seconds": 0.49503279999999994,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07246296296296297,
+     "thin": 1,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07246296296296297,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07246296296296297,
+     "thin": 1,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 75
+    }
+   ]
+  },
+  {
+   "brief": "d-doubleheight",
+   "engine": "treemap",
+   "seconds": 0.015053699999999481,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666667,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    }
+   ]
+  },
+  {
+   "brief": "d-doubleheight",
+   "engine": "v2",
+   "seconds": 0.9526419999999999,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    }
+   ]
+  },
+  {
+   "brief": "d-2br-study",
+   "engine": "treemap",
+   "seconds": 0.026621500000000197,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.8,
+     "corridorRatio": 0.08893181818181818,
+     "thin": 0.2,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 90
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08893181818181818,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.75,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08893181818181818,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-2br-study",
+   "engine": "v2",
+   "seconds": 1.1610463,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08893181818181818,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08893181818181818,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08893181818181818,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-hosting",
+   "engine": "treemap",
+   "seconds": 0.03395809999999983,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.1568787912168613,
+     "thin": 0.6,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 80.78030219578469
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.16026867167028305,
+     "thin": 0.6,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8,
+     "quality": 79.93283208242924
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06211111111111111,
+     "thin": 0.8,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 80
+    }
+   ]
+  },
+  {
+   "brief": "d-hosting",
+   "engine": "v2",
+   "seconds": 0.9875429000000003,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.09688887764610606,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.10112957081703788,
+     "thin": 0.6,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 85
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.09774020282565303,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-5br",
+   "engine": "treemap",
+   "seconds": 0.0213166999999994,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.046583333333333345,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.5,
+     "stacked": 1,
+     "privacy": 0.4,
+     "wallLines": 0.7857142857142857,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.04658333333333333,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.625,
+     "stacked": 0.6666666666666666,
+     "privacy": 0.4,
+     "wallLines": 0.7857142857142857,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.046583333333333324,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.5,
+     "stacked": 0.3333333333333333,
+     "privacy": 0.4,
+     "wallLines": 0.8571428571428571,
+     "quality": 93.75
+    }
+   ]
+  },
+  {
+   "brief": "d-5br",
+   "engine": "v2",
+   "seconds": 2.7076338000000013,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08504288423312396,
+     "thin": 0.125,
+     "ensuiteBeside": 1,
+     "walkways": 0.875,
+     "stacked": 0.6666666666666666,
+     "privacy": 0.4,
+     "wallLines": 0.8666666666666667,
+     "quality": 96.875
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.09597793274549528,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 0.75,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08755907168151976,
+     "thin": 0.125,
+     "ensuiteBeside": 1,
+     "walkways": 0.75,
+     "stacked": 0.3333333333333333,
+     "privacy": 1,
+     "wallLines": 0.8666666666666667,
+     "quality": 96.875
+    }
+   ]
+  },
+  {
+   "brief": "d-minimal",
+   "engine": "treemap",
+   "seconds": 0.011626399999999194,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07826000000000001,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07826,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07826000000000001,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-minimal",
+   "engine": "v2",
+   "seconds": 0.4191450999999997,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07825999999999998,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07826,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07826000000000001,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 87.5
+    }
+   ]
+  },
+  {
+   "brief": "d-narrow",
+   "engine": "treemap",
+   "seconds": 0.009936600000000908,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.75,
+     "daylight": 1,
+     "corridorRatio": 0.07453333333333334,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 88.33333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07453333333333333,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 0,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 95.83333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.75,
+     "daylight": 1,
+     "corridorRatio": 0.07453333333333333,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 88.33333333333333
+    }
+   ]
+  },
+  {
+   "brief": "d-narrow",
+   "engine": "v2",
+   "seconds": 1.4649802999999992,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07453333333333334,
+     "thin": 0.6666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 83.33333333333334
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07453333333333333,
+     "thin": 0.6666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 83.33333333333334
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.75,
+     "daylight": 1,
+     "corridorRatio": 0.07453333333333333,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.75,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 92.5
+    }
+   ]
+  },
+  {
+   "brief": "d-guest",
+   "engine": "treemap",
+   "seconds": 0.01110739999999896,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.3121083333333333,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 44.47291666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.3121083333333333,
+     "thin": 0.75,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 38.22291666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.24576062087251732,
+     "thin": 0.75,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.6666666666666666,
+     "quality": 54.80984478187068
+    }
+   ]
+  },
+  {
+   "brief": "d-guest",
+   "engine": "v2",
+   "seconds": 0.6877380000000012,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.22447869432677833,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 66.38032641830542
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.22403316875075766,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 66.4917078123106
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.142179191537018,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 93.20520211574551
+    }
+   ]
+  },
+  {
+   "brief": "d-scandi",
+   "engine": "treemap",
+   "seconds": 0.010282000000001063,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-scandi",
+   "engine": "v2",
+   "seconds": 0.5990781999999999,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.09782499999999998,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "d-max",
+   "engine": "treemap",
+   "seconds": 0.015266700000000128,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.18699382327661068,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 82.00154418084733
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.15927044704600235,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 0,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 88.93238823849941
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.15235875086431575,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 90.66031228392107
+    }
+   ]
+  },
+  {
+   "brief": "d-max",
+   "engine": "v2",
+   "seconds": 0.7926215000000011,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.12058191036297232,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.10436019404558755,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 0.75,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.11291218216139993,
+     "thin": 0.75,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 81.25
+    }
+   ]
+  },
+  {
+   "brief": "a-2br",
+   "engine": "treemap",
+   "seconds": 0.00974909999999727,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "a-2br",
+   "engine": "v2",
+   "seconds": 0.4959854000000014,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.097825,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.09782499999999998,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "a-3br",
+   "engine": "treemap",
+   "seconds": 0.013623199999998179,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666667,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    }
+   ]
+  },
+  {
+   "brief": "a-3br",
+   "engine": "v2",
+   "seconds": 0.9054091000000007,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06521666666666666,
+     "thin": 0.3333333333333333,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 91.66666666666667
+    }
+   ]
+  },
+  {
+   "brief": "a-1br",
+   "engine": "treemap",
+   "seconds": 0.004997999999999592,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.16304166666666667,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7142857142857143,
+     "quality": 94.23958333333334
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.16304166666666667,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7142857142857143,
+     "quality": 94.23958333333334
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.16304166666666667,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7142857142857143,
+     "quality": 94.23958333333334
+    }
+   ]
+  },
+  {
+   "brief": "a-1br",
+   "engine": "v2",
+   "seconds": 0.14637539999999716,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.16304166666666667,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7142857142857143,
+     "quality": 94.23958333333334
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.16304166666666667,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7142857142857143,
+     "quality": 94.23958333333334
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.16304166666666667,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7142857142857143,
+     "quality": 94.23958333333334
+    }
+   ]
+  },
+  {
+   "brief": "a-studio",
+   "engine": "treemap",
+   "seconds": 0.0014509999999972934,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.5,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.5,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.5,
+     "quality": 87.5
+    }
+   ]
+  },
+  {
+   "brief": "a-studio",
+   "engine": "v2",
+   "seconds": 0.0525612000000001,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0,
+     "thin": 0.5,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.5,
+     "quality": 87.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0,
+     "thin": 1,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.5,
+     "quality": 75
+    }
+   ]
+  },
+  {
+   "brief": "a-office",
+   "engine": "treemap",
+   "seconds": 0.024510599999997794,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06467768595041323,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.5714285714285714,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06467768595041322,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.75,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 96.42857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06467768595041322,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "a-office",
+   "engine": "v2",
+   "seconds": 1.4644441000000006,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06467768595041323,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06467768595041323,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.06467768595041322,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 0.6666666666666666,
+     "wallLines": 0.8181818181818182,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "a-4br",
+   "engine": "treemap",
+   "seconds": 0.038026899999997116,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.05016666666666667,
+     "thin": 0.42857142857142855,
+     "ensuiteBeside": 1,
+     "walkways": 0.8888888888888888,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8333333333333334,
+     "quality": 89.28571428571429
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.75,
+     "daylight": 1,
+     "corridorRatio": 0.050166666666666665,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8333333333333334,
+     "quality": 88.92857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.05016666666666666,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 0.5,
+     "wallLines": 0.8333333333333334,
+     "quality": 96.42857142857143
+    }
+   ]
+  },
+  {
+   "brief": "a-4br",
+   "engine": "v2",
+   "seconds": 2.132289200000003,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07733692747537671,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 0.75,
+     "wallLines": 0.8461538461538461,
+     "quality": 96.42857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.10928205128205128,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8461538461538461,
+     "quality": 96.42857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07469789540799424,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 0.75,
+     "wallLines": 0.8461538461538461,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "v-luxury",
+   "engine": "treemap",
+   "seconds": 0.03621189999999842,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 0.875,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8461538461538461,
+     "quality": 95.83333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9230769230769231,
+     "quality": 95.83333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.8333333333333334,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9230769230769231,
+     "quality": 90.83333333333333
+    }
+   ]
+  },
+  {
+   "brief": "v-luxury",
+   "engine": "v2",
+   "seconds": 2.6267438000000003,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 0.5,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8461538461538461,
+     "quality": 95.83333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8461538461538461,
+     "quality": 95.83333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.16666666666666666,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7692307692307693,
+     "quality": 95.83333333333333
+    }
+   ]
+  },
+  {
+   "brief": "v-4br-pool",
+   "engine": "treemap",
+   "seconds": 0.011433999999997469,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.8333333333333334,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8181818181818182,
+     "quality": 95.83333333333333
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.8,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9090909090909091,
+     "quality": 94
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.8333333333333334,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9090909090909091,
+     "quality": 95.83333333333333
+    }
+   ]
+  },
+  {
+   "brief": "v-4br-pool",
+   "engine": "v2",
+   "seconds": 2.1700033000000003,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7272727272727273,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.6363636363636364,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7272727272727273,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "v-3car",
+   "engine": "treemap",
+   "seconds": 0.02569970000000103,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.8,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.14285714285714285,
+     "ensuiteBeside": 1,
+     "walkways": 0.8888888888888888,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9285714285714286,
+     "quality": 91.42857142857143
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.2857142857142857,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9285714285714286,
+     "quality": 92.85714285714286
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.42857142857142855,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 89.28571428571429
+    }
+   ]
+  },
+  {
+   "brief": "v-3car",
+   "engine": "v2",
+   "seconds": 2.5178439999999975,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.2857142857142857,
+     "ensuiteBeside": 1,
+     "walkways": 0.875,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 92.85714285714286
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.42857142857142855,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 89.28571428571429
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "v-modern",
+   "engine": "treemap",
+   "seconds": 0.009399000000001252,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.75,
+     "daylight": 1,
+     "corridorRatio": 0.08,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 92.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.75,
+     "daylight": 1,
+     "corridorRatio": 0.08,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 92.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08000000000000002,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "v-modern",
+   "engine": "v2",
+   "seconds": 1.4592844000000005,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.8,
+     "corridorRatio": 0.08213226712142876,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7272727272727273,
+     "quality": 95
+    }
+   ]
+  },
+  {
+   "brief": "v-5br",
+   "engine": "treemap",
+   "seconds": 0.02232289999999921,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.75,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.2222222222222222,
+     "ensuiteBeside": 1,
+     "walkways": 0.625,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.875,
+     "quality": 88.19444444444444
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.875,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0.1111111111111111,
+     "ensuiteBeside": 1,
+     "walkways": 0.5555555555555556,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9375,
+     "quality": 94.09722222222223
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.75,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 0.8,
+     "wallLines": 0.9375,
+     "quality": 93.75
+    }
+   ]
+  },
+  {
+   "brief": "v-5br",
+   "engine": "v2",
+   "seconds": 3.1802749999999977,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.7777777777777778,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.625,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8888888888888888,
+     "stacked": 1,
+     "privacy": 0.8,
+     "wallLines": 0.75,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000002,
+     "thin": 0.1111111111111111,
+     "ensuiteBeside": 1,
+     "walkways": 0.875,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.75,
+     "quality": 97.22222222222223
+    }
+   ]
+  },
+  {
+   "brief": "v-compact",
+   "engine": "treemap",
+   "seconds": 0.009705999999998311,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.1,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.1,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.1,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 93.75
+    }
+   ]
+  },
+  {
+   "brief": "v-compact",
+   "engine": "v2",
+   "seconds": 0.44985339999999996,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.1,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.1,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.1412986584109788,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.875,
+     "quality": 93.42533539725531
+    }
+   ]
+  },
+  {
+   "brief": "v-family",
+   "engine": "treemap",
+   "seconds": 0.010076199999995879,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07200000000000001,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "v-family",
+   "engine": "v2",
+   "seconds": 1.4491024000000035,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.8,
+     "corridorRatio": 0.0708384821065962,
+     "thin": 0.2,
+     "ensuiteBeside": 1,
+     "walkways": 0.6666666666666667,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7272727272727273,
+     "quality": 90
+    }
+   ]
+  },
+  {
+   "brief": "v-prayer",
+   "engine": "treemap",
+   "seconds": 0.014726900000001479,
+   "metrics": [
+    {
+     "hardOk": false,
+     "violations": [
+      "Prayer room is only 1.5 m wide"
+     ],
+     "adjacency": 1,
+     "daylight": 0.8571428571428571,
+     "corridorRatio": 0.07199999999999998,
+     "thin": 0.125,
+     "ensuiteBeside": 1,
+     "walkways": 0.625,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7857142857142857,
+     "quality": 0
+    },
+    {
+     "hardOk": false,
+     "violations": [
+      "Prayer room is only 1.4 m wide"
+     ],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07199999999999998,
+     "thin": 0.125,
+     "ensuiteBeside": 1,
+     "walkways": 0.625,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 0
+    },
+    {
+     "hardOk": false,
+     "violations": [
+      "Prayer room is only 1.5 m wide"
+     ],
+     "adjacency": 1,
+     "daylight": 0.8571428571428571,
+     "corridorRatio": 0.07199999999999998,
+     "thin": 0.125,
+     "ensuiteBeside": 1,
+     "walkways": 0.625,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8571428571428571,
+     "quality": 0
+    }
+   ]
+  },
+  {
+   "brief": "v-prayer",
+   "engine": "v2",
+   "seconds": 2.623474900000001,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07199999999999998,
+     "thin": 0.125,
+     "ensuiteBeside": 1,
+     "walkways": 0.625,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7142857142857143,
+     "quality": 96.875
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07199999999999998,
+     "thin": 0.25,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.5714285714285714,
+     "quality": 93.75
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0.125,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.6428571428571429,
+     "quality": 96.875
+    }
+   ]
+  },
+  {
+   "brief": "v-closet",
+   "engine": "treemap",
+   "seconds": 0.01136139999999432,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.8,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9,
+     "quality": 94
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 0.8,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8333333333333334,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8,
+     "quality": 95
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.8,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9,
+     "quality": 94
+    }
+   ]
+  },
+  {
+   "brief": "v-closet",
+   "engine": "v2",
+   "seconds": 1.9937508000000017,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.8571428571428572,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.072,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 0.7142857142857143,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.9,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07024355464303417,
+     "thin": 0.2,
+     "ensuiteBeside": 1,
+     "walkways": 0.8,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8333333333333334,
+     "quality": 95
+    }
+   ]
+  },
+  {
+   "brief": "v-small",
+   "engine": "treemap",
+   "seconds": 0.008015599999998813,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07999999999999999,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 0.75,
+     "daylight": 1,
+     "corridorRatio": 0.07999999999999999,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 92.5
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.7777777777777778,
+     "quality": 100
+    }
+   ]
+  },
+  {
+   "brief": "v-small",
+   "engine": "v2",
+   "seconds": 1.166792300000001,
+   "metrics": [
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07999999999999999,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.07999999999999999,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.8888888888888888,
+     "quality": 100
+    },
+    {
+     "hardOk": true,
+     "violations": [],
+     "adjacency": 1,
+     "daylight": 1,
+     "corridorRatio": 0.08,
+     "thin": 0,
+     "ensuiteBeside": 1,
+     "walkways": 1,
+     "stacked": 1,
+     "privacy": 1,
+     "wallLines": 0.6666666666666666,
+     "quality": 100
+    }
+   ]
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 import type { ZodType } from 'zod';
-import { briefProblems } from './briefCheck';
+import { briefProblems, completeSite } from './briefCheck';
 import { t } from '../i18n';
 import type { Project, Selection } from '../model/types';
 import { offlineEdit } from './offlineEdit';
@@ -180,7 +180,11 @@ export async function generateIntent(brief: string, opts: GenerateOptions): Prom
       (i) => briefProblems(brief, i),
       opts.onProgress,
     );
-    return { intent, source: provider.id, notes: [] };
+    // A villa keeps the outdoor features the brief names, even if the model left them out.
+    const completed = opts.shell.villa
+      ? completeSite(intent, offlineIntent(brief, 0, { villa: true }).intent)
+      : intent;
+    return { intent: completed, source: provider.id, notes: [] };
   } catch (e) {
     if (opts.signal?.aborted) throw e;
     if (e instanceof ProviderUnreachable)

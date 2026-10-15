@@ -8,10 +8,14 @@ import type { Project } from '../model/types';
 import { describeChanges } from './edit/diff';
 import { applyEditOps } from './edit/apply';
 import { EditError } from './edit/lookup';
+import { autoDecorateProject } from '../present/decorate';
 import { applyPlan } from './layout/apply';
 import type { LayoutPlan } from './layout/plan';
 import { largestInnerRect } from './layout/rect';
-import { solveLayout } from './layout/solve';
+import { solveInWorker } from './layout/client';
+import { mergeEmphasis, parseImprove } from './layout/improve';
+import { type SolveInput, planDistance } from './layout/solve';
+import type { Emphasis } from './layout/weights';
 import { AiOutputError, type AiSource, generateIntent, interpretEdit } from './pipeline';
 import { currentSettings } from './provider';
 import type { DesignIntent, EditOperation } from './schemas';
@@ -22,6 +26,12 @@ export interface Candidate {
   id: string;
   intent: DesignIntent;
   plan: LayoutPlan;
+  /** Everything the layout engine was given, so the plan can be re-solved with what the person asks to improve. */
+  solve: SolveInput;
+  /** What was asked to improve so far (multipliers on score terms). */
+  emphasis?: Emphasis;
+  /** True while an "improve" request is being solved. */
+  improving?: boolean;
   source: AiSource;
   /** What was understood / why the offline generator was used. */
   notes: string[];
@@ -59,6 +69,8 @@ interface AiState {
   generate: (variations: number) => Promise<void>;
   runEdit: () => Promise<void>;
   cancel: () => void;
+  /** Re-solves one candidate with a request such as "more daylight" or a quick-choice emphasis. */
+  improve: (id: string, request: string | Emphasis) => Promise<void>;
   applyCandidate: (id: string) => void;
   discardCandidate: (id: string) => void;
   applyEdit: () => void;
@@ -131,6 +143,7 @@ export const useAi = create<AiState>((set, get) => ({
     const brief = get().input;
     const settings = currentSettings();
     let useModelAgain = true;
+    const spare: Candidate[] = [];
     try {
       for (let i = 0; i < variations; i++) {
         // After the model failed once, don't make the user wait for it again on the remaining variations.
@@ -144,21 +157,79 @@ export const useAi = create<AiState>((set, get) => ({
         });
         if (r.fellBack) useModelAgain = false;
         const intent = { ...r.intent, furnish: get().furnish };
-        const plan = solveLayout({ intent, ...solver, seed: i + 1 });
-        const candidate: Candidate = {
-          id: `c${++counter}`,
-          intent,
-          plan,
-          source: r.source,
-          notes: r.notes,
-          fellBack: r.fellBack,
-        };
-        set((s) => ({ candidates: [...s.candidates, candidate] }));
+        // Every intent gives its best distinct plans; plans are added until the wanted number is reached.
+        const plans = await solveInWorker(
+          { intent, ...solver, seed: i * 5 + 1 },
+          Math.min(3, variations),
+          controller.signal,
+        );
+        // A new design contributes its best plan; its other plans are kept in reserve for when the designs repeat.
+        const same = JSON.stringify(intent);
+        const fresh = !get().candidates.some((c) => JSON.stringify(c.intent) === same);
+        plans.forEach((plan, k) => {
+          const candidate: Candidate = {
+            id: `c${++counter}`,
+            intent,
+            plan,
+            solve: { intent, ...solver, seed: i * 5 + 1 },
+            source: r.source,
+            notes: r.notes,
+            fellBack: r.fellBack,
+          };
+          if (k === 0 && fresh && get().candidates.length < variations)
+            set((st) => ({ candidates: [...st.candidates, candidate] }));
+          else spare.push(candidate);
+        });
+      }
+      // Repeated designs: fill up with the reserve plans that are clearly unlike what is already shown.
+      for (const c of spare) {
+        if (get().candidates.length >= variations) break;
+        if (get().candidates.some((x) => planDistance(x.plan, c.plan) < 0.3)) continue;
+        set((st) => ({ candidates: [...st.candidates, c] }));
       }
     } catch (e) {
       if (!controller.signal.aborted) set({ error: message(e) });
     } finally {
       set({ busy: false, startedAt: null, controller: null, progress: null });
+    }
+  },
+
+  improve: async (id, request) => {
+    const c = get().candidates.find((x) => x.id === id);
+    if (!c || get().busy || c.improving) return;
+    const asked = typeof request === 'string' ? parseImprove(request) : request;
+    if (!Object.keys(asked).length) {
+      set({ error: t('layout.improve.unknown') });
+      return;
+    }
+    const emphasis = mergeEmphasis(c.emphasis, asked);
+    set((st) => ({
+      error: null,
+      candidates: st.candidates.map((x) => (x.id === id ? { ...x, improving: true } : x)),
+    }));
+    try {
+      const plans = await solveInWorker({ ...c.solve, emphasis, seed: (c.solve.seed ?? 1) + 1 }, 1);
+      const plan = plans[0];
+      set((st) => ({
+        candidates: st.candidates.map((x) =>
+          x.id === id && plan
+            ? {
+                ...x,
+                plan,
+                emphasis,
+                improving: false,
+                solve: { ...x.solve, seed: (x.solve.seed ?? 1) + 1, emphasis },
+              }
+            : x.id === id
+              ? { ...x, improving: false }
+              : x,
+        ),
+      }));
+    } catch (e) {
+      set((st) => ({
+        error: message(e),
+        candidates: st.candidates.map((x) => (x.id === id ? { ...x, improving: false } : x)),
+      }));
     }
   },
 
@@ -217,7 +288,12 @@ export const useAi = create<AiState>((set, get) => ({
     if (!c) return;
     try {
       // One store.apply = one undo step for the whole design.
-      const result = useModel.getState().apply((p) => applyPlan(p, c.plan, c.intent.style));
+      const result = useModel.getState().apply((p) => {
+        const r = applyPlan(p, c.plan, c.intent.style);
+        // A furnished design is also decorated (rugs, art, plants, lamps) in the same undo step.
+        if (c.intent.furnish) autoDecorateProject(p);
+        return r;
+      });
       const first = useModel.getState().project.levels[0];
       if (first) useModel.getState().setActiveLevel(first.id);
       useModel.getState().setSelection({ type: null, ids: [] });

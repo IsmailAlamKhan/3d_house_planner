@@ -1,4 +1,5 @@
 import type { Point, RoomType, StairType } from '../../model/types';
+import type { ScoreItem } from './explain';
 import type { PlannedSite } from './site';
 
 /** Axis-aligned rectangle: x/y = top-left corner in plan metres. */
@@ -85,6 +86,12 @@ export interface LayoutPlan {
   title?: string;
   /** Outdoor zones, gates and furniture on the plot (villa projects with a plot). */
   site?: PlannedSite;
+  /** The plan type the layout follows (an id from archetypes/). */
+  archetype?: string;
+  /** Plain-language score breakdown: what is good and what is not about this plan. */
+  breakdown?: ScoreItem[];
+  /** The optimiser's penalty per term for every level (see weights.ts); useful when tuning. */
+  levelTerms?: Record<string, number>[];
 }
 
 export const rectArea = (r: Rect): number => r.w * r.h;

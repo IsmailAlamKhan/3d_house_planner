@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:gpu": "playwright test -c playwright.gpu.config.ts",
+    "eval:layout": "tsx scripts/layout-eval.ts",
     "eval:enhance": "playwright test -c playwright.gpu.config.ts enhance.gpu",
     "test:coverage": "VITE_COVERAGE=1 vitest run --coverage",
     "server": "tsx server/index.ts",
