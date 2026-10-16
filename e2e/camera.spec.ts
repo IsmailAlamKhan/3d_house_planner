@@ -62,7 +62,7 @@ test('walkthrough: starts at the entrance, WASD moves, walls stop you, Esc exits
 test('walkthrough: walk through the door, up the stairs and arrive on the upper level', async ({
   page,
 }) => {
-  test.setTimeout(180_000); // software rendering can be slow; the walk is frame-based
+  test.setTimeout(300_000); // software rendering can be slow; the walk is frame-based
   // The walk is about movement, not light: even design lighting keeps frames cheap on software GL.
   await page.evaluate(() =>
     (
@@ -90,7 +90,14 @@ test('walkthrough: walk through the door, up the stairs and arrive on the upper 
   await page.keyboard.down('w');
   try {
     await expect
-      .poll(async () => (await cam(page)).walker!.floor, { timeout: 120_000, intervals: [500] })
+      .poll(
+        async () => {
+          // Keep the key down: a press that lands before the walk controls are listening is lost, and a held key is not re-sent.
+          await page.keyboard.down('w');
+          return (await cam(page)).walker!.floor;
+        },
+        { timeout: 240_000, intervals: [500] },
+      )
       .toBeGreaterThan(2.8);
   } finally {
     await page.keyboard.up('w');
@@ -177,7 +184,7 @@ test('measure: two clicks on surfaces give a labelled 3D distance', async ({ pag
         await page.mouse.click(box.x + box.width * 0.56, box.y + box.height * 0.58);
         return (await cam(page)).measurements.length;
       },
-      { timeout: 20_000 },
+      { timeout: 120_000 },
     )
     .toBeGreaterThanOrEqual(1);
   await expect(page.getByTestId('measure-label').first()).toContainText('m');

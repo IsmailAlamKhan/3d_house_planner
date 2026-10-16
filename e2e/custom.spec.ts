@@ -131,7 +131,13 @@ test('upload a texture, it is applied to the wall at once, and it can be deleted
   await open(page);
   const at = await planPoint(page);
   const p = at(6, 1.0); // the partition between the living room and the kitchen, away from the door
-  await page.mouse.click(p.abs.x, p.abs.y);
+  // Under load the first click can land before the plan has settled: click again until the wall's properties show.
+  await expect(async () => {
+    await page.mouse.click(p.abs.x, p.abs.y);
+    await expect(page.getByRole('button', { name: /^Inside finish:/ })).toBeVisible({
+      timeout: 3000,
+    });
+  }).toPass({ timeout: 60_000 });
   await expect(page.getByRole('heading', { name: /^wall$/i })).toBeVisible();
 
   await page.getByRole('button', { name: /^Inside finish:/ }).click();

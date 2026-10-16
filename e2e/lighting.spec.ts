@@ -32,8 +32,10 @@ type Hook = {
       };
     };
   };
-  measureLuminance: (
-    r: Record<string, { x0: number; y0: number; x1: number; y1: number }>,
+  measurePoints: (
+    points: Record<string, [number, number, number]>,
+    half: number,
+    pose?: { position: number[]; target: number[] },
   ) => Promise<{ mean: number; rects: Record<string, number> }>;
   worldToScreen: (x: number, y: number, z: number) => { x: number; y: number } | null;
 };
@@ -43,12 +45,15 @@ type Quality = 'low' | 'medium' | 'high';
 const project = whiteRoomProject();
 const pose = cutawayPose(project, 'cutaway-top', project.levels[0]!.id, 1.07, 2.1);
 const pose34 = cutawayPose(project, 'cutaway-34', project.levels[0]!.id, 1.07, 1.5);
+let flown: { position: number[]; target: number[] } | undefined;
 const wait = (page: Page, ms = 2500) => page.waitForTimeout(ms);
 
 async function setup(page: Page) {
   await page.setViewportSize({ width: 1100, height: 760 });
   await page.goto('/');
   await page.getByRole('button', { name: '3D', exact: true }).click();
+  flown = pose;
+  const from = await livePosition(page);
   await page.evaluate(
     ({ project, pose }) => {
       const h = (window as unknown as { __duplex: Hook }).__duplex;
@@ -60,14 +65,45 @@ async function setup(page: Page) {
     },
     { project, pose },
   );
+  await arrive(page, from);
+}
+
+const livePosition = async (page: Page) =>
+  (
+    (await page.evaluate(() =>
+      (window as unknown as { __duplex: { getCamera: () => unknown } }).__duplex.getCamera(),
+    )) as { live: { position: number[] } }
+  ).live.position;
+
+/**
+ * The camera flies on frame time, which is slow in a browser that has already rendered a few heavy pages: wait until
+ * it has left where it was and then stopped.
+ */
+async function arrive(page: Page, from: number[]) {
+  const dist = (p: number[], q: number[]) =>
+    Math.hypot(p[0]! - q[0]!, p[1]! - q[1]!, p[2]! - q[2]!);
+  const deadline = Date.now() + 90_000;
+  let prev = from;
+  let moved = false;
+  let still = 0;
+  while (Date.now() < deadline && still < 3) {
+    await wait(page, 700);
+    const p = await livePosition(page);
+    if (dist(p, from) > 0.5) moved = true;
+    still = moved && dist(p, prev) < 0.01 ? still + 1 : 0;
+    prev = p;
+  }
+  await wait(page, 1000);
 }
 
 async function fly(page: Page, p: { position: number[]; target: number[] }) {
+  flown = p;
+  const from = await livePosition(page);
   await page.evaluate(
     (p) => (window as unknown as { __duplex: Hook }).__duplex.stores.camera.getState().flyTo(p),
     p,
   );
-  await wait(page, 2200);
+  await arrive(page, from);
 }
 
 async function look(
@@ -114,18 +150,26 @@ async function measure(
   half = 0.012,
 ): Promise<Record<string, number>> {
   return page.evaluate(
-    async ({ points, half }) => {
+    async ({ points, half, pose }) => {
       const h = (window as unknown as { __duplex: Hook }).__duplex;
-      const rects: Record<string, { x0: number; y0: number; x1: number; y1: number }> = {};
-      for (const [k, p] of Object.entries(points)) {
-        const s = h.worldToScreen(p[0], p[1], p[2]);
-        if (s) rects[k] = { x0: s.x - half, y0: s.y - half, x1: s.x + half, y1: s.y + half };
-      }
-      const r = await h.measureLuminance(rects);
+      const r = await h.measurePoints(points, half, pose);
       return { mean: r.mean, ...r.rects };
     },
-    { points, half },
+    { points, half, pose: flown },
   );
+}
+
+/** Measures until two reads in a row agree: a new look reaches the screen late under software GL (shaders compile first). */
+async function measureStable(page: Page, points: Record<string, Pt>) {
+  await wait(page, 4000);
+  let prev = await measure(page, points);
+  for (let i = 0; i < 20; i++) {
+    await wait(page, 2000);
+    const cur = await measure(page, points);
+    if (Object.keys(cur).every((k) => Math.abs(cur[k]! - (prev[k] ?? 0)) < 0.01)) return cur;
+    prev = cur;
+  }
+  return prev;
 }
 
 const cx = ROOM.x0 + ROOM.w / 2;
@@ -182,7 +226,7 @@ test('tiers: Low, Medium and High have the same brightness and colour at Noon (n
   const m: Record<Quality, Record<string, number>> = { low: {}, medium: {}, high: {} };
   for (const quality of ['low', 'medium', 'high'] as const) {
     await look(page, { quality, mode: 'noon', lamps: 'off' });
-    m[quality] = await measure(page, POINTS);
+    m[quality] = await measureStable(page, POINTS);
     await shot(page, `noon-realistic-${quality}`);
     await look(page, { quality, mode: 'noon', lamps: 'off', style: 'design' });
     await shot(page, `noon-design-${quality}`);
@@ -194,7 +238,9 @@ test('tiers: Low, Medium and High have the same brightness and colour at Noon (n
   expect(m.medium.openFloor!).toBeGreaterThanOrEqual(0.9 * m.low.openFloor!);
   // The same in a few other places: no tier is systematically darker.
   for (const k of ['roomFloor', 'outdoor', 'farCorner'])
-    expect(Math.abs(m.high[k]! - m.low[k]!)).toBeLessThan(0.06);
+    expect(Math.abs(m.high[k]! - m.low[k]!), `${k} low ${m.low[k]} high ${m.high[k]}`).toBeLessThan(
+      0.06,
+    );
   expect(errors).toEqual([]);
 });
 
@@ -244,26 +290,43 @@ test('white on white stays readable on Medium and High (edges, contact shadows)'
   }
 });
 
+/**
+ * A new look takes a while to show on screen (the shaders for a new light setup compile first, slowly under software GL),
+ * and the picture does not change until then: so these tests wait for the expected state instead of measuring once.
+ */
+const eventually = (page: Page, value: (m: Record<string, number>) => number) => {
+  let first = true;
+  return expect.poll(
+    async () => {
+      if (first) {
+        first = false;
+        await wait(page, 6000); // measuring at once after a look can pin the old picture; give the new one time first
+      }
+      return value(await measure(page, POINTS));
+    },
+    {
+      timeout: 120_000,
+      intervals: [2000],
+    },
+  );
+};
+
 test('rooms are dark unless daylight enters or a light is on', async ({ page }) => {
   await setup(page);
   // Night, every light off, no night visibility: near black inside.
   await look(page, { quality: 'medium', mode: 'night', lamps: 'off', night: 0 });
-  const dark = await measure(page, POINTS);
-  expect(avg(dark, INTERIOR)).toBeLessThan(0.03);
+  await eventually(page, (m) => avg(m, INTERIOR)).toBeLessThan(0.03);
   // The ceiling light on: the room lights up.
   await look(page, { quality: 'medium', mode: 'night', lamps: 'off', night: 0, ceilingOn: true });
-  const lit = await measure(page, POINTS);
-  expect(avg(lit, INTERIOR)).toBeGreaterThan(0.25);
+  await eventually(page, (m) => avg(m, INTERIOR)).toBeGreaterThan(0.25);
   // Noon, lights off: it is bright where daylight comes in and dim at the far corner.
   await look(page, { quality: 'medium', mode: 'noon', lamps: 'off' });
-  const day = await measure(page, POINTS);
-  expect(day.nearWindow!).toBeGreaterThan(day.farCorner! * 2);
+  await eventually(page, (m) => m.nearWindow! / Math.max(0.001, m.farCorner!)).toBeGreaterThan(2);
 });
 
 test('hidden ceilings and roofs still block light in a cutaway view', async ({ page }) => {
   await setup(page);
   await look(page, { quality: 'high', mode: 'noon', lamps: 'off' }); // dollhouse: the roof is hidden from the camera
-  const m = await measure(page, POINTS);
-  expect(m.farCorner!).toBeLessThan(0.5 * m.outdoor!);
-  expect(m.openFloor!).toBeLessThan(0.75 * m.outdoor!);
+  await eventually(page, (m) => m.farCorner! / m.outdoor!).toBeLessThan(0.5);
+  await eventually(page, (m) => m.openFloor! / m.outdoor!).toBeLessThan(0.75);
 });

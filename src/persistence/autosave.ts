@@ -1,10 +1,21 @@
 import type { StoreApi } from 'zustand';
 import type { ModelState } from '../model/store';
+import type { Project } from '../model/types';
 import { saveSnapshot } from './history';
-import { saveProject, setLastProjectId } from './repo';
+import { loadStoredProject, saveProject, setLastProjectId } from './repo';
 import type { StorageBackend } from './storage';
 
 let unsaved = false;
+
+/** True when the stored copy is exactly this project (a project that was only opened, not edited). */
+async function unchanged(project: Project, backend?: StorageBackend): Promise<boolean> {
+  try {
+    const stored = await loadStoredProject(project.id, backend);
+    return !!stored && JSON.stringify(stored) === JSON.stringify(project);
+  } catch {
+    return false;
+  }
+}
 
 /** True while a change is waiting to be written (or the last write failed). */
 export const hasUnsavedChanges = (): boolean => unsaved;
@@ -25,9 +36,15 @@ export function startAutosave(
     timer = undefined;
     const { project } = store.getState();
     setLastProjectId(project.id);
-    saveProject(project, backend)
-      .then(() => saveSnapshot(project, backend))
-      .then(() => onSaved?.())
+    // Opening a project (at start-up, from the list, after a reload from the server) replaces the store's project too, but
+    // changes nothing: writing it back would only bump the server revision and make other devices see a false conflict.
+    unchanged(project, backend)
+      .then((same) => {
+        if (same) return;
+        return saveProject(project, backend)
+          .then(() => saveSnapshot(project, backend))
+          .then(() => onSaved?.());
+      })
       .then(() => {
         if (store.getState().project === project) unsaved = false;
       })

@@ -53,6 +53,9 @@ async function device(browser: Browser): Promise<Page> {
   return page;
 }
 
+const serverNames = async () =>
+  ((await (await fetch(`${URL}/api/projects`)).json()) as { name: string }[]).map((p) => p.name);
+
 const rename = async (page: Page, name: string) => {
   const box = page.getByRole('textbox', { name: 'Project name' });
   await box.fill(name);
@@ -60,7 +63,7 @@ const rename = async (page: Page, name: string) => {
 };
 
 test.describe.configure({ mode: 'serial' });
-test.setTimeout(90_000);
+test.setTimeout(180_000);
 
 test('a project made on one device appears on another; simultaneous edits raise the conflict dialog', async ({
   browser,
@@ -68,7 +71,10 @@ test('a project made on one device appears on another; simultaneous edits raise 
   const a = await device(browser);
   await rename(a, 'Made on the phone');
   await expect(a.getByTestId('sync-status')).toHaveAttribute('data-status', 'synced');
-  await a.waitForTimeout(2500); // autosave (1 s) + push
+  // autosave (1 s) + push: wait until the server really has it (a fixed pause is too short under load)
+  await expect
+    .poll(async () => (await serverNames()).includes('Made on the phone'), { timeout: 60_000 })
+    .toBe(true);
 
   const b = await device(browser);
   await expect(b.getByRole('textbox', { name: 'Project name' })).toHaveValue('Made on the phone', {
@@ -77,18 +83,28 @@ test('a project made on one device appears on another; simultaneous edits raise 
   await b.getByRole('button', { name: 'Projects' }).click();
   await expect(b.getByRole('dialog', { name: 'Your projects' })).toContainText('Made on the phone');
   await b.keyboard.press('Escape');
+  // Let both devices settle (the laptop may save what it just loaded, and the phone then pulls it) before the edits start.
+  await expect(b.getByTestId('sync-status')).toHaveAttribute('data-status', 'synced');
+  await expect(a.getByTestId('sync-status')).toHaveAttribute('data-status', 'synced');
+  await a.waitForTimeout(5000);
 
   // Both have the same project. The laptop loses Wi-Fi and edits; meanwhile the phone saves; then the laptop is back.
   await b.context().setOffline(true);
   await rename(a, 'Edited on the phone');
-  await a.waitForTimeout(2500);
+  // The phone's save must really have reached the server before the laptop comes back (under load 2.5 s is not enough).
+  await expect
+    .poll(async () => (await serverNames()).includes('Edited on the phone'), { timeout: 60_000 })
+    .toBe(true);
   await rename(b, 'Edited on the laptop');
   await expect(b.getByTestId('sync-status')).toHaveAttribute('data-status', 'offline', {
     timeout: 10_000,
   });
+  // The laptop's edit must be saved (autosave waits 1 s) while it is still offline; back online too early, it would first
+  // download the phone's version and then save on top of it without any conflict.
+  await b.waitForTimeout(3500);
   await b.context().setOffline(false);
   const dialog = b.getByRole('dialog', { name: 'This project was changed on another device' });
-  await expect(dialog).toBeVisible({ timeout: 40_000 });
+  await expect(dialog).toBeVisible({ timeout: 100_000 });
 
   await dialog.getByRole('button', { name: /Save mine as a copy/ }).click();
   await expect(dialog).toBeHidden();

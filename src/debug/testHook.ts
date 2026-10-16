@@ -11,6 +11,7 @@ import { getLabelFrame } from '../present/labelFrame';
 import { usePresent } from '../present/presentStore';
 import { useCamera } from '../scene3d/camera/cameraStore';
 import { useSceneStore } from '../scene3d/sceneStore';
+import type { Vec3 } from '../scene3d/camera/views';
 import { Matrix4, Vector3 } from 'three';
 
 export interface Rect {
@@ -31,17 +32,33 @@ async function decode(blob: Blob): Promise<ImageData> {
   return ctx.getImageData(0, 0, c.width, c.height);
 }
 
-/** Display luminance (0–1, Rec. 709 weights on the sRGB values) of each rectangle of the rendered picture. */
-export async function measureLuminance(rects: Record<string, Rect> = {}): Promise<{
+/** Display luminance (0–1, optionally from a given camera pose (the live camera can lag behind a flight under software GL), Rec. 709 weights on the sRGB values) of each rectangle of the rendered picture. */
+export async function measureLuminance(
+  rects: Record<string, Rect> = {},
+  pose?: { position: Vec3; target: Vec3 },
+): Promise<{
   mean: number;
   rects: Record<string, number>;
   width: number;
   height: number;
 }> {
   const shot = await withScene(() =>
-    captureScene({ scale: 1, format: 'png', transparent: false, presentation: true, fx: true }),
+    captureScene({
+      scale: 1,
+      format: 'png',
+      transparent: false,
+      presentation: true,
+      fx: true,
+      pose,
+    }),
   );
-  const img = await decode(shot.blob);
+  return measureImage(await decode(shot.blob), rects);
+}
+
+function measureImage(
+  img: ImageData,
+  rects: Record<string, Rect>,
+): { mean: number; rects: Record<string, number>; width: number; height: number } {
   const lum = (x0: number, y0: number, x1: number, y1: number) => {
     let sum = 0;
     let n = 0;
@@ -61,6 +78,35 @@ export async function measureLuminance(rects: Record<string, Rect> = {}): Promis
   const out: Record<string, number> = {};
   for (const [k, r] of Object.entries(rects)) out[k] = lum(r.x0, r.y0, r.x1, r.y1);
   return { mean: lum(0, 0, 1, 1), rects: out, width: img.width, height: img.height };
+}
+
+/**
+ * Luminance around world points (metres), in a picture taken from `pose` (or the live camera). The points are projected
+ * with the very matrix of that picture, so a camera that is still flying or being re-framed cannot make them miss.
+ */
+export async function measurePoints(
+  points: Record<string, [number, number, number]>,
+  half: number,
+  pose?: { position: Vec3; target: Vec3 },
+): Promise<{ mean: number; rects: Record<string, number> }> {
+  const shot = await withScene(() =>
+    captureScene({
+      scale: 1,
+      format: 'png',
+      transparent: false,
+      presentation: true,
+      fx: true,
+      pose,
+    }),
+  );
+  const m = new Matrix4().fromArray(shot.viewProjection);
+  const rects: Record<string, Rect> = {};
+  for (const [k, p] of Object.entries(points)) {
+    const v = new Vector3(...p).applyMatrix4(m);
+    const s = { x: (v.x + 1) / 2, y: (1 - v.y) / 2 };
+    rects[k] = { x0: s.x - half, y0: s.y - half, x1: s.x + half, y1: s.y + half };
+  }
+  return measureImage(await decode(shot.blob), rects);
 }
 
 /** Where a world point (metres) is in the 3D picture (normalised 0–1, origin top-left); null if there is no frame yet. */
@@ -94,6 +140,7 @@ export function installTestHook(): void {
       bake: useBake,
     },
     measureLuminance,
+    measurePoints,
     captureView,
     captureEnhanceInputs,
     setBakeGain,
