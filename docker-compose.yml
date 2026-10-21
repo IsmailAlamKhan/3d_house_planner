@@ -15,10 +15,14 @@ services:
       OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-qwen3-vl:8b-instruct}
       APP_PASSWORD: ${APP_PASSWORD:-}
       # AI image enhancement ("Enhance with AI"): ComfyUI below, on the internal network only.
-      COMFYUI_URL: http://comfyui:8188
+      # The image service: your own ComfyUI on this PC by default (see .env), or the one in this file (profile `comfyui`).
+      COMFYUI_URL: ${COMFYUI_URL:-http://comfyui:8188}
       # Studio render (Blender Cycles): the `blender` service below, started with  docker compose --profile render up -d
       BLENDER_URL: http://blender:9000
       WHISPER_URL: http://whisper:8080
+    # lets the app reach a ComfyUI running on the host (http://host.docker.internal:8188)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - app-data:/data
       # the CC0 model / texture / sky pack, filled by assets-init below (the app works without it, on built-in models)
@@ -84,6 +88,9 @@ services:
   # The language model and the image model do not fit on a 16 GB GPU together: the app server runs both kinds of job
   # one at a time and unloads the other model first.
   comfyui:
+    # Optional: only started with  docker compose --profile comfyui up -d  (about 27 GB of images and models on the Docker disk).
+    # If ComfyUI is already installed on this PC, set COMFYUI_URL in .env and skip this service.
+    profiles: ["comfyui"]
     build: ./docker/comfyui
     image: duplex-designer-comfyui:local
     restart: unless-stopped
@@ -139,6 +146,7 @@ services:
               capabilities: [gpu]
 
   comfyui-init:
+    profiles: ["comfyui"]
     image: alpine:3.20.3
     restart: "no"
     volumes:
