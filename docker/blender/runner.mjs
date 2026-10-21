@@ -5,7 +5,7 @@
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -181,7 +181,9 @@ export function createRunner({
 
 // ───────────────────────────── the container's HTTP service ─────────────────────────────
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+// Only when this file is the program (`node runner.mjs`). The app server bundles this module for local Blender runs, and
+// there the bundle itself is the entry file, so comparing paths would start a second HTTP service on the app's port.
+if (process.argv[1] && basename(process.argv[1]) === 'runner.mjs') {
   const runner = createRunner({
     blender: process.env.BLENDER ?? 'blender',
     jobsDir: process.env.JOBS_DIR ?? '/data/studio',

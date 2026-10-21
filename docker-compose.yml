@@ -28,7 +28,7 @@ services:
         condition: service_healthy
 
   ollama:
-    image: ollama/ollama:0.12.11
+    image: ollama/ollama:0.40.7
     restart: unless-stopped
     # No "ports": Ollama is reachable only from the app on the internal compose network, never from the LAN.
     volumes:
@@ -50,7 +50,7 @@ services:
   # Downloads the model once (into the ollama-data volume) and exits. The app already works while this runs: it falls
   # back to the built-in offline generator and shows "Downloading the AI model…".
   ollama-init:
-    image: ollama/ollama:0.12.11
+    image: ollama/ollama:0.40.7
     restart: "no"
     depends_on:
       ollama:
